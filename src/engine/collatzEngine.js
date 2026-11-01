@@ -1166,81 +1166,310 @@ export function resolveLogRoute(pathname = '/') {
 }
 
 /**
- * Converts LaTeX math snippets from research logs into readable mathematical HTML with Unicode symbols.
+ * Helper: extracts a balanced `{...}` group starting at index `openIdx` (where `str[openIdx] === '{'`).
+ * Returns `{ content, endIdx }` where `endIdx` is the index right after the matching `}`.
+ */
+function readBalancedBraces(str, openIdx) {
+  if (str[openIdx] !== '{') return null;
+  let depth = 0;
+  for (let i = openIdx; i < str.length; i++) {
+    if (str[i] === '\\' && (str[i + 1] === '{' || str[i + 1] === '}')) {
+      i++;
+      continue;
+    }
+    if (str[i] === '{') depth++;
+    else if (str[i] === '}') {
+      depth--;
+      if (depth === 0) {
+        return {
+          content: str.slice(openIdx + 1, i),
+          endIdx: i + 1
+        };
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Replaces a 1-argument LaTeX macro `\cmd{...}` with balanced brace support.
+ */
+function replaceMacro1(str, cmdName, replacer) {
+  const token = `\\${cmdName}`;
+  let out = '';
+  let idx = 0;
+  while (idx < str.length) {
+    const pos = str.indexOf(token, idx);
+    if (pos === -1) {
+      out += str.slice(idx);
+      break;
+    }
+    const afterCmd = pos + token.length;
+    if ( /[a-zA-Z]/.test(str[afterCmd] || '') ) {
+      out += str.slice(idx, afterCmd);
+      idx = afterCmd;
+      continue;
+    }
+    let braceStart = afterCmd;
+    while (braceStart < str.length && str[braceStart] === ' ') braceStart++;
+    if (str[braceStart] !== '{') {
+      out += str.slice(idx, afterCmd);
+      idx = afterCmd;
+      continue;
+    }
+    const g1 = readBalancedBraces(str, braceStart);
+    if (!g1) {
+      out += str.slice(idx, afterCmd);
+      idx = afterCmd;
+      continue;
+    }
+    out += str.slice(idx, pos) + replacer(g1.content);
+    idx = g1.endIdx;
+  }
+  return out;
+}
+
+/**
+ * Replaces a 2-argument LaTeX macro `\cmd{...}{...}` (or `\cmd{...}_{...}`) with balanced brace support.
+ */
+function replaceMacro2(str, cmdName, sepChar, replacer) {
+  const token = `\\${cmdName}`;
+  let out = '';
+  let idx = 0;
+  while (idx < str.length) {
+    const pos = str.indexOf(token, idx);
+    if (pos === -1) {
+      out += str.slice(idx);
+      break;
+    }
+    const afterCmd = pos + token.length;
+    if (/[a-zA-Z]/.test(str[afterCmd] || '')) {
+      out += str.slice(idx, afterCmd);
+      idx = afterCmd;
+      continue;
+    }
+    let b1 = afterCmd;
+    while (b1 < str.length && str[b1] === ' ') b1++;
+    if (str[b1] !== '{') {
+      out += str.slice(idx, afterCmd);
+      idx = afterCmd;
+      continue;
+    }
+    const g1 = readBalancedBraces(str, b1);
+    if (!g1) {
+      out += str.slice(idx, afterCmd);
+      idx = afterCmd;
+      continue;
+    }
+    let b2 = g1.endIdx;
+    while (b2 < str.length && str[b2] === ' ') b2++;
+    if (sepChar) {
+      if (str[b2] !== sepChar) {
+        out += str.slice(idx, pos) + replacer(g1.content, null);
+        idx = g1.endIdx;
+        continue;
+      }
+      b2++;
+      while (b2 < str.length && str[b2] === ' ') b2++;
+    }
+    if (str[b2] !== '{') {
+      out += str.slice(idx, afterCmd);
+      idx = afterCmd;
+      continue;
+    }
+    const g2 = readBalancedBraces(str, b2);
+    if (!g2) {
+      out += str.slice(idx, afterCmd);
+      idx = afterCmd;
+      continue;
+    }
+    out += str.slice(idx, pos) + replacer(g1.content, g2.content);
+    idx = g2.endIdx;
+  }
+  return out;
+}
+
+/**
+ * Replaces `^{...}` and `_{...}` groups with balanced brace support.
+ */
+function replaceScriptsBalanced(str, opChar, tagName) {
+  let out = '';
+  let idx = 0;
+  while (idx < str.length) {
+    const pos = str.indexOf(opChar, idx);
+    if (pos === -1) {
+      out += str.slice(idx);
+      break;
+    }
+    if (str[pos + 1] !== '{') {
+      out += str.slice(idx, pos + 1);
+      idx = pos + 1;
+      continue;
+    }
+    const grp = readBalancedBraces(str, pos + 1);
+    if (!grp) {
+      out += str.slice(idx, pos + 1);
+      idx = pos + 1;
+      continue;
+    }
+    out += `${str.slice(idx, pos)}<${tagName}>${formatMathLatex(grp.content)}</${tagName}>`;
+    idx = grp.endIdx;
+  }
+  return out;
+}
+
+/**
+ * Converts LaTeX math snippets from research logs into rich, structured mathematical HTML
+ * (stacked fractions, cases environments, underbraces, overbars, and recursive sub/superscripts).
  */
 function formatMathLatex(tex) {
-  let s = String(tex || '')
+  if (!tex) return '';
+  let s = String(tex);
+
+  // 1. Handle \begin{cases} ... \end{cases} before HTML-escaping '&'
+  s = s.replace(/\\begin\{cases\}([\s\S]*?)\\end\{cases\}/g, (_, body) => {
+    const rows = body
+      .split('\\\\')
+      .map((r) => r.trim())
+      .filter(Boolean)
+      .map((row) => {
+        const parts = row.split('&').map((p) => p.trim());
+        const exprHtml = formatMathLatex(parts[0] || '');
+        const condHtml = parts[1] ? `<span class="math-cases-cond">${formatMathLatex(parts[1])}</span>` : '';
+        return `<span class="math-cases-row"><span class="math-cases-expr">${exprHtml}</span>${condHtml}</span>`;
+      });
+    return `<span class="math-cases"><span class="math-cases-brace">{</span><span class="math-cases-body">${rows.join('')}</span></span>`;
+  });
+
+  // 2. Recursive balanced-brace macros: \underbrace{A}_{B}, \frac{A}{B}, \xrightarrow{A}, \bar{A}, \mathtt{A}, \mathbf{A}, \text{A}, \pmod{A}
+  s = replaceMacro2(s, 'underbrace', '_', (expr, sub) => {
+    const topHtml = formatMathLatex(expr);
+    if (sub === null) return topHtml;
+    return `<span class="math-underbrace"><span class="math-ub-top">${topHtml}</span><span class="math-ub-brace">⏟</span><span class="math-ub-sub">${formatMathLatex(sub)}</span></span>`;
+  });
+
+  s = replaceMacro2(s, 'frac', null, (num, den) => {
+    return `<span class="math-frac"><span class="math-num">${formatMathLatex(num)}</span><span class="math-den">${formatMathLatex(den)}</span></span>`;
+  });
+
+  s = replaceMacro1(s, 'xrightarrow', (label) => {
+    return `<span class="math-xarrow"><span class="math-xarrow-label">${formatMathLatex(label)}</span><span class="math-xarrow-body">⟶</span></span>`;
+  });
+
+  s = replaceMacro1(s, 'bar', (inner) => `<span class="math-overbar">${formatMathLatex(inner)}</span>`);
+  s = replaceMacro1(s, 'mathtt', (inner) => `<code class="math-tt">${formatMathLatex(inner)}</code>`);
+  s = replaceMacro1(s, 'mathbf', (inner) => `<strong>${formatMathLatex(inner)}</strong>`);
+  s = replaceMacro1(s, 'textbf', (inner) => `<strong>${formatMathLatex(inner)}</strong>`);
+  s = replaceMacro1(s, 'pmod', (inner) => ` <span class="math-pmod">(mod ${formatMathLatex(inner)})</span>`);
+  s = replaceMacro1(s, 'text', (inner) => {
+    const clean = inner
+      .replace(/\{,\}/g, ',')
+      .replace(/\\%/g, '%')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    return `<span class="math-text">${clean}</span>`;
+  });
+
+  const bbMap = { Z: 'ℤ', N: 'ℕ', O: '𝕆', E: '𝔼', R: 'ℝ', Q: 'ℚ', C: 'ℂ', P: 'ℙ' };
+  s = replaceMacro1(s, 'mathbb', (inner) => bbMap[inner.trim()] || inner);
+
+  const calMap = { E: 'ℰ', A: '𝒜', R: 'ℛ', S: '𝒮', G: '𝒢', O: '𝒪', H: 'ℋ', L: 'ℒ', T: '𝒯' };
+  s = replaceMacro1(s, 'mathcal', (inner) => calMap[inner.trim()] || inner);
+
+  // 3. Protect already-generated HTML tags in slots before escaping raw <, >, &
+  const htmlSlots = [];
+  s = s.replace(/<\/?[a-zA-Z][^>]*>/g, (tag) => {
+    const idx = htmlSlots.length;
+    htmlSlots.push(tag);
+    return `@@HTAG_${idx}@@`;
+  });
+
+  s = s
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/\\begin\{cases\}([\s\S]*?)\\end\{cases\}/g, (_, body) => {
-      const rows = body
-        .split('\\\\')
-        .map((r) => r.trim().replace(/&/g, ' — '))
-        .filter(Boolean);
-      return `{ ${rows.join(' ;  ')} }`;
-    })
-    .replace(/\\underbrace\{([^{}]*)\}_\{([^{}]*)\}/g, '$1 [$2]')
-    .replace(/\\mathtt\{([^}]*)\}/g, '<code>$1</code>')
     .replace(/\{,\}/g, ',')
     .replace(/\\%/g, '%')
     .replace(/\\\{/g, '{')
-    .replace(/\\\}/g, '}')
-    .replace(/\\mathbb\{Z\}_2/g, 'ℤ₂')
-    .replace(/\\mathbb\{N\}\^\+/g, 'ℕ⁺')
-    .replace(/\\mathbb\{O\}\^\+/g, '𝕆⁺')
-    .replace(/\\mathbb\{E\}/g, '𝔼')
-    .replace(/\\mathcal\{E\}/g, 'ℰ')
-    .replace(/\\Phi/g, 'Φ')
-    .replace(/\\blacksquare/g, '∎')
-    .replace(/\\(?:mathbf|textbf)\{([^}]*)\}/g, '<strong>$1</strong>')
-    .replace(/\\text\{([^}]*)\}/g, '$1')
-    .replace(/\\pmod\{([^}]*)\}/g, ' (mod $1)')
-    .replace(/\\bmod\b/g, ' mod ')
-    .replace(/\\lfloor\b/g, '⌊')
-    .replace(/\\rfloor\b/g, '⌋')
-    .replace(/\\(?:big|Big|bigl|bigr|Bigl|Bigr|left|right)\b/g, '')
-    .replace(/\\log_2/g, 'log₂')
-    .replace(/\\nu_2/g, 'ν₂')
-    .replace(/\\theta/g, 'θ')
-    .replace(/\\delta/g, 'δ')
-    .replace(/\\gamma/g, 'γ')
-    .replace(/\\Delta/g, 'Δ')
-    .replace(/\\le\b/g, '≤')
-    .replace(/\\ge\b/g, '≥')
-    .replace(/\\ne\b/g, '≠')
-    .replace(/\\equiv\b/g, '≡')
-    .replace(/\\approx\b/g, '≈')
-    .replace(/\\iff\b/g, '⟺')
-    .replace(/\\implies\b/g, '⟹')
-    .replace(/\\leftrightarrow\b/g, '↔')
-    .replace(/\\lor\b/g, '∨')
-    .replace(/\\land\b/g, '∧')
-    .replace(/\\to\b/g, '→')
-    .replace(/\\mapsto\b/g, '↦')
-    .replace(/\\infty\b/g, '∞')
-    .replace(/\\cdot\b/g, '·')
-    .replace(/\\times\b/g, '×')
-    .replace(/\\in\b/g, '∈')
-    .replace(/\\subset\b/g, '⊂')
-    .replace(/\\forall\b/g, '∀')
-    .replace(/\\sum/g, '∑')
-    .replace(/\\min\b/g, 'min')
-    .replace(/\\max\b/g, 'max')
-    .replace(/\\inf\b/g, 'inf')
-    .replace(/\\sup\b/g, 'sup')
-    .replace(/\\(?:dots|ldots|cdots)\b/g, '…')
-    .replace(/\\[,;:!]/g, ' ')
-    .replace(/\\quad\b|\\qquad\b/g, '  ');
+    .replace(/\\\}/g, '}');
 
-  // Resolve simple subscripts/superscripts inside braces first (e.g. a_2 inside 1^{a_2})
-  const subDigits = { '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄', '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉', k: 'ₖ', i: 'ᵢ', j: 'ⱼ', m: 'ₘ', n: 'ₙ' };
-  s = s.replace(/_([0-9kijmn])\b/g, (_, ch) => subDigits[ch] || `<sub>${ch}</sub>`);
-  s = s.replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, '($1) / ($2)');
-  s = s.replace(/\^\{([^{}]*)\}/g, '<sup>$1</sup>');
-  s = s.replace(/_\{([^{}]*)\}/g, '<sub>$1</sub>');
-  s = s.replace(/\^([0-9a-zA-Z+-])/g, '<sup>$1</sup>');
-  s = s.replace(/_([0-9a-zA-Z])/g, '<sub>$1</sub>');
+  // Restore protected HTML tags before balanced ^{...} and _{...}
+  s = s.replace(/@@HTAG_(\d+)@@/g, (_, idx) => htmlSlots[Number(idx)] || '');
+
+  // 4. Balanced superscripts ^{...} and subscripts _{...}
+  s = replaceScriptsBalanced(s, '^', 'sup');
+  s = replaceScriptsBalanced(s, '_', 'sub');
+
+  // 5. Standard LaTeX operators and symbols (handle before single-char _/ ^ so \Phi_1 matches \Phi before _1)
+  s = s
+    .replace(/\\pmod\s+([0-9a-zA-Z]+)/g, ' <span class="math-pmod">(mod $1)</span>')
+    .replace(/\\lvert\b|\\rvert\b/g, '|')
+    .replace(/\\not\\equiv/g, '≢')
+    .replace(/\\not\\in(?![a-zA-Z])|\\notin(?![a-zA-Z])/g, '∉')
+    .replace(/\\subsetneq(?![a-zA-Z])/g, '⊊')
+    .replace(/\\subseteq(?![a-zA-Z])/g, '⊆')
+    .replace(/\\subset(?![a-zA-Z])/g, '⊂')
+    .replace(/\\setminus(?![a-zA-Z])/g, '∖')
+    .replace(/\\bowtie(?![a-zA-Z])/g, '⋈')
+    .replace(/\\gg(?![a-zA-Z])/g, '≫')
+    .replace(/\\ll(?![a-zA-Z])/g, '≪')
+    .replace(/\\sim(?![a-zA-Z])/g, '∼')
+    .replace(/\\blacksquare(?![a-zA-Z])/g, '∎')
+    .replace(/\\bmod(?![a-zA-Z])/g, ' mod ')
+    .replace(/\\lfloor(?![a-zA-Z])/g, '⌊')
+    .replace(/\\rfloor(?![a-zA-Z])/g, '⌋')
+    .replace(/\\lceil(?![a-zA-Z])/g, '⌈')
+    .replace(/\\rceil(?![a-zA-Z])/g, '⌉')
+    .replace(/\\(?:big|Big|bigl|bigr|Bigl|Bigr|left|right)(?![a-zA-Z])/g, '')
+    .replace(/\\log_2/g, 'log₂')
+    .replace(/\\log(?![a-zA-Z])/g, 'log')
+    .replace(/\\lim(?![a-zA-Z])/g, 'lim')
+    .replace(/\\nu_2/g, 'ν₂')
+    .replace(/\\nu(?![a-zA-Z])/g, 'ν')
+    .replace(/\\theta(?![a-zA-Z])/g, 'θ')
+    .replace(/\\delta(?![a-zA-Z])/g, 'δ')
+    .replace(/\\gamma(?![a-zA-Z])/g, 'γ')
+    .replace(/\\alpha(?![a-zA-Z])/g, 'α')
+    .replace(/\\beta(?![a-zA-Z])/g, 'β')
+    .replace(/\\epsilon(?![a-zA-Z])|\\varepsilon(?![a-zA-Z])/g, 'ε')
+    .replace(/\\lambda(?![a-zA-Z])/g, 'λ')
+    .replace(/\\mu(?![a-zA-Z])/g, 'μ')
+    .replace(/\\rho(?![a-zA-Z])/g, 'ρ')
+    .replace(/\\sigma(?![a-zA-Z])/g, 'σ')
+    .replace(/\\Delta(?![a-zA-Z])/g, 'Δ')
+    .replace(/\\Phi(?![a-zA-Z])/g, 'Φ')
+    .replace(/\\le(?![a-zA-Z])|\\leq(?![a-zA-Z])/g, '≤')
+    .replace(/\\ge(?![a-zA-Z])|\\geq(?![a-zA-Z])/g, '≥')
+    .replace(/\\ne(?![a-zA-Z])|\\neq(?![a-zA-Z])/g, '≠')
+    .replace(/\\equiv(?![a-zA-Z])/g, '≡')
+    .replace(/\\approx(?![a-zA-Z])/g, '≈')
+    .replace(/\\iff(?![a-zA-Z])/g, '⟺')
+    .replace(/\\implies(?![a-zA-Z])/g, '⟹')
+    .replace(/\\leftrightarrow(?![a-zA-Z])/g, '↔')
+    .replace(/\\lor(?![a-zA-Z])/g, '∨')
+    .replace(/\\land(?![a-zA-Z])/g, '∧')
+    .replace(/\\to(?![a-zA-Z])|\\rightarrow(?![a-zA-Z])/g, '→')
+    .replace(/\\mapsto(?![a-zA-Z])/g, '↦')
+    .replace(/\\infty(?![a-zA-Z])/g, '∞')
+    .replace(/\\cdot(?![a-zA-Z])/g, '·')
+    .replace(/\\times(?![a-zA-Z])/g, '×')
+    .replace(/\\pm(?![a-zA-Z])/g, '±')
+    .replace(/\\in(?![a-zA-Z])/g, '∈')
+    .replace(/\\forall(?![a-zA-Z])/g, '∀')
+    .replace(/\\exists(?![a-zA-Z])/g, '∃')
+    .replace(/\\sum(?![a-zA-Z])/g, '∑')
+    .replace(/\\prod(?![a-zA-Z])/g, '∏')
+    .replace(/\\min(?![a-zA-Z])/g, 'min')
+    .replace(/\\max(?![a-zA-Z])/g, 'max')
+    .replace(/\\inf(?![a-zA-Z])/g, 'inf')
+    .replace(/\\sup(?![a-zA-Z])/g, 'sup')
+    .replace(/\\(?:dots|ldots|cdots)(?![a-zA-Z])/g, '…')
+    .replace(/\\[,;:!]/g, ' ')
+    .replace(/\\quad(?![a-zA-Z])|\\qquad(?![a-zA-Z])/g, '  ')
+    .replace(/\^([0-9a-zA-Z+-])/g, '<sup>$1</sup>')
+    .replace(/_([0-9a-zA-Z])/g, '<sub>$1</sub>');
+
   return s;
 }
 
@@ -1260,17 +1489,25 @@ function formatInlineMarkdown(line) {
     return `@@SLOT_${idx}@@`;
   });
 
-  // 2. Protect inline math $...$ before bold replacement so * inside math never breaks **...**
+  // 2. Protect inline math $...$ before bold/italic replacement so * or _ inside math never breaks markdown
   out = out.replace(/\$([^$]+)\$/g, (_, tex) => {
     const idx = slots.length;
     slots.push(`<span class="md-inline-math">${formatMathLatex(tex)}</span>`);
     return `@@SLOT_${idx}@@`;
   });
 
-  // 3. Bold **...** (supports slots inside bold text)
-  out = out.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // 3. Markdown links [label](href)
+  out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
+    const safeHref = href.trim();
+    return `<a href="${safeHref}" class="md-link">${label}</a>`;
+  });
 
-  // 4. Restore slots
+  // 4. Bold **...** and Italic *...*
+  out = out.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  out = out.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+  // 5. Restore slots (twice in case a link label contained an inline code/math slot)
+  out = out.replace(/@@SLOT_(\d+)@@/g, (_, idx) => slots[Number(idx)] || '');
   out = out.replace(/@@SLOT_(\d+)@@/g, (_, idx) => slots[Number(idx)] || '');
   return out;
 }

@@ -772,7 +772,7 @@ onUnmounted(() => {
           class="ctrl-btn"
           @click="navigateToLogRoute(selectedLogId || '01')"
         >
-          <span>{{ locale === 'pl' ? 'Dokumenty /logs (6)' : 'Docs /logs (6)' }}</span>
+          <span>{{ locale === 'pl' ? 'Dokumenty /logs (7)' : 'Docs /logs (7)' }}</span>
         </button>
 
         <button
@@ -1485,8 +1485,8 @@ onUnmounted(() => {
               <h2>
                 {{
                   locale === 'pl'
-                    ? 'Pętla Badawcza logs/01..06 (Błąd E → 0.0000%) & Laboratorium BigInt (128–2048 bitów)'
-                    : 'Research Loop logs/01..06 (Error E → 0.0000%) & BigInt Lab (128–2048 bits)'
+                    ? 'Pętla Badawcza logs/01..07 (Błąd E → 0.0000%) & Laboratorium BigInt (128–4096 bitów)'
+                    : 'Research Loop logs/01..07 (Error E → 0.0000%) & BigInt Lab (128–4096 bits)'
                 }}
               </h2>
             </div>
