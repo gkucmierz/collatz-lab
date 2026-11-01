@@ -36,12 +36,120 @@ import {
   buildMealyCarryTransitionMap,
   RUST_DEEP_CERTIFICATES,
   simulateBigIntTrajectory,
-  RESEARCH_LOOP_LOGS_SUMMARY
+  RESEARCH_LOOP_LOGS_SUMMARY,
+  resolveLogRoute,
+  renderLogMarkdownToHtml
 } from './engine/collatzEngine.js';
+import log01Raw from '../logs/01-carry-tunneling-lyapunov-bigint.md?raw';
+import log02Raw from '../logs/02-two-sided-msb-lsb-annihilation.md?raw';
+import log03Raw from '../logs/03-symbolic-block-grammar-closure.md?raw';
+import log04Raw from '../logs/04-inverse-mod3-reachability.md?raw';
+import log05Raw from '../logs/05-adversarial-bigint-coevolution.md?raw';
+import log06Raw from '../logs/06-horizon-scaling-and-bellman-closure-4096bit.md?raw';
 
 const theme = ref(localStorage.getItem('collatz_theme') || 'dark');
 const locale = ref(localStorage.getItem('collatz_locale') || 'pl');
 const helpDialogRef = ref(null);
+const logDialogRef = ref(null);
+
+const RAW_LOGS_BY_ID = {
+  '01': log01Raw,
+  '02': log02Raw,
+  '03': log03Raw,
+  '04': log04Raw,
+  '05': log05Raw,
+  '06': log06Raw
+};
+const isFullLogRoute = ref(false);
+const selectedLogId = ref('01');
+const logViewMode = ref('formatted'); // 'formatted' | 'raw'
+const logCopied = ref(false);
+
+const syncRouteFromLocation = () => {
+  if (typeof window === 'undefined') return;
+  const resolved = resolveLogRoute(window.location.pathname);
+  isFullLogRoute.value = resolved.isLogRoute;
+  if (resolved.logId) {
+    selectedLogId.value = resolved.logId;
+    if (window.location.pathname !== resolved.canonicalPath && window.history?.replaceState) {
+      window.history.replaceState({}, '', resolved.canonicalPath);
+    }
+  }
+};
+
+const navigateToLogRoute = (id = '01') => {
+  const target =
+    RESEARCH_LOOP_LOGS_SUMMARY.logs.find((l) => l.id === id) ||
+    RESEARCH_LOOP_LOGS_SUMMARY.logs[0];
+  selectedLogId.value = target.id;
+  isFullLogRoute.value = true;
+  if (logDialogRef.value?.open) {
+    logDialogRef.value.close();
+  }
+  if (typeof window !== 'undefined' && window.history?.pushState) {
+    window.history.pushState({}, '', target.routePath);
+    window.scrollTo?.({ top: 0, behavior: 'smooth' });
+  }
+};
+
+const navigateToDashboard = () => {
+  isFullLogRoute.value = false;
+  if (typeof window !== 'undefined' && window.history?.pushState) {
+    window.history.pushState({}, '', '/');
+  }
+  requestAnimationFrame(() => {
+    drawTrajectoryCanvas();
+    drawScatterCanvas();
+  });
+};
+
+const activeLogEntry = computed(() => {
+  if (!selectedLogId.value) return null;
+  const idx = RESEARCH_LOOP_LOGS_SUMMARY.logs.findIndex((l) => l.id === selectedLogId.value);
+  if (idx === -1) return null;
+  const meta = RESEARCH_LOOP_LOGS_SUMMARY.logs[idx];
+  const prevLog = idx > 0 ? RESEARCH_LOOP_LOGS_SUMMARY.logs[idx - 1] : null;
+  const nextLog =
+    idx < RESEARCH_LOOP_LOGS_SUMMARY.logs.length - 1
+      ? RESEARCH_LOOP_LOGS_SUMMARY.logs[idx + 1]
+      : null;
+  const raw = RAW_LOGS_BY_ID[meta.id] || '';
+  return {
+    ...meta,
+    prevLog,
+    nextLog,
+    raw,
+    html: renderLogMarkdownToHtml(raw)
+  };
+});
+
+const selectResearchLog = (id) => {
+  selectedLogId.value = selectedLogId.value === id ? null : id;
+};
+
+const openLogModal = (id) => {
+  if (id) selectedLogId.value = id;
+  if (logDialogRef.value && !logDialogRef.value.open) {
+    logDialogRef.value.showModal();
+  }
+};
+
+const closeLogModal = () => {
+  if (logDialogRef.value && logDialogRef.value.open) {
+    logDialogRef.value.close();
+  }
+};
+
+const copyActiveLogMarkdown = () => {
+  if (!activeLogEntry.value) return;
+  if (navigator?.clipboard?.writeText) {
+    navigator.clipboard.writeText(activeLogEntry.value.raw);
+  }
+  logCopied.value = true;
+  setTimeout(() => {
+    logCopied.value = false;
+  }, 1800);
+};
 
 // Stream & Live Plotter Controls
 const streamMode = ref('sequential'); // 'sequential' | 'random' | 'single'
@@ -595,6 +703,8 @@ const handleKeyDown = (e) => {
 };
 
 onMounted(() => {
+  syncRouteFromLocation();
+  window.addEventListener('popstate', syncRouteFromLocation);
   currentCursorN.value = Math.max(2, rangeMin.value) - 1;
   spawnTrajectory(27, { instant: true });
   for (let n = 2; n <= 45; n++) {
@@ -618,6 +728,7 @@ onUnmounted(() => {
   if (animId) cancelAnimationFrame(animId);
   if (gaTimer) clearInterval(gaTimer);
   window.removeEventListener('keydown', handleKeyDown);
+  window.removeEventListener('popstate', syncRouteFromLocation);
 });
 </script>
 
@@ -625,7 +736,7 @@ onUnmounted(() => {
   <div class="collatz-shell">
     <!-- Top Header -->
     <header class="collatz-header">
-      <div class="brand-wrap">
+      <div class="brand-wrap" style="cursor: pointer" @click="navigateToDashboard">
         <div class="brand-icon">
           <Binary :size="20" />
         </div>
@@ -645,6 +756,23 @@ onUnmounted(() => {
       </div>
 
       <div class="header-controls">
+        <button
+          v-if="isFullLogRoute"
+          type="button"
+          class="ctrl-btn play-active"
+          @click="navigateToDashboard"
+        >
+          <span>← {{ locale === 'pl' ? 'Laboratorium (/)' : 'Dashboard (/)' }}</span>
+        </button>
+        <button
+          v-else
+          type="button"
+          class="ctrl-btn"
+          @click="navigateToLogRoute(selectedLogId || '01')"
+        >
+          <span>{{ locale === 'pl' ? 'Dokumenty /logs (6)' : 'Docs /logs (6)' }}</span>
+        </button>
+
         <button
           type="button"
           class="ctrl-btn"
@@ -695,8 +823,103 @@ onUnmounted(() => {
       </div>
     </header>
 
+    <!-- Full-Page Dedicated Route View for /logs/01..06 -->
+    <main v-if="isFullLogRoute && activeLogEntry" class="log-route-layout">
+      <aside class="card log-route-sidebar">
+        <div class="log-sidebar-top">
+          <button type="button" class="ctrl-btn play-active full-w-btn" @click="navigateToDashboard">
+            <span>← Powrót do Laboratorium (/)</span>
+          </button>
+          <div class="log-sidebar-heading">
+            Dzienniki Badawcze (/logs/01..06)
+          </div>
+        </div>
+
+        <nav class="log-sidebar-nav" aria-label="Research Logs Navigation">
+          <a
+            v-for="lg in researchLoopSummary.logs"
+            :key="lg.id"
+            :href="lg.routePath"
+            class="log-sidebar-link"
+            :class="{ active: selectedLogId === lg.id }"
+            @click.prevent="navigateToLogRoute(lg.id)"
+          >
+            <div class="log-sidebar-link-top">
+              <code class="log-file-badge">{{ lg.routePath }}</code>
+            </div>
+            <div class="log-sidebar-link-title">{{ lg.title }}</div>
+            <div class="log-sidebar-link-verdict">{{ lg.verdict }}</div>
+          </a>
+        </nav>
+      </aside>
+
+      <article class="card log-route-article">
+        <div class="log-route-header">
+          <div class="log-route-breadcrumbs">
+            <a href="/" class="crumb-link" @click.prevent="navigateToDashboard">Collatz.7u.pl (/)</a>
+            <span>/</span>
+            <code class="log-file-badge">{{ activeLogEntry.routePath }}</code>
+          </div>
+
+          <div class="log-preview-controls">
+            <div class="seg-group">
+              <button
+                type="button"
+                class="seg-btn"
+                :class="{ active: logViewMode === 'formatted' }"
+                @click="logViewMode = 'formatted'"
+              >
+                Sformatowany artykuł
+              </button>
+              <button
+                type="button"
+                class="seg-btn"
+                :class="{ active: logViewMode === 'raw' }"
+                @click="logViewMode = 'raw'"
+              >
+                Źródło Markdown (.md)
+              </button>
+            </div>
+            <button type="button" class="seg-btn" @click="copyActiveLogMarkdown">
+              {{ logCopied ? 'Skopiowano ✓' : 'Kopiuj .md' }}
+            </button>
+          </div>
+        </div>
+
+        <div
+          v-if="logViewMode === 'formatted'"
+          class="log-markdown-body full-route-body"
+          v-html="activeLogEntry.html"
+        ></div>
+        <pre v-else class="log-raw-source full-route-body"><code>{{ activeLogEntry.raw }}</code></pre>
+
+        <footer class="log-route-footer">
+          <a
+            v-if="activeLogEntry.prevLog"
+            :href="activeLogEntry.prevLog.routePath"
+            class="log-nav-card"
+            @click.prevent="navigateToLogRoute(activeLogEntry.prevLog.id)"
+          >
+            <span class="nav-dir">← Poprzedni dokument</span>
+            <strong>{{ activeLogEntry.prevLog.title }}</strong>
+          </a>
+          <div v-else></div>
+
+          <a
+            v-if="activeLogEntry.nextLog"
+            :href="activeLogEntry.nextLog.routePath"
+            class="log-nav-card right"
+            @click.prevent="navigateToLogRoute(activeLogEntry.nextLog.id)"
+          >
+            <span class="nav-dir">Następny dokument →</span>
+            <strong>{{ activeLogEntry.nextLog.title }}</strong>
+          </a>
+        </footer>
+      </article>
+    </main>
+
     <!-- Main 2-Row Research Grid -->
-    <main class="collatz-grid">
+    <main v-else class="collatz-grid">
       <!-- Left Column: Stream Controls + Live Trajectory Canvas + Scatter Plot -->
       <section class="panel-col">
         <!-- Stream Control Bar -->
@@ -1251,8 +1474,8 @@ onUnmounted(() => {
               <h2>
                 {{
                   locale === 'pl'
-                    ? 'Pętla Badawcza logs/01..05 (Błąd E → 0.0000%) & Laboratorium BigInt (128–2048 bitów)'
-                    : 'Research Loop logs/01..05 (Error E → 0.0000%) & BigInt Lab (128–2048 bits)'
+                    ? 'Pętla Badawcza logs/01..06 (Błąd E → 0.0000%) & Laboratorium BigInt (128–2048 bitów)'
+                    : 'Research Loop logs/01..06 (Error E → 0.0000%) & BigInt Lab (128–2048 bits)'
                 }}
               </h2>
             </div>
@@ -1334,21 +1557,182 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <!-- Summary of the 5 Research Logs in /logs/ -->
+          <!-- Summary of the 6 Research Logs in /logs/ (Clickable with Live Preview) -->
           <div class="logs-summary-list">
+            <div class="logs-list-header">
+              <span>
+                {{
+                  locale === 'pl'
+                    ? 'Dzienniki Badawcze /logs/01..06.md — kliknij dowolny dokument, aby otworzyć pełny podgląd:'
+                    : 'Research Logs /logs/01..06.md — click any document to open live preview:'
+                }}
+              </span>
+              <span class="sub-mono">6 pełnych raportów .md</span>
+            </div>
             <div
               v-for="lg in researchLoopSummary.logs"
               :key="lg.id"
-              class="log-summary-item"
+              class="log-summary-item clickable"
+              :class="{ active: selectedLogId === lg.id }"
+              role="button"
+              tabindex="0"
+              @click="selectResearchLog(lg.id)"
+              @keydown.enter.prevent="selectResearchLog(lg.id)"
             >
-              <code class="log-file-badge">{{ lg.file }}</code>
+              <a
+                :href="lg.routePath"
+                class="log-file-badge route-link-badge"
+                @click.stop.prevent="navigateToLogRoute(lg.id)"
+              >
+                {{ lg.routePath }}
+              </a>
               <span class="log-title">{{ lg.title }}:</span>
               <span class="log-verdict">{{ lg.verdict }}</span>
+              <div class="log-item-actions" @click.stop>
+                <button
+                  type="button"
+                  class="log-action-pill"
+                  :class="{ active: selectedLogId === lg.id }"
+                  @click="selectResearchLog(lg.id)"
+                >
+                  {{ selectedLogId === lg.id ? 'Ukryj ▴' : 'Podgląd ▾' }}
+                </button>
+                <a
+                  :href="lg.routePath"
+                  class="log-action-pill modal-btn link-btn"
+                  title="Otwórz dedykowany route dokumentu"
+                  @click.prevent="navigateToLogRoute(lg.id)"
+                >
+                  Pełna strona ↗
+                </a>
+              </div>
             </div>
+          </div>
+
+          <!-- Inline Interactive Document Preview Reader -->
+          <div v-if="activeLogEntry" class="log-preview-panel">
+            <div class="log-preview-toolbar">
+              <div class="log-preview-tabs">
+                <button
+                  v-for="lg in researchLoopSummary.logs"
+                  :key="lg.id"
+                  type="button"
+                  class="seg-btn"
+                  :class="{ active: selectedLogId === lg.id }"
+                  @click="selectedLogId = lg.id"
+                >
+                  Metoda {{ lg.id }}
+                </button>
+              </div>
+
+              <div class="log-preview-controls">
+                <div class="seg-group">
+                  <button
+                    type="button"
+                    class="seg-btn"
+                    :class="{ active: logViewMode === 'formatted' }"
+                    @click="logViewMode = 'formatted'"
+                  >
+                    Sformatowany
+                  </button>
+                  <button
+                    type="button"
+                    class="seg-btn"
+                    :class="{ active: logViewMode === 'raw' }"
+                    @click="logViewMode = 'raw'"
+                  >
+                    Markdown (.md)
+                  </button>
+                </div>
+                <button type="button" class="seg-btn" @click="copyActiveLogMarkdown">
+                  {{ logCopied ? 'Skopiowano ✓' : 'Kopiuj .md' }}
+                </button>
+                <a
+                  :href="activeLogEntry.routePath"
+                  class="seg-btn active link-btn"
+                  @click.prevent="navigateToLogRoute(activeLogEntry.id)"
+                >
+                  Pełna strona ({{ activeLogEntry.routePath }}) ↗
+                </a>
+                <button type="button" class="seg-btn" @click="selectedLogId = null">
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div class="log-preview-meta">
+              <code>{{ activeLogEntry.routePath }}</code>
+              <span>{{ activeLogEntry.title }}</span>
+            </div>
+
+            <div
+              v-if="logViewMode === 'formatted'"
+              class="log-markdown-body"
+              v-html="activeLogEntry.html"
+            ></div>
+            <pre v-else class="log-raw-source"><code>{{ activeLogEntry.raw }}</code></pre>
           </div>
         </div>
       </section>
     </main>
+
+    <!-- Full-Window Research Log Document Reader Modal -->
+    <dialog ref="logDialogRef" closedby="any" class="help-dialog log-reader-dialog" aria-labelledby="logModalTitle">
+      <div v-if="activeLogEntry" class="help-inner">
+        <div class="help-head">
+          <div>
+            <div class="log-modal-Sub">
+              <code class="log-file-badge">{{ activeLogEntry.file }}</code>
+              <div class="log-preview-tabs">
+                <button
+                  v-for="lg in researchLoopSummary.logs"
+                  :key="lg.id"
+                  type="button"
+                  class="seg-btn"
+                  :class="{ active: selectedLogId === lg.id }"
+                  @click="selectedLogId = lg.id"
+                >
+                  Metoda {{ lg.id }}
+                </button>
+              </div>
+            </div>
+            <h2 id="logModalTitle">{{ activeLogEntry.title }}</h2>
+          </div>
+          <div class="log-preview-controls">
+            <div class="seg-group">
+              <button
+                type="button"
+                class="seg-btn"
+                :class="{ active: logViewMode === 'formatted' }"
+                @click="logViewMode = 'formatted'"
+              >
+                Sformatowany
+              </button>
+              <button
+                type="button"
+                class="seg-btn"
+                :class="{ active: logViewMode === 'raw' }"
+                @click="logViewMode = 'raw'"
+              >
+                Markdown (.md)
+              </button>
+            </div>
+            <button type="button" class="seg-btn" @click="copyActiveLogMarkdown">
+              {{ logCopied ? 'Skopiowano ✓' : 'Kopiuj .md' }}
+            </button>
+            <button type="button" class="ctrl-btn" @click="closeLogModal">
+              <X :size="15" />
+            </button>
+          </div>
+        </div>
+        <div
+          v-if="logViewMode === 'formatted'"
+          class="log-markdown-body modal-scroll"
+          v-html="activeLogEntry.html"
+        ></div>
+        <pre v-else class="log-raw-source modal-scroll"><code>{{ activeLogEntry.raw }}</code></pre>
+      </div>
+    </dialog>
 
     <!-- Help & Mathematical Formalization Modal -->
     <dialog ref="helpDialogRef" closedby="any" class="help-dialog" aria-labelledby="helpTitle">

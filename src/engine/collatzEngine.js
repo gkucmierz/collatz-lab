@@ -858,7 +858,7 @@ export function buildMealyCarryTransitionMap(inputN) {
 }
 
 /**
- * Exact precomputed certificates from `/Users/gkucmierz/workspace/collatz-lab/rust-verifier`
+ * Exact precomputed certificates from `rust-verifier`
  * (16-core Apple Silicon u128 verifier up to k = 34, i.e. 8,589,934,592 odd residue classes).
  */
 export const RUST_DEEP_CERTIFICATES = {
@@ -1064,7 +1064,7 @@ export function simulateBigIntTrajectory(bitLength = 256) {
 }
 
 /**
- * Summary of the 5 Research Loop Logs stored in `/Users/gkucmierz/workspace/collatz-lab/logs/`
+ * Summary of the 6 Research Loop Logs stored in `logs/`
  */
 export const RESEARCH_LOOP_LOGS_SUMMARY = {
   errorConvergence: [
@@ -1077,39 +1077,311 @@ export const RESEARCH_LOOP_LOGS_SUMMARY = {
   logs: [
     {
       id: '01',
+      slug: '01-carry-tunneling-lyapunov-bigint',
+      routePath: '/logs/01-carry-tunneling-lyapunov-bigint',
       file: 'logs/01-carry-tunneling-lyapunov-bigint.md',
       title: 'Metoda 1: Potencjał Tunelowania Przeniesień przez Bariery Zer',
       verdict: 'Błąd E(W) zbity z 3.8889% do 0.0000% (W=68); odkryto dokładną tożsamość (3·(...01^{a₂}01₂)+1)/8 ≡ −1 (mod 2^{a₂−1}).'
     },
     {
       id: '02',
+      slug: '02-two-sided-msb-lsb-annihilation',
+      routePath: '/logs/02-two-sided-msb-lsb-annihilation',
       file: 'logs/02-two-sided-msb-lsb-annihilation.md',
       title: 'Metoda 2: Dwustronne Zderzenie Frontów (Dolina MSB 1000... × Erozja LSB)',
       verdict: 'W 57.45% kroków nieparzystych fala carry wypala dolinę zer za MSB (do 11 zer z rzędu), co niszczy ujemne cykle 2-adyczne (−1, −5, −17).'
     },
     {
       id: '03',
+      slug: '03-symbolic-block-grammar-closure',
+      routePath: '/logs/03-symbolic-block-grammar-closure',
       file: 'logs/03-symbolic-block-grammar-closure.md',
       title: 'Metoda 3: Symboliczny Transduktor na Blokach Biegów 1^A 0^B',
       verdict: 'Udowodniono 4 reguły (59/59 dla L=2..60): erozja bloku 1^L emituje na lewo pary naprzemienne 10, zamieniając kolizje w lonty!'
     },
     {
       id: '04',
+      slug: '04-inverse-mod3-reachability',
+      routePath: '/logs/04-inverse-mod3-reachability',
       file: 'logs/04-inverse-mod3-reachability.md',
       title: 'Metoda 4: Drzewo Odwrotne n = (u·2^m − 1)/3 od Celu 1[000...]',
       verdict: 'Idealna równowaga Haara (1/3, 1/3, 1/3) reszt mod 3 (2414 : 2419 : 2423) na 38 664 węzłach wstecznych.'
     },
     {
       id: '05',
+      slug: '05-adversarial-bigint-coevolution',
+      routePath: '/logs/05-adversarial-bigint-coevolution',
       file: 'logs/05-adversarial-bigint-coevolution.md',
       title: 'Metoda 5: Współewolucyjny Łowca Kontrprzykładów BigInt (128–2048 bitów)',
       verdict: '100% kolaps do 1[000...] dla liczb 128, 256, 512, 1024 i 2048-bitowych; dla ≥512 bitów spadek V_θ(n) już w 1 kroku!'
     },
     {
       id: '06',
+      slug: '06-horizon-scaling-and-bellman-closure-4096bit',
+      routePath: '/logs/06-horizon-scaling-and-bellman-closure-4096bit',
       file: 'logs/06-horizon-scaling-and-bellman-closure-4096bit.md',
       title: 'Metoda 6: Prawo Skalowania Horyzontu Bellmana H_max(B)/B → 0 (do 4096 bitów ≈ 10¹²³³)',
       verdict: 'Pełny skan 65 535 liczb nieparzystych + BigInt 4096-bit: stały średni horyzont E[H] = 2.26 kroku i spadek H_max(B)/B z 5.20 do 0.0017!'
     }
   ]
 };
+
+/**
+ * Resolves a browser pathname (`/`, `/logs`, `/logs/01-carry-tunneling-lyapunov-bigint`, `/logs/01`, etc.)
+ * into a structured route state `{ isLogRoute, logId, canonicalPath }`.
+ */
+export function resolveLogRoute(pathname = '/') {
+  const clean = String(pathname || '/')
+    .replace(/\/+$/, '')
+    .replace(/\.md$/i, '');
+
+  if (!clean || clean === '') {
+    return { isLogRoute: false, logId: null, canonicalPath: '/' };
+  }
+
+  if (clean === '/logs') {
+    const first = RESEARCH_LOOP_LOGS_SUMMARY.logs[0];
+    return { isLogRoute: true, logId: first.id, canonicalPath: first.routePath };
+  }
+
+  if (clean.startsWith('/logs/')) {
+    const segment = clean.slice('/logs/'.length).trim();
+    const matched = RESEARCH_LOOP_LOGS_SUMMARY.logs.find(
+      (l) => l.slug === segment || l.id === segment || segment.startsWith(`${l.id}-`)
+    );
+    if (matched) {
+      return { isLogRoute: true, logId: matched.id, canonicalPath: matched.routePath };
+    }
+  }
+
+  return { isLogRoute: false, logId: null, canonicalPath: '/' };
+}
+
+/**
+ * Converts LaTeX math snippets from research logs into readable mathematical HTML with Unicode symbols.
+ */
+function formatMathLatex(tex) {
+  let s = String(tex || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\{,\}/g, ',')
+    .replace(/\\%/g, '%')
+    .replace(/\\\{/g, '{')
+    .replace(/\\\}/g, '}')
+    .replace(/\\mathbb\{Z\}_2/g, 'ℤ₂')
+    .replace(/\\mathbb\{N\}\^\+/g, 'ℕ⁺')
+    .replace(/\\mathbb\{E\}/g, '𝔼')
+    .replace(/\\mathcal\{E\}/g, 'ℰ')
+    .replace(/\\(?:mathbf|textbf)\{([^}]*)\}/g, '<strong>$1</strong>')
+    .replace(/\\text\{([^}]*)\}/g, '$1')
+    .replace(/\\pmod\{([^}]*)\}/g, ' (mod $1)')
+    .replace(/\\(?:big|Big|bigl|bigr|Bigl|Bigr|left|right)\b/g, '')
+    .replace(/\\log_2/g, 'log₂')
+    .replace(/\\nu_2/g, 'ν₂')
+    .replace(/\\theta/g, 'θ')
+    .replace(/\\delta/g, 'δ')
+    .replace(/\\gamma/g, 'γ')
+    .replace(/\\Delta/g, 'Δ')
+    .replace(/\\le\b/g, '≤')
+    .replace(/\\ge\b/g, '≥')
+    .replace(/\\ne\b/g, '≠')
+    .replace(/\\equiv\b/g, '≡')
+    .replace(/\\approx\b/g, '≈')
+    .replace(/\\iff\b/g, '⟺')
+    .replace(/\\implies\b/g, '⟹')
+    .replace(/\\lor\b/g, '∨')
+    .replace(/\\land\b/g, '∧')
+    .replace(/\\to\b/g, '→')
+    .replace(/\\mapsto\b/g, '↦')
+    .replace(/\\infty\b/g, '∞')
+    .replace(/\\cdot\b/g, '·')
+    .replace(/\\times\b/g, '×')
+    .replace(/\\in\b/g, '∈')
+    .replace(/\\forall\b/g, '∀')
+    .replace(/\\sum/g, '∑')
+    .replace(/\\min\b/g, 'min')
+    .replace(/\\max\b/g, 'max')
+    .replace(/\\(?:dots|ldots|cdots)\b/g, '…')
+    .replace(/\\[,;:!]/g, ' ')
+    .replace(/\\quad\b|\\qquad\b/g, '  ');
+
+  // Resolve simple subscripts/superscripts inside braces first (e.g. a_2 inside 1^{a_2})
+  const subDigits = { '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄', '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉', k: 'ₖ', i: 'ᵢ', j: 'ⱼ', m: 'ₘ', n: 'ₙ' };
+  s = s.replace(/_([0-9kijmn])\b/g, (_, ch) => subDigits[ch] || `<sub>${ch}</sub>`);
+  s = s.replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, '($1) / ($2)');
+  s = s.replace(/\^\{([^{}]*)\}/g, '<sup>$1</sup>');
+  s = s.replace(/_\{([^{}]*)\}/g, '<sub>$1</sub>');
+  s = s.replace(/\^([0-9a-zA-Z+-])/g, '<sup>$1</sup>');
+  s = s.replace(/_([0-9a-zA-Z])/g, '<sub>$1</sub>');
+  return s;
+}
+
+function formatInlineMarkdown(line) {
+  // Strip any accidental markdown file:/// links into clean inline text
+  const sanitized = String(line || '')
+    .replace(/\[([^\]]+)\]\(file:\/\/[^)]+\)/g, '$1')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // 1. Protect inline code `...`
+  const slots = [];
+  let out = sanitized.replace(/`([^`]+)`/g, (_, code) => {
+    const idx = slots.length;
+    slots.push(`<code class="md-inline-code">${code}</code>`);
+    return `@@SLOT_${idx}@@`;
+  });
+
+  // 2. Protect inline math $...$ before bold replacement so * inside math never breaks **...**
+  out = out.replace(/\$([^$]+)\$/g, (_, tex) => {
+    const idx = slots.length;
+    slots.push(`<span class="md-inline-math">${formatMathLatex(tex)}</span>`);
+    return `@@SLOT_${idx}@@`;
+  });
+
+  // 3. Bold **...** (supports slots inside bold text)
+  out = out.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+  // 4. Restore slots
+  out = out.replace(/@@SLOT_(\d+)@@/g, (_, idx) => slots[Number(idx)] || '');
+  return out;
+}
+
+/**
+ * Renders a Markdown research log (`logs/01..06.md`) into structured, semantic HTML
+ * supporting headings, GFM tables, fenced code blocks, display math `$$...$$`, blockquotes, and lists.
+ */
+export function renderLogMarkdownToHtml(markdown) {
+  const lines = String(markdown || '').replace(/\r\n/g, '\n').split('\n');
+  const html = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const rawLine = lines[i];
+    const trimmed = rawLine.trim();
+
+    if (!trimmed) {
+      i++;
+      continue;
+    }
+
+    // Horizontal rule
+    if (/^---+$/.test(trimmed)) {
+      html.push('<hr class="md-hr" />');
+      i++;
+      continue;
+    }
+
+    // Fenced code block ```
+    if (trimmed.startsWith('```')) {
+      const codeLines = [];
+      i++;
+      while (i < lines.length && !lines[i].trim().startsWith('```')) {
+        codeLines.push(
+          lines[i].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        );
+        i++;
+      }
+      if (i < lines.length) i++;
+      html.push(`<pre class="md-code-block"><code>${codeLines.join('\n')}</code></pre>`);
+      continue;
+    }
+
+    // Display math block $$...$$
+    if (trimmed.startsWith('$$')) {
+      if (trimmed.endsWith('$$') && trimmed.length > 4) {
+        const inner = trimmed.slice(2, -2).trim();
+        html.push(`<div class="md-math-block">${formatMathLatex(inner)}</div>`);
+        i++;
+        continue;
+      }
+      const mathLines = [trimmed.slice(2)];
+      i++;
+      while (i < lines.length && !lines[i].trim().endsWith('$$')) {
+        mathLines.push(lines[i]);
+        i++;
+      }
+      if (i < lines.length) {
+        mathLines.push(lines[i].trim().slice(0, -2));
+        i++;
+      }
+      html.push(`<div class="md-math-block">${formatMathLatex(mathLines.join(' '))}</div>`);
+      continue;
+    }
+
+    // Blockquote > ...
+    if (trimmed.startsWith('>')) {
+      const quoteLines = [];
+      while (i < lines.length && lines[i].trim().startsWith('>')) {
+        quoteLines.push(lines[i].trim().replace(/^>\s?/, ''));
+        i++;
+      }
+      html.push(`<blockquote class="md-quote">${formatInlineMarkdown(quoteLines.join(' '))}</blockquote>`);
+      continue;
+    }
+
+    // Headings #, ##, ###
+    const hMatch = trimmed.match(/^(#{1,3})\s+(.*)$/);
+    if (hMatch) {
+      const level = hMatch[1].length;
+      html.push(`<h${level + 1} class="md-h${level}">${formatInlineMarkdown(hMatch[2])}</h${level + 1}>`);
+      i++;
+      continue;
+    }
+
+    // GFM Table | ... |
+    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+      const tableLines = [];
+      while (i < lines.length && lines[i].trim().startsWith('|') && lines[i].trim().endsWith('|')) {
+        tableLines.push(lines[i].trim());
+        i++;
+      }
+      if (tableLines.length >= 2) {
+        const parseCells = (row) =>
+          row
+            .slice(1, -1)
+            .split('|')
+            .map((c) => c.trim());
+        const headers = parseCells(tableLines[0]);
+        const bodyRows = tableLines.slice(2).map(parseCells);
+        const thHtml = headers.map((h) => `<th>${formatInlineMarkdown(h)}</th>`).join('');
+        const trHtml = bodyRows
+          .map(
+            (row) =>
+              `<tr>${row.map((c) => `<td>${formatInlineMarkdown(c)}</td>`).join('')}</tr>`
+          )
+          .join('');
+        html.push(
+          `<div class="md-table-wrap"><table class="md-table"><thead><tr>${thHtml}</tr></thead><tbody>${trHtml}</tbody></table></div>`
+        );
+        continue;
+      }
+    }
+
+    // Unordered or ordered list items
+    if (/^(\*|-|\d+\.)\s+/.test(trimmed)) {
+      const isOrdered = /^\d+\.\s+/.test(trimmed);
+      const tag = isOrdered ? 'ol' : 'ul';
+      const items = [];
+      while (i < lines.length && /^(\s*)(\*|-|\d+\.)\s+/.test(lines[i])) {
+        const numMatch = lines[i].trim().match(/^(\d+)\.\s+(.*)$/);
+        if (isOrdered && numMatch) {
+          items.push(`<li value="${numMatch[1]}">${formatInlineMarkdown(numMatch[2])}</li>`);
+        } else {
+          const itemText = lines[i].replace(/^(\s*)(\*|-|\d+\.)\s+/, '');
+          items.push(`<li>${formatInlineMarkdown(itemText)}</li>`);
+        }
+        i++;
+      }
+      html.push(`<${tag} class="md-list">${items.join('')}</${tag}>`);
+      continue;
+    }
+
+    // Standard paragraph
+    html.push(`<p class="md-p">${formatInlineMarkdown(trimmed)}</p>`);
+    i++;
+  }
+
+  return html.join('\n');
+}
