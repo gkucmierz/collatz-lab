@@ -1,3 +1,8 @@
+use collatz_rust_verifier::bigint_lab::{
+    run_method1_optimization_loop, run_method2_two_sided_analysis, run_method4_inverse_mod3_tree,
+    run_method5_adversarial_bigint_hunter, run_method6_horizon_scaling_analysis,
+    verify_method3_symbolic_grammar,
+};
 use collatz_rust_verifier::{
     analyze_pre_carry_u128, optimize_lyapunov_weights, verify_2adic_tree_parallel,
 };
@@ -113,4 +118,81 @@ fn main() {
     let out_file = out_dir.join("rust-2adic-certificate.json");
     fs::write(&out_file, &json).expect("Failed to write JSON certificate");
     println!("\n  [OK] Exported formal certificate to {:?}", out_file);
+
+    // =========================================================================
+    // 4. Execute All 5 BigInt (128..2048-bit) Research Loop Methods
+    // =========================================================================
+    println!("\n==========================================================================");
+    println!("  5-Method Autonomous BigInt (128..2048-Bit) Research Loop");
+    println!("==========================================================================");
+
+    let m1_reports = run_method1_optimization_loop();
+    println!("\n  [Method 1: Multi-Layer Carry-Tunneling Lyapunov V_theta(n)]");
+    for r in &m1_reports {
+        println!(
+            "    - {:<68} | E(1)={:>5.2}% | E(3)={:>5.2}% | E(6)={:>5.2}% | E(12)={:>5.2}% | E(W={:>2})={:>6.4}%",
+            r.label, r.err_1step_pct, r.err_3step_pct, r.err_6step_pct, r.err_12step_pct, r.window_k, r.err_window_k_pct
+        );
+    }
+
+    let m2_stats = run_method2_two_sided_analysis();
+    println!("\n  [Method 2: Two-Sided MSB Valley vs LSB Erosion Annihilation]");
+    println!(
+        "    - Trajectories: {} | Odd Steps: {} | MSB Carry Reflections: {} | MSB Valley Expansions: {} | Max MSB Valley: {} zeros | 100% Collapsed: {}",
+        m2_stats.total_trajectories,
+        m2_stats.total_odd_steps,
+        m2_stats.msb_carry_reflection_events,
+        m2_stats.msb_valley_expansion_events,
+        m2_stats.max_msb_valley_observed,
+        m2_stats.positive_100pct_collapsed_to_1000
+    );
+
+    let m3_rules = verify_method3_symbolic_grammar();
+    println!("\n  [Method 3: Symbolic Block Grammar 1^a 0^b Rewriting Transducer]");
+    for rule in &m3_rules {
+        println!(
+            "    - {:<22} | {} -> {} -> {} (Verified L=2..60: {}/59)",
+            rule.id, rule.pattern_in, rule.pre_carry_ternary, rule.pattern_out, rule.verified_instances
+        );
+    }
+
+    let m4_inv = run_method4_inverse_mod3_tree(6, 16);
+    println!("\n  [Method 4: Inverse Mod-3 Automaton from 1[000...]]");
+    println!(
+        "    - Depth: {} | Reachable Predecessors: {} | u≡1(mod 3) branches: {} | u≡2(mod 3) branches: {} | u≡0(mod 3) dead leaves: {}",
+        m4_inv.depth,
+        m4_inv.total_nodes_generated,
+        m4_inv.mod3_residue1_branching,
+        m4_inv.mod3_residue2_branching,
+        m4_inv.mod3_residue0_terminal_leaves
+    );
+
+    let m5_champs = run_method5_adversarial_bigint_hunter();
+    println!("\n  [Method 5: Adversarial BigInt (128..2048-Bit) Co-Evolutionary Hunter]");
+    for c in &m5_champs {
+        println!(
+            "    - {:>4}-bit BigInt | Odd steps: {:>5} | Even steps: {:>5} | γ(n) = {:>5.2} | Window ΔV<0: {:>2} steps | Collapsed to 1[000...]: {}",
+            c.bit_length,
+            c.total_odd_steps,
+            c.total_even_steps,
+            c.gamma_delay,
+            c.min_window_to_drop_v,
+            c.collapsed_to_1000
+        );
+    }
+
+    let m6_buckets = run_method6_horizon_scaling_analysis();
+    println!("\n  [Method 6: Exhaustive Horizon Scaling H_max(B) / B up to 4096-Bit BigInt]");
+    for b in &m6_buckets {
+        println!(
+            "    - {:<42} | Tested: {:>6} | H_max: {:>3} | Mean H: {:>4.2} | H_max/B: {:>6.4} | 100% Closed (E=0%): {} | Hardest: {}",
+            b.bit_range_label,
+            b.tested_count,
+            b.max_horizon_h,
+            b.mean_horizon_h,
+            b.relative_horizon_h_over_bits,
+            b.zero_failures_at_h_max,
+            b.hardest_seed_bits
+        );
+    }
 }

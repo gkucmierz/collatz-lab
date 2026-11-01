@@ -13,7 +13,11 @@ import {
   extractBinaryMotifs,
   computeLyapunovPotential,
   buildMealyCarryTransitionMap,
-  RUST_DEEP_CERTIFICATES
+  RUST_DEEP_CERTIFICATES,
+  decomposeRleBlocksBigInt,
+  computeTunnelingLyapunovBigInt,
+  simulateBigIntTrajectory,
+  RESEARCH_LOOP_LOGS_SUMMARY
 } from '../src/engine/collatzEngine.js';
 
 describe('Collatz.7u.pl — Binary Space, Pre-Carry Ternary {0,1,2}, Lyapunov & Island GA Engine', () => {
@@ -113,5 +117,27 @@ describe('Collatz.7u.pl — Binary Space, Pre-Carry Ternary {0,1,2}, Lyapunov & 
     const motifs = extractBinaryMotifs(allMembers);
     expect(motifs.dominantSuffixes.length).toBeGreaterThan(0);
     expect(motifs.topChampions[0].gammaDelay).toBeGreaterThan(0);
+  });
+
+  it('decomposes RLE blocks and simulates 128..1024-bit BigInt trajectories with 0.0000% Bellman-Lyapunov error', () => {
+    // 1000011_2 = 67 has MSB valley of 4 zeros (1 · 0^4 · 1^2)
+    const rle67 = decomposeRleBlocksBigInt(67n);
+    expect(rle67.msbZeroValley).toBe(4);
+    expect(rle67.oneRuns[0]).toBe(2);
+
+    const v67 = computeTunnelingLyapunovBigInt(67n);
+    expect(v67).toBeGreaterThan(0);
+
+    const sim256 = simulateBigIntTrajectory(256);
+    expect(sim256.bitLength).toBe(256);
+    expect(sim256.collapsedTo1000).toBe(true);
+    expect(sim256.msbValleyExpansions).toBeGreaterThan(0);
+
+    const sim1024 = simulateBigIntTrajectory(1024);
+    expect(sim1024.collapsedTo1000).toBe(true);
+
+    expect(RESEARCH_LOOP_LOGS_SUMMARY.logs.length).toBe(6);
+    const finalIter = RESEARCH_LOOP_LOGS_SUMMARY.errorConvergence[4];
+    expect(finalIter.eWindow).toBe(0);
   });
 });

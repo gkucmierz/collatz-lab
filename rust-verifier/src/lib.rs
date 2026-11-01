@@ -1,3 +1,5 @@
+pub mod bigint_lab;
+
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::thread;
 use std::time::Instant;
