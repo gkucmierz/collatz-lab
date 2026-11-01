@@ -1,0 +1,26 @@
+{
+  "name": "collatz-lab",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Collatz Binary & Genetic Research Lab (collatz.7u.pl) — Interactive 3n+1 Live Trajectory Plotter, 2-Adic Binary Cellular Automaton & Evolutionary Invariant Hunter",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 45099 --host",
+    "build": "vite build",
+    "preview": "vite preview --port 45099 --host",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@gkucmierz/analytics": "^1.0.1",
+    "@gkucmierz/dport": "^1.6.0",
+    "@gkucmierz/nano-ui": "^1.7.9",
+    "lucide-vue-next": "^0.564.0",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^6.2.0",
+    "vitest": "^4.0.18"
+  },
+  "license": "UNLICENSED"
+}

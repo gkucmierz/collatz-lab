@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+.env
+.env.*
+.agents/
+.agent/
+AGENTS.md
+agents.md
+code-recipes/

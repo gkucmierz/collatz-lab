@@ -1,0 +1,23 @@
+name: collatz-lab
+
+services:
+  collatz-lab:
+    container_name: collatz-lab
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "45099:80"
+    expose:
+      - "80"
+    restart: unless-stopped
+    networks:
+      npm_public:
+        aliases:
+          - collatz-lab
+          - collatz
+          - 3n1
+
+networks:
+  npm_public:
+    external: true

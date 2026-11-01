@@ -1,0 +1,17 @@
+name: Build and Deploy (collatz-lab)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: gkucmierz/ci-workflows/.gitea/workflows/zero-downtime-deploy.yml@main
+    with:
+      container_name: collatz-lab
+      runs_on: self-hosted-pl
+      hot_swap_static: true
+      wait_timeout_sec: 180
+      healthcheck_url: http://localhost:45099/
