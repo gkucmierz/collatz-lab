@@ -162,6 +162,9 @@ body {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.7rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 132px;
+  text-align: center;
   padding: 4px 9px;
   border-radius: 999px;
   border: 1px solid var(--border-subtle);
@@ -334,11 +337,16 @@ body {
   display: flex;
   align-items: center;
   gap: 7px;
+  min-width: 0;
 }
 
 .card-title-group h2 {
   font-size: 0.84rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .telemetry-badges {
@@ -351,6 +359,8 @@ body {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.7rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   padding: 2px 8px;
   border-radius: 6px;
 }
@@ -402,12 +412,14 @@ body {
   flex-direction: column;
   gap: 3px;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  overflow-x: auto;
 }
 
 .carry-row {
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
 }
 
 .carry-label {
@@ -444,8 +456,11 @@ body {
 }
 
 .binary-waterfall {
+  min-height: 255px;
   max-height: 255px;
   overflow-y: auto;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 3px;

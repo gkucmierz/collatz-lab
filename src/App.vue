@@ -1,5 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { NanoNumberStepper } from '@gkucmierz/nano-ui';
+import '@gkucmierz/nano-ui/style.css';
 import {
   Activity,
   Binary,
@@ -419,13 +421,32 @@ const tickAnimation = () => {
 
   if (isStreaming.value) {
     if (activeTrajectories.value.length === 0) {
-      spawnTrajectory(pickNextStreamNumber());
+      const nextN = pickNextStreamNumber();
+      if (nextN !== null) {
+        spawnTrajectory(nextN, { instant: false });
+      } else {
+        isStreaming.value = false;
+        streamCompleted.value = true;
+      }
     } else {
       const latest = activeTrajectories.value[activeTrajectories.value.length - 1];
       if (latest.drawnSteps < latest.points.length) {
         latest.drawnSteps = Math.min(latest.points.length, latest.drawnSteps + stepsPerFrame.value);
+        if (latest.drawnSteps >= latest.points.length && streamMode.value === 'single') {
+          isStreaming.value = false;
+          streamCompleted.value = true;
+        }
       } else if (streamMode.value !== 'single') {
-        spawnTrajectory(pickNextStreamNumber());
+        const nextN = pickNextStreamNumber();
+        if (nextN !== null) {
+          spawnTrajectory(nextN, { instant: false });
+        } else {
+          isStreaming.value = false;
+          streamCompleted.value = true;
+        }
+      } else {
+        isStreaming.value = false;
+        streamCompleted.value = true;
       }
     }
   }
@@ -473,8 +494,11 @@ const toggleGeneticRun = () => {
 };
 
 const inspectGeneticCandidate = (cand) => {
+  isStreaming.value = false;
+  streamCompleted.value = false;
   singleSeed.value = cand.n;
-  spawnTrajectory(cand.n);
+  spawnTrajectory(cand.n, { instant: false });
+  isStreaming.value = true;
 };
 
 const openHelpModal = () => {
@@ -493,7 +517,7 @@ const handleKeyDown = (e) => {
   if (e.target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
   if (e.code === 'Space' || e.code === 'KeyP') {
     e.preventDefault();
-    isStreaming.value = !isStreaming.value;
+    togglePlayPause();
   } else if (e.code === 'KeyR') {
     resetPlotter();
   } else if (e.code === 'KeyT') {
@@ -507,7 +531,8 @@ const handleKeyDown = (e) => {
 };
 
 onMounted(() => {
-  spawnTrajectory(27);
+  currentCursorN.value = Math.max(2, rangeMin.value) - 1;
+  spawnTrajectory(27, { instant: true });
   for (let n = 2; n <= 45; n++) {
     const full = computeCollatzTrajectory(n, 1000);
     const prevMax = stoppingRecords.value.reduce((m, r) => Math.max(m, r.totalSteps), 0);
@@ -556,15 +581,31 @@ onUnmounted(() => {
       </div>
 
       <div class="header-controls">
-        <button type="button" class="ctrl-btn primary" @click="isStreaming = !isStreaming">
-          <Pause v-if="isStreaming" :size="15" />
-          <Play v-else :size="15" />
-          <span>{{ isStreaming ? (locale === 'pl' ? 'Pauza (Spacja)' : 'Pause (Space)') : (locale === 'pl' ? 'Rysuj Na Żywo' : 'Stream Live') }}</span>
+        <button
+          type="button"
+          class="ctrl-btn"
+          :class="{ 'play-active': !isStreaming }"
+          :disabled="isStreaming"
+          @click="startSimulation"
+        >
+          <Play :size="15" />
+          <span>{{ locale === 'pl' ? 'Play' : 'Play' }}</span>
         </button>
 
-        <button type="button" class="ctrl-btn" @click="spawnTrajectory(pickNextStreamNumber())">
+        <button
+          type="button"
+          class="ctrl-btn"
+          :class="{ 'pause-active': isStreaming }"
+          :disabled="!isStreaming"
+          @click="pauseSimulation"
+        >
+          <Pause :size="15" />
+          <span>{{ locale === 'pl' ? 'Pauza' : 'Pause' }}</span>
+        </button>
+
+        <button type="button" class="ctrl-btn" @click="stepNextNumber">
           <FastForward :size="15" />
-          <span>{{ locale === 'pl' ? 'Następna liczba' : 'Next Number' }}</span>
+          <span>{{ locale === 'pl' ? 'Krok +1' : 'Step +1' }}</span>
         </button>
 
         <button type="button" class="ctrl-btn" @click="resetPlotter">
@@ -597,6 +638,57 @@ onUnmounted(() => {
         <!-- Stream Control Bar -->
         <div class="card control-bar-card">
           <div class="control-row">
+            <div class="field-group">
+              <label>{{ locale === 'pl' ? 'Sterowanie Symulacją' : 'Simulation Transport' }}</label>
+              <div class="transport-group">
+                <button
+                  type="button"
+                  class="ctrl-btn"
+                  :class="{ 'play-active': !isStreaming }"
+                  :disabled="isStreaming"
+                  @click="startSimulation"
+                >
+                  <Play :size="14" />
+                  <span>{{ locale === 'pl' ? 'Play' : 'Play' }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="ctrl-btn"
+                  :class="{ 'pause-active': isStreaming }"
+                  :disabled="!isStreaming"
+                  @click="pauseSimulation"
+                >
+                  <Pause :size="14" />
+                  <span>{{ locale === 'pl' ? 'Pauza' : 'Pause' }}</span>
+                </button>
+                <button type="button" class="ctrl-btn" @click="stepNextNumber" :title="locale === 'pl' ? 'Następna liczba' : 'Next number'">
+                  <FastForward :size="14" />
+                  <span>+1</span>
+                </button>
+                <button type="button" class="ctrl-btn" @click="resetPlotter" :title="locale === 'pl' ? 'Resetuj wykres' : 'Reset chart'">
+                  <RotateCcw :size="14" />
+                </button>
+                <span
+                  class="sim-status-pill"
+                  :class="{ running: isStreaming, done: streamCompleted && !isStreaming }"
+                >
+                  {{
+                    isStreaming
+                      ? locale === 'pl'
+                        ? `W toku (n=${inspectedTrajectory.startN})`
+                        : `Running (n=${inspectedTrajectory.startN})`
+                      : streamCompleted
+                        ? locale === 'pl'
+                          ? 'Zakończono ✓'
+                          : 'Finished ✓'
+                        : locale === 'pl'
+                          ? 'Zatrzymano'
+                          : 'Paused'
+                  }}
+                </span>
+              </div>
+            </div>
+
             <div class="field-group">
               <label>{{ locale === 'pl' ? 'Tryb Generatora Liczb' : 'Number Stream Mode' }}</label>
               <div class="seg-group">
@@ -631,24 +723,42 @@ onUnmounted(() => {
             <div v-if="streamMode !== 'single'" class="field-group compact">
               <label>{{ locale === 'pl' ? 'Zakres [Od – Do]' : 'Range [Min – Max]' }}</label>
               <div class="range-inputs">
-                <input type="number" v-model.number="rangeMin" min="2" max="10000000" class="num-input" />
+                <NanoNumberStepper
+                  v-model="rangeMin"
+                  variant="stacked"
+                  :min="2"
+                  :max="10000000"
+                  :step="1"
+                  width="106px"
+                  aria-label="Range Min"
+                />
                 <span>–</span>
-                <input type="number" v-model.number="rangeMax" min="3" max="10000000" class="num-input" />
+                <NanoNumberStepper
+                  v-model="rangeMax"
+                  variant="stacked"
+                  :min="3"
+                  :max="10000000"
+                  :step="1"
+                  width="106px"
+                  aria-label="Range Max"
+                />
               </div>
             </div>
 
             <div v-else class="field-group compact">
               <label>{{ locale === 'pl' ? 'Liczba startowa n' : 'Start Number n' }}</label>
               <div class="range-inputs">
-                <input
-                  type="number"
-                  v-model.number="singleSeed"
-                  min="1"
-                  max="1000000000"
-                  class="num-input"
-                  @change="spawnTrajectory(singleSeed)"
+                <NanoNumberStepper
+                  v-model="singleSeed"
+                  variant="split"
+                  :min="1"
+                  :max="1000000000"
+                  :step="1"
+                  width="136px"
+                  aria-label="Start Number n"
+                  @change="spawnTrajectory(singleSeed, { instant: true })"
                 />
-                <button type="button" class="seg-btn active" @click="spawnTrajectory(singleSeed)">
+                <button type="button" class="seg-btn active" @click="startSimulation">
                   Start
                 </button>
               </div>
@@ -745,9 +855,99 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <!-- Right Column: Binary Space Cellular Automaton + Genetic Algorithm + 2-Adic Sieve -->
+      <!-- Right Column: Genetic Algorithm + 2-Adic Sieve (Top) & Binary Space Cellular Automaton (Bottom) -->
       <section class="panel-col">
-        <!-- 1. Binary Space Waterfall & Carry Automaton -->
+        <!-- 1. Genetic Algorithm & 2-Adic Contraction Sieve -->
+        <div class="card ga-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <Dna :size="16" class="text-amber" />
+              <h2>
+                {{
+                  locale === 'pl'
+                    ? 'Algorytm Genetyczny w {0,1}^K & Sito 2-Adyczne (mod 2^k)'
+                    : 'Genetic Algorithm in {0,1}^K & 2-Adic Contraction Sieve (mod 2^k)'
+                }}
+              </h2>
+            </div>
+            <div class="ga-actions">
+              <button type="button" class="seg-btn active" @click="toggleGeneticRun">
+                <Pause v-if="gaRunning" :size="13" />
+                <Play v-else :size="13" />
+                <span>{{ gaRunning ? 'Stop GA' : 'Ewolucja GA' }}</span>
+              </button>
+              <button type="button" class="seg-btn" @click="stepGeneticAlgorithm">
+                +1 Gen ({{ gaGeneration }})
+              </button>
+              <button type="button" class="seg-btn" @click="initGeneticPopulation">
+                <RefreshCw :size="13" />
+              </button>
+            </div>
+          </div>
+
+          <div class="ga-split">
+            <!-- Left half: Evolved Bit-Motifs -->
+            <div class="ga-pane">
+              <div class="pane-head">
+                <span>Top Chromosomy Binarne (K = {{ gaBitLength }} bitów)</span>
+                <input
+                  type="range"
+                  v-model.number="gaBitLength"
+                  min="10"
+                  max="28"
+                  class="slider sm"
+                  @change="initGeneticPopulation"
+                />
+              </div>
+              <div class="ga-list">
+                <div
+                  v-for="(cand, idx) in gaPopulation.slice(0, 5)"
+                  :key="idx"
+                  class="ga-item"
+                  @click="inspectGeneticCandidate(cand)"
+                >
+                  <span class="ga-rank">#{{ idx + 1 }}</span>
+                  <code class="ga-bits">{{ cand.bits }}</code>
+                  <span class="ga-stat">n={{ cand.n }} · {{ cand.totalSteps }} kr. (T₁={{ cand.trailingOnes }})</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right half: Rigorous 2-Adic Contraction Sieve mod 2^k -->
+            <div class="ga-pane">
+              <div class="pane-head">
+                <span>Dowód Lokalny mod 2^{{ sieveDepthK }} ({{ sieveCertificate.totalOddResidues }} klas)</span>
+                <input type="range" v-model.number="sieveDepthK" min="4" max="12" class="slider sm" />
+              </div>
+              <div class="sieve-summary">
+                <div class="sieve-bar-track">
+                  <div
+                    class="sieve-bar-fill"
+                    :style="{ width: `${sieveCertificate.contractedPercent}%` }"
+                  ></div>
+                </div>
+                <p class="sieve-desc">
+                  <strong>{{ sieveCertificate.contractedCount }} / {{ sieveCertificate.totalOddResidues }}</strong>
+                  ({{ sieveCertificate.contractedPercent.toFixed(1) }}%) nieparzystych klas reszt
+                  <code>r (mod 2^{{ sieveDepthK }})</code> ma <strong>ścisły dowód kontrakcji</strong>
+                  <code>3^c &lt; 2^m ⇒ T^m(n) &lt; n</code>. Pozostałe klasy wymagają wyższego rzędu 2-adycznego:
+                </p>
+                <div class="surviving-chips">
+                  <span
+                    v-for="s in sieveCertificate.survivingResidues.slice(0, 6)"
+                    :key="s.residue"
+                    class="surv-chip"
+                    @click="selectFamousSeed(s.residue)"
+                  >
+                    {{ s.binary }}₂ (r={{ s.residue }})
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Binary Space Waterfall & Carry Automaton (Moved to Bottom to Prevent Layout Shifts) -->
         <div class="card binary-card">
           <div class="card-header">
             <div class="card-title-group">
@@ -835,96 +1035,6 @@ onUnmounted(() => {
               <span class="wf-meta" :title="'Końcowe jedynki (Trailing 1s): ' + pt.trailingOnes">
                 1s:{{ pt.hamming }}/{{ pt.bitLength }} · T₁:{{ pt.trailingOnes }}
               </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2. Genetic Algorithm & 2-Adic Contraction Sieve -->
-        <div class="card ga-card">
-          <div class="card-header">
-            <div class="card-title-group">
-              <Dna :size="16" class="text-amber" />
-              <h2>
-                {{
-                  locale === 'pl'
-                    ? 'Algorytm Genetyczny w {0,1}^K & Sito 2-Adyczne (mod 2^k)'
-                    : 'Genetic Algorithm in {0,1}^K & 2-Adic Contraction Sieve (mod 2^k)'
-                }}
-              </h2>
-            </div>
-            <div class="ga-actions">
-              <button type="button" class="seg-btn active" @click="toggleGeneticRun">
-                <Pause v-if="gaRunning" :size="13" />
-                <Play v-else :size="13" />
-                <span>{{ gaRunning ? 'Stop GA' : 'Ewolucja GA' }}</span>
-              </button>
-              <button type="button" class="seg-btn" @click="stepGeneticAlgorithm">
-                +1 Gen ({{ gaGeneration }})
-              </button>
-              <button type="button" class="seg-btn" @click="initGeneticPopulation">
-                <RefreshCw :size="13" />
-              </button>
-            </div>
-          </div>
-
-          <div class="ga-split">
-            <!-- Left half: Evolved Bit-Motifs -->
-            <div class="ga-pane">
-              <div class="pane-head">
-                <span>Top Chromosomy Binarne (K = {{ gaBitLength }} bitów)</span>
-                <input
-                  type="range"
-                  v-model.number="gaBitLength"
-                  min="10"
-                  max="28"
-                  class="slider sm"
-                  @change="initGeneticPopulation"
-                />
-              </div>
-              <div class="ga-list">
-                <div
-                  v-for="(cand, idx) in gaPopulation.slice(0, 5)"
-                  :key="idx"
-                  class="ga-item"
-                  @click="inspectGeneticCandidate(cand)"
-                >
-                  <span class="ga-rank">#{{ idx + 1 }}</span>
-                  <code class="ga-bits">{{ cand.bits }}</code>
-                  <span class="ga-stat">n={{ cand.n }} · {{ cand.totalSteps }} kr. (T₁={{ cand.trailingOnes }})</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Right half: Rigorous 2-Adic Contraction Sieve mod 2^k -->
-            <div class="ga-pane">
-              <div class="pane-head">
-                <span>Dowód Lokalny mod 2^{{ sieveDepthK }} ({{ sieveCertificate.totalOddResidues }} klas)</span>
-                <input type="range" v-model.number="sieveDepthK" min="4" max="12" class="slider sm" />
-              </div>
-              <div class="sieve-summary">
-                <div class="sieve-bar-track">
-                  <div
-                    class="sieve-bar-fill"
-                    :style="{ width: `${sieveCertificate.contractedPercent}%` }"
-                  ></div>
-                </div>
-                <p class="sieve-desc">
-                  <strong>{{ sieveCertificate.contractedCount }} / {{ sieveCertificate.totalOddResidues }}</strong>
-                  ({{ sieveCertificate.contractedPercent.toFixed(1) }}%) nieparzystych klas reszt
-                  <code>r (mod 2^{{ sieveDepthK }})</code> ma <strong>ścisły dowód kontrakcji</strong>
-                  <code>3^c &lt; 2^m ⇒ T^m(n) &lt; n</code>. Pozostałe klasy wymagają wyższego rzędu 2-adycznego:
-                </p>
-                <div class="surviving-chips">
-                  <span
-                    v-for="s in sieveCertificate.survivingResidues.slice(0, 6)"
-                    :key="s.residue"
-                    class="surv-chip"
-                    @click="selectFamousSeed(s.residue)"
-                  >
-                    {{ s.binary }}₂ (r={{ s.residue }})
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
