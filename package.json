@@ -13,7 +13,7 @@
   "dependencies": {
     "@gkucmierz/analytics": "^1.0.1",
     "@gkucmierz/dport": "^1.6.0",
-    "@gkucmierz/nano-ui": "^1.7.9",
+    "@gkucmierz/nano-ui": "^1.8.3",
     "lucide-vue-next": "^0.564.0",
     "vue": "^3.5.13"
   },

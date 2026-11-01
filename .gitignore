@@ -1,11 +1,7 @@
+node_modules
 node_modules/
+dist
 dist/
 .DS_Store
 *.local
-.env
-.env.*
-.agents/
-.agent/
-AGENTS.md
-agents.md
-code-recipes/
+*.log
