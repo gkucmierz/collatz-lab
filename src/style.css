@@ -580,6 +580,96 @@ body {
   cursor: pointer;
 }
 
+.rust-cert-box {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.67rem;
+}
+
+.rust-cert-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.rust-levels-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.rust-lv-pill {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.62rem;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.iso-note {
+  font-size: 0.64rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.mealy-map-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding-top: 5px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.mealy-card {
+  padding: 5px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(15, 23, 42, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mealy-card.emerald {
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.mealy-card.amber {
+  border-color: rgba(245, 158, 11, 0.35);
+}
+.mealy-card.rose {
+  border-color: rgba(244, 63, 94, 0.35);
+}
+.mealy-card.cyan {
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.mealy-rule {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.64rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.mealy-role {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+}
+
+.mealy-stat {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
 .binary-waterfall {
   min-height: 255px;
   max-height: 255px;

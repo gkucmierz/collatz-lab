@@ -31,7 +31,10 @@ import {
   compute2AdicSieveCertificate,
   createIslandModelPopulation,
   stepIslandModelGA,
-  extractBinaryMotifs
+  extractBinaryMotifs,
+  computeLyapunovPotential,
+  buildMealyCarryTransitionMap,
+  RUST_DEEP_CERTIFICATES
 } from './engine/collatzEngine.js';
 
 const theme = ref(localStorage.getItem('collatz_theme') || 'dark');
@@ -62,7 +65,10 @@ const binarySelectedOdd = ref(5);
 const preCarryCustomInput = ref(5);
 const automatonStep = computed(() => analyzeBinaryAutomatonStep(binarySelectedOdd.value));
 const preCarryProbe = computed(() => computePreCarryTernaryStep(preCarryCustomInput.value));
+const mealyMap = computed(() => buildMealyCarryTransitionMap(preCarryCustomInput.value));
+const lyapunovProbe = computed(() => computeLyapunovPotential(preCarryCustomInput.value));
 const formalLemmas = verifyBinaryCarryLemmas();
+const rustDeepCert = RUST_DEEP_CERTIFICATES;
 
 const selectPreCarryProbe = (val) => {
   preCarryCustomInput.value = val;
@@ -1025,6 +1031,30 @@ onUnmounted(() => {
                     {{ s.binary.slice(-8) }}₂ (r={{ s.residue }})
                   </span>
                 </div>
+                <div class="rust-cert-box">
+                  <div class="rust-cert-head">
+                    <strong>🦀 Natywny Weryfikator Rust (u128 · 16 wątków · mod 2²⁰..2³⁴):</strong>
+                    <span class="motif-chip amber">
+                      k=34: 8 438 016 956 / 8 589 934 592 klas (98.231% w 69.4 ms · 837× speedup)
+                    </span>
+                  </div>
+                  <div class="rust-levels-strip">
+                    <span
+                      v-for="lv in rustDeepCert.levels"
+                      :key="lv.k"
+                      class="rust-lv-pill"
+                    >
+                      2^{{ lv.k }}: {{ lv.contractedPercent.toFixed(2) }}% ({{ lv.elapsedMs.toFixed(1) }}ms)
+                    </span>
+                  </div>
+                  <div class="iso-note">
+                    <strong>Twierdzenie o 2-Adycznej Izomorfii Poddrzew:</strong> 5 sufiksów 9-bitowych
+                    (<code>{{ rustDeepCert.isomorphicSuffixClasses.join('₂, ') }}₂</code>) ma identyczną wagę parzystości
+                    <code>c=7</code> i bijektywny obraz afiniczny <code>T⁹(r) + 3⁷m (mod 2^{k-9})</code>, dając
+                    <strong>dokładnie tę samą liczebność poddrzewa</strong> na każdym poziomie
+                    (np. <code>8 223 641</code> przy <code>k=34</code>).
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1159,8 +1189,24 @@ onUnmounted(() => {
                 ✓ Łańcuch 10 → 111 → 1222 → 10110 → 111211 → 1000011
               </span>
               <span class="lemma-pill cyan">
-                ✓ Dryf Haara: {{ formalLemmas.theoreticalDrift.toFixed(4) }} bit/krok
+                ✓ Potencjał Lapunowa V({{ lyapunovProbe.n }}) = {{ lyapunovProbe.potentialV.toFixed(2) }}
+                → V({{ lyapunovProbe.nextOdd }}) = {{ lyapunovProbe.nextPotentialV.toFixed(2) }}
+                (ΔV = {{ lyapunovProbe.deltaV >= 0 ? '+' : '' }}{{ lyapunovProbe.deltaV.toFixed(3) }})
               </span>
+            </div>
+
+            <!-- Mealy {0,1,2} Automaton State-Transition Map -->
+            <div class="mealy-map-grid">
+              <div
+                v-for="tr in mealyMap.transitions.slice(0, 4)"
+                :key="tr.id"
+                class="mealy-card"
+                :class="tr.tone"
+              >
+                <div class="mealy-rule">{{ tr.rule }}</div>
+                <div class="mealy-role">{{ tr.role }}</div>
+                <div class="mealy-stat">{{ tr.count }} kol. ({{ tr.sharePct.toFixed(0) }}%)</div>
+              </div>
             </div>
           </div>
 

@@ -666,3 +666,226 @@ export function extractBinaryMotifs(candidates) {
     avgHammingRatio: top.length > 0 ? sumHammingRatio / top.length : 0
   };
 }
+
+/**
+ * Computes the Composite 2-Adic Lyapunov Potential Function V(n) on {0,1,2} transitions:
+ *   V(n) = log2(n) + wTrail * (T1(n) - 1) + wCollision2 * (C11(n) / L) - wFuse1 * (Falt(n) / L)
+ *
+ * Crucial property: Even during a Mersenne climb (n = 2^L - 1 = 1^L_2, L >= 2) where log2(n)
+ * temporarily rises by log2(3/2) ≈ +0.58496 bits/step, the excess trailing-1 count (T1(n) - 1)
+ * strictly drops by -1 per step, so V(T(n)) < V(n) with strict negative drift!
+ */
+export function computeLyapunovPotential(
+  inputN,
+  { wTrail = 0.62, wCollision2 = 0.35, wFuse1 = 0.25 } = {}
+) {
+  const n = BigInt(Math.max(1, Math.floor(Number(inputN) || 1)));
+  if (n <= 1n) {
+    return {
+      n: 1,
+      log2N: 0,
+      trailingOnes: 1,
+      excessTrailingOnes: 0,
+      collisions11: 0,
+      alternatingFuses: 0,
+      potentialV: 0,
+      nextOdd: 1,
+      nextPotentialV: 0,
+      deltaV: 0,
+      strictlyDecreasing: true
+    };
+  }
+
+  const bits = n.toString(2);
+  const L = bits.length;
+  const log2N = bigIntLog2(n);
+  const t1 = countTrailingOnesBigInt(n);
+  const excessT1 = Math.max(0, t1 - 1);
+
+  let collisions11 = 0;
+  let alternatingFuses = 0;
+  for (let i = 0; i < L - 1; i++) {
+    if (bits[i] === '1' && bits[i + 1] === '1') collisions11++;
+    if (bits[i] !== bits[i + 1]) alternatingFuses++;
+  }
+
+  const invL = 1 / Math.max(1, L);
+  const potentialV =
+    log2N + wTrail * excessT1 + wCollision2 * collisions11 * invL - wFuse1 * alternatingFuses * invL;
+
+  const m = 3n * n + 1n;
+  const v2 = countTrailingZerosBigInt(m);
+  const nextOdd = m >> BigInt(v2);
+
+  let nextPotentialV = 0;
+  if (nextOdd > 1n) {
+    const nextBits = nextOdd.toString(2);
+    const nextL = nextBits.length;
+    const nextLog2 = bigIntLog2(nextOdd);
+    const nextT1 = countTrailingOnesBigInt(nextOdd);
+    const nextExcessT1 = Math.max(0, nextT1 - 1);
+    let nextC11 = 0;
+    let nextFalt = 0;
+    for (let i = 0; i < nextL - 1; i++) {
+      if (nextBits[i] === '1' && nextBits[i + 1] === '1') nextC11++;
+      if (nextBits[i] !== nextBits[i + 1]) nextFalt++;
+    }
+    const nextInvL = 1 / Math.max(1, nextL);
+    nextPotentialV =
+      nextLog2 +
+      wTrail * nextExcessT1 +
+      wCollision2 * nextC11 * nextInvL -
+      wFuse1 * nextFalt * nextInvL;
+  }
+
+  const deltaV = nextPotentialV - potentialV;
+
+  return {
+    n: Number(n),
+    log2N,
+    trailingOnes: t1,
+    excessTrailingOnes: excessT1,
+    collisions11,
+    alternatingFuses,
+    potentialV,
+    nextOdd: Number(nextOdd),
+    nextPotentialV,
+    deltaV,
+    strictlyDecreasing: deltaV < 0 || nextOdd === 1n
+  };
+}
+
+/**
+ * Builds the 6-State Mealy Automaton Transition Map for (s_i ∈ {0,1,2}, c_i ∈ {0,1}) -> (y_i, c_{i+1})
+ * where s_i = b_i + b_{i-1} is the pure column sum and c_0 = 1 is the initial +1 of 3n + 1.
+ */
+export function buildMealyCarryTransitionMap(inputN) {
+  const n = BigInt(Math.max(1, Math.floor(Number(inputN) || 1)));
+  const bits = n.toString(2);
+  const L = bits.length;
+
+  // Pad with leading 0 at MSB and trailing 0 at index -1
+  // Processing from LSB (idx = 0) to MSB (idx = L)
+  const bitAt = (idx) => {
+    if (idx < 0 || idx >= L) return 0;
+    return bits[L - 1 - idx] === '1' ? 1 : 0;
+  };
+
+  const transitionCounts = {
+    S0_C0: 0, // (s=0, c=0) -> y=0, c'=0 (Cisza zerowa 00)
+    S0_C1: 0, // (s=0, c=1) -> y=1, c'=0 (Zapora 00 zatrzymuje falę carry)
+    S1_C0: 0, // (s=1, c=0) -> y=1, c'=0 (Spokojny lont 01/10 bez carry)
+    S1_C1: 0, // (s=1, c=1) -> y=0, c'=1 (Nadprzewodnik: lont 01/10 zerowany przez carry!)
+    S2_C0: 0, // (s=2, c=0) -> y=0, c'=1 (Zapalnik: kolizja 11 wyzwala nowe carry!)
+    S2_C1: 0  // (s=2, c=1) -> y=1, c'=1 (Kaskada Mersennowska: 11 + carry -> 1 i carry)
+  };
+
+  let carry = 1; // c_0 = 1 from +1 in 3n + 1
+  const trace = [];
+
+  for (let i = 0; i <= L; i++) {
+    const bi = bitAt(i);
+    const biPrev = bitAt(i - 1);
+    const s = bi + biPrev; // in {0, 1, 2}
+    const key = `S${s}_C${carry}`;
+    transitionCounts[key] = (transitionCounts[key] || 0) + 1;
+    const total = s + carry;
+    const y = total & 1;
+    const nextCarry = total >= 2 ? 1 : 0;
+    trace.push({ col: i, bi, biPrev, s, carryIn: carry, bitOut: y, carryOut: nextCarry, key });
+    carry = nextCarry;
+  }
+
+  const totalCols = L + 1;
+  const transitions = [
+    {
+      id: 'S1_C1',
+      rule: '(s=1, c=1) → (y=0, c′=1)',
+      role: 'Nadprzewodnik (Anihilacja Lontu → 0)',
+      count: transitionCounts.S1_C1,
+      sharePct: (transitionCounts.S1_C1 / totalCols) * 100,
+      tone: 'emerald'
+    },
+    {
+      id: 'S2_C0',
+      rule: '(s=2, c=0) → (y=0, c′=1)',
+      role: 'Zapalnik Carry (Kolizja 11 budzi falę)',
+      count: transitionCounts.S2_C0,
+      sharePct: (transitionCounts.S2_C0 / totalCols) * 100,
+      tone: 'amber'
+    },
+    {
+      id: 'S2_C1',
+      rule: '(s=2, c=1) → (y=1, c′=1)',
+      role: 'Kaskada 1222 (Blok 111 podtrzymuje 1)',
+      count: transitionCounts.S2_C1,
+      sharePct: (transitionCounts.S2_C1 / totalCols) * 100,
+      tone: 'rose'
+    },
+    {
+      id: 'S0_C1',
+      rule: '(s=0, c=1) → (y=1, c′=0)',
+      role: 'Zapora 00 (Wygaszenie fali carry)',
+      count: transitionCounts.S0_C1,
+      sharePct: (transitionCounts.S0_C1 / totalCols) * 100,
+      tone: 'cyan'
+    },
+    {
+      id: 'S1_C0',
+      rule: '(s=1, c=0) → (y=1, c′=0)',
+      role: 'Lont bierny (Naprzemienne 01/10 bez c)',
+      count: transitionCounts.S1_C0,
+      sharePct: (transitionCounts.S1_C0 / totalCols) * 100,
+      tone: 'muted'
+    },
+    {
+      id: 'S0_C0',
+      rule: '(s=0, c=0) → (y=0, c′=0)',
+      role: 'Dolina zerowa (00 bez przeniesienia)',
+      count: transitionCounts.S0_C0,
+      sharePct: (transitionCounts.S0_C0 / totalCols) * 100,
+      tone: 'muted'
+    }
+  ];
+
+  return {
+    n: Number(n),
+    totalCols,
+    transitionCounts,
+    transitions,
+    trace
+  };
+}
+
+/**
+ * Exact precomputed certificates from `/Users/gkucmierz/workspace/collatz-lab/rust-verifier`
+ * (16-core Apple Silicon u128 verifier up to k = 34, i.e. 8,589,934,592 odd residue classes).
+ */
+export const RUST_DEEP_CERTIFICATES = {
+  engine: 'collatz-rust-verifier 1.0 (u128 + 16 threads)',
+  lyapunov: {
+    formula: 'V(n) = log₂(n) + 0.62·(T₁(n)−1) + 0.35·(C₁₁/L) − 0.25·(F_alt/L)',
+    singleStepDecreasePct: 73.98,
+    twoStepDecreasePct: 82.95,
+    threeStepDecreasePct: 87.90,
+    meanDriftPerOddStep: -0.4196,
+    mersenneStrictDescent: true
+  },
+  isomorphicSuffixClasses: [
+    '001111111',
+    '010011111',
+    '011101111',
+    '011111111',
+    '100011011'
+  ],
+  levels: [
+    { k: 20, totalOddResidues: 524288, contractedCount: 496960, survivingCount: 27328, contractedPercent: 94.788, pruningSpeedup: 165.2, elapsedMs: 0.42, isomorphicSuffixCount: 1329 },
+    { k: 22, totalOddResidues: 2097152, contractedCount: 2003930, survivingCount: 93222, contractedPercent: 95.555, pruningSpeedup: 218.3, elapsedMs: 0.29, isomorphicSuffixCount: 4654 },
+    { k: 24, totalOddResidues: 8388608, contractedCount: 8102027, survivingCount: 286581, contractedPercent: 96.584, pruningSpeedup: 273.8, elapsedMs: 0.49, isomorphicSuffixCount: 14778 },
+    { k: 26, totalOddResidues: 33554432, contractedCount: 32517058, survivingCount: 1037374, contractedPercent: 96.908, pruningSpeedup: 355.4, elapsedMs: 0.76, isomorphicSuffixCount: 54016 },
+    { k: 28, totalOddResidues: 134217728, contractedCount: 130693142, survivingCount: 3524586, contractedPercent: 97.374, pruningSpeedup: 466.6, elapsedMs: 2.12, isomorphicSuffixCount: 186144 },
+    { k: 30, totalOddResidues: 536870912, contractedCount: 524099638, survivingCount: 12771274, contractedPercent: 97.621, pruningSpeedup: 577.8, elapsedMs: 6.50, isomorphicSuffixCount: 679444 },
+    { k: 32, totalOddResidues: 2147483648, contractedCount: 2106136165, survivingCount: 41347483, contractedPercent: 98.075, pruningSpeedup: 682.4, elapsedMs: 21.79, isomorphicSuffixCount: 2228329 },
+    { k: 34, totalOddResidues: 8589934592, contractedCount: 8438016956, survivingCount: 151917636, contractedPercent: 98.231, pruningSpeedup: 837.4, elapsedMs: 69.42, isomorphicSuffixCount: 8223641 }
+  ]
+};
