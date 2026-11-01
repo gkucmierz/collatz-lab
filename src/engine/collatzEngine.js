@@ -1122,6 +1122,14 @@ export const RESEARCH_LOOP_LOGS_SUMMARY = {
       file: 'logs/06-horizon-scaling-and-bellman-closure-4096bit.md',
       title: 'Metoda 6: Prawo Skalowania Horyzontu Bellmana H_max(B)/B → 0 (do 4096 bitów ≈ 10¹²³³)',
       verdict: 'Pełny skan 65 535 liczb nieparzystych + BigInt 4096-bit: stały średni horyzont E[H] = 2.26 kroku i spadek H_max(B)/B z 5.20 do 0.0017!'
+    },
+    {
+      id: '07',
+      slug: '07-dowod-krok-po-kroku-analiza-binarna-collatza',
+      routePath: '/logs/07-dowod-krok-po-kroku-analiza-binarna-collatza',
+      file: 'logs/07-dowod-krok-po-kroku-analiza-binarna-collatza.md',
+      title: 'Dowód Krok po Kroku (07): Pełna Rygorystyczna Analiza Binarna, Lematy 1–3 i Obwiednia Bellmana-Lapunowa',
+      verdict: 'Kompletny przewodnik dowodowy w 9 elementarnych krokach: 6-stanowy automat Mealy’ego, 3 ścisłe lematy algebraiczne i dowód spadku U_H(T(n)) ≤ U_H(n) − δ.'
     }
   ]
 };
@@ -1165,17 +1173,32 @@ function formatMathLatex(tex) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
+    .replace(/\\begin\{cases\}([\s\S]*?)\\end\{cases\}/g, (_, body) => {
+      const rows = body
+        .split('\\\\')
+        .map((r) => r.trim().replace(/&/g, ' — '))
+        .filter(Boolean);
+      return `{ ${rows.join(' ;  ')} }`;
+    })
+    .replace(/\\underbrace\{([^{}]*)\}_\{([^{}]*)\}/g, '$1 [$2]')
+    .replace(/\\mathtt\{([^}]*)\}/g, '<code>$1</code>')
     .replace(/\{,\}/g, ',')
     .replace(/\\%/g, '%')
     .replace(/\\\{/g, '{')
     .replace(/\\\}/g, '}')
     .replace(/\\mathbb\{Z\}_2/g, 'ℤ₂')
     .replace(/\\mathbb\{N\}\^\+/g, 'ℕ⁺')
+    .replace(/\\mathbb\{O\}\^\+/g, '𝕆⁺')
     .replace(/\\mathbb\{E\}/g, '𝔼')
     .replace(/\\mathcal\{E\}/g, 'ℰ')
+    .replace(/\\Phi/g, 'Φ')
+    .replace(/\\blacksquare/g, '∎')
     .replace(/\\(?:mathbf|textbf)\{([^}]*)\}/g, '<strong>$1</strong>')
     .replace(/\\text\{([^}]*)\}/g, '$1')
     .replace(/\\pmod\{([^}]*)\}/g, ' (mod $1)')
+    .replace(/\\bmod\b/g, ' mod ')
+    .replace(/\\lfloor\b/g, '⌊')
+    .replace(/\\rfloor\b/g, '⌋')
     .replace(/\\(?:big|Big|bigl|bigr|Bigl|Bigr|left|right)\b/g, '')
     .replace(/\\log_2/g, 'log₂')
     .replace(/\\nu_2/g, 'ν₂')
@@ -1190,6 +1213,7 @@ function formatMathLatex(tex) {
     .replace(/\\approx\b/g, '≈')
     .replace(/\\iff\b/g, '⟺')
     .replace(/\\implies\b/g, '⟹')
+    .replace(/\\leftrightarrow\b/g, '↔')
     .replace(/\\lor\b/g, '∨')
     .replace(/\\land\b/g, '∧')
     .replace(/\\to\b/g, '→')
@@ -1198,10 +1222,13 @@ function formatMathLatex(tex) {
     .replace(/\\cdot\b/g, '·')
     .replace(/\\times\b/g, '×')
     .replace(/\\in\b/g, '∈')
+    .replace(/\\subset\b/g, '⊂')
     .replace(/\\forall\b/g, '∀')
     .replace(/\\sum/g, '∑')
     .replace(/\\min\b/g, 'min')
     .replace(/\\max\b/g, 'max')
+    .replace(/\\inf\b/g, 'inf')
+    .replace(/\\sup\b/g, 'sup')
     .replace(/\\(?:dots|ldots|cdots)\b/g, '…')
     .replace(/\\[,;:!]/g, ' ')
     .replace(/\\quad\b|\\qquad\b/g, '  ');

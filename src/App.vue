@@ -46,6 +46,7 @@ import log03Raw from '../logs/03-symbolic-block-grammar-closure.md?raw';
 import log04Raw from '../logs/04-inverse-mod3-reachability.md?raw';
 import log05Raw from '../logs/05-adversarial-bigint-coevolution.md?raw';
 import log06Raw from '../logs/06-horizon-scaling-and-bellman-closure-4096bit.md?raw';
+import log07Raw from '../logs/07-dowod-krok-po-kroku-analiza-binarna-collatza.md?raw';
 
 const theme = ref(localStorage.getItem('collatz_theme') || 'dark');
 const locale = ref(localStorage.getItem('collatz_locale') || 'pl');
@@ -58,7 +59,8 @@ const RAW_LOGS_BY_ID = {
   '03': log03Raw,
   '04': log04Raw,
   '05': log05Raw,
-  '06': log06Raw
+  '06': log06Raw,
+  '07': log07Raw
 };
 const isFullLogRoute = ref(false);
 const selectedLogId = ref('01');
@@ -805,6 +807,15 @@ onUnmounted(() => {
           <span>Reset (R)</span>
         </button>
 
+        <a
+          href="/logs/07-dowod-krok-po-kroku-analiza-binarna-collatza"
+          class="ctrl-btn primary link-btn"
+          @click.prevent="navigateToLogRoute('07')"
+        >
+          <Sparkles :size="15" />
+          <span>{{ locale === 'pl' ? 'Dowód Krok po Kroku (07)' : 'Step-by-Step Proof (07)' }}</span>
+        </a>
+
         <button type="button" class="ctrl-btn" @click="toggleLocale">
           <span>{{ locale.toUpperCase() }}</span>
           <kbd>L</kbd>
@@ -831,7 +842,7 @@ onUnmounted(() => {
             <span>← Powrót do Laboratorium (/)</span>
           </button>
           <div class="log-sidebar-heading">
-            Dzienniki Badawcze (/logs/01..06)
+            Dzienniki Badawcze (/logs/01..07)
           </div>
         </div>
 
@@ -1557,17 +1568,17 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <!-- Summary of the 6 Research Logs in /logs/ (Clickable with Live Preview) -->
+          <!-- Summary of the 7 Research Logs in /logs/ (Clickable with Live Preview) -->
           <div class="logs-summary-list">
             <div class="logs-list-header">
               <span>
                 {{
                   locale === 'pl'
-                    ? 'Dzienniki Badawcze /logs/01..06.md — kliknij dowolny dokument, aby otworzyć pełny podgląd:'
-                    : 'Research Logs /logs/01..06.md — click any document to open live preview:'
+                    ? 'Dzienniki Badawcze /logs/01..07.md — kliknij dowolny dokument, aby otworzyć pełny podgląd:'
+                    : 'Research Logs /logs/01..07.md — click any document to open live preview:'
                 }}
               </span>
-              <span class="sub-mono">6 pełnych raportów .md</span>
+              <span class="sub-mono">7 pełnych raportów .md</span>
             </div>
             <div
               v-for="lg in researchLoopSummary.logs"

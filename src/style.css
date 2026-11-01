@@ -4,6 +4,10 @@
   --bg-panel: rgba(13, 19, 33, 0.92);
   --bg-card: rgba(20, 29, 48, 0.78);
   --bg-card-hover: rgba(30, 43, 68, 0.9);
+  --bg-subtle: rgba(15, 23, 42, 0.42);
+  --bg-zebra: rgba(15, 23, 42, 0.35);
+  --bg-preview: rgba(7, 11, 20, 0.72);
+  --bg-code: rgba(3, 7, 18, 0.82);
   --border-subtle: rgba(148, 163, 184, 0.16);
   --text-main: #f1f5f9;
   --text-muted: #94a3b8;
@@ -15,9 +19,13 @@
 
 [data-theme='light'] {
   --bg-main: #f1f5f9;
-  --bg-panel: rgba(255, 255, 255, 0.94);
+  --bg-panel: rgba(255, 255, 255, 0.96);
   --bg-card: rgba(241, 245, 249, 0.92);
   --bg-card-hover: rgba(226, 232, 240, 0.95);
+  --bg-subtle: rgba(226, 232, 240, 0.65);
+  --bg-zebra: rgba(241, 245, 249, 0.78);
+  --bg-preview: #f8fafc;
+  --bg-code: #f1f5f9;
   --border-subtle: rgba(15, 23, 42, 0.14);
   --text-main: #0f172a;
   --text-muted: #475569;
@@ -632,7 +640,7 @@ body {
   padding: 5px 7px;
   border-radius: 6px;
   border: 1px solid var(--border-subtle);
-  background: rgba(15, 23, 42, 0.35);
+  background: var(--bg-subtle);
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -716,7 +724,7 @@ body {
   gap: 6px;
   padding: 3px 6px;
   border-radius: 5px;
-  background: rgba(15, 23, 42, 0.35);
+  background: var(--bg-subtle);
 }
 
 .bi-line span {
@@ -807,7 +815,7 @@ body {
   padding: 2px 7px;
   border-radius: 5px;
   border: 1px solid var(--border-subtle);
-  background: rgba(15, 23, 42, 0.45);
+  background: var(--bg-subtle);
   color: var(--accent-cyan);
   cursor: pointer;
   white-space: nowrap;
@@ -825,7 +833,7 @@ body {
 
 .log-preview-panel {
   margin-top: 6px;
-  background: rgba(7, 11, 20, 0.72);
+  background: var(--bg-preview);
   border: 1px solid rgba(56, 189, 248, 0.35);
   border-radius: 10px;
   padding: 10px 12px;
@@ -906,7 +914,7 @@ body {
   margin: 0;
   padding: 10px;
   border-radius: 8px;
-  background: rgba(3, 7, 18, 0.78);
+  background: var(--bg-code);
   border: 1px solid var(--border-subtle);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.68rem;
@@ -1000,7 +1008,7 @@ body {
   margin: 10px 0;
   padding: 10px 12px;
   border-radius: 7px;
-  background: rgba(3, 7, 18, 0.82);
+  background: var(--bg-code);
   border: 1px solid var(--border-subtle);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.72rem;
@@ -1035,7 +1043,7 @@ body {
 }
 
 .md-table tr:nth-child(even) td {
-  background: rgba(15, 23, 42, 0.35);
+  background: var(--bg-zebra);
 }
 
 .log-reader-dialog {
@@ -1317,7 +1325,7 @@ body {
   gap: 6px;
   padding: 4px 6px;
   border-radius: 6px;
-  background: rgba(15, 23, 42, 0.35);
+  background: var(--bg-subtle);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.68rem;
   cursor: pointer;
