@@ -109,7 +109,7 @@ Do wielogodzinnego szturmu na Hipotezę Collatza optymalny jest **trójwarstwowy
 > **Wskazówka:** Wpisuj komendę `/goal` **bez spacji** po ukośniku (`/`), aby aktywować tryb długodystansowy Antigravity.
 
 ```text
-/goal Przeprowadź wieloetapową, rygorystyczną analizę matematyczną, eksperymentalną i formalną Hipotezy Collatza (3n+1) w przestrzeni binarnej (Z_2) w repozytorium /Users/gkucmierz/workspace/collatz-lab:
+/goal Przeprowadź wieloetapową, rygorystyczną analizę matematyczną, eksperymentalną i formalną Hipotezy Collatza (3n+1) w przestrzeni binarnej (Z_2) w repozytorium collatz-lab:
 
 1. Automat Wektora Trójkowego Przed Przeniesieniem (Pre-Carry Ternary Vector d_i ∈ {0,1,2}):
    - Sformalizuj rozkład 3n + 1 = (n << 1) + n + 1 na surowy wektor kolumnowy d_i = b_{i-1} + b_i + delta_{i,0} ∈ {0,1,2} przed propagacją przeniesień (np. 101_2 -> 1112 -> 10000_2; 111_2 -> 1222 -> 10110_2 -> 111211 -> 1000011_2).

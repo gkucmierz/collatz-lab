@@ -1,7 +1,7 @@
 # Log Badawczy 05: Współewolucyjny Łowca Kontrprzykładów `BigInt` (`128–2048` bitów) vs Potencjał $V_{\theta}(n)$
 
 - **Metoda:** `05-adversarial-bigint-coevolution`
-- **Silnik obliczeniowy:** [`rust-verifier/src/bigint_lab.rs`](file:///Users/gkucmierz/workspace/collatz-lab/rust-verifier/src/bigint_lab.rs) (`run_method5_adversarial_bigint_hunter`)
+- **Silnik obliczeniowy:** `rust-verifier/src/bigint_lab.rs` (`run_method5_adversarial_bigint_hunter`)
 
 ---
 

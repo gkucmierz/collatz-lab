@@ -1,7 +1,7 @@
 # Log Badawczy 02: Dwustronny Model Zderzenia Frontów Zer (Lewy Brzeg MSB `1000...` $\times$ Prawy Brzeg LSB `...000`)
 
 - **Metoda:** `02-two-sided-msb-lsb-annihilation`
-- **Silnik obliczeniowy:** [`rust-verifier/src/bigint_lab.rs`](file:///Users/gkucmierz/workspace/collatz-lab/rust-verifier/src/bigint_lab.rs) (`run_method2_two_sided_analysis`)
+- **Silnik obliczeniowy:** `rust-verifier/src/bigint_lab.rs` (`run_method2_two_sided_analysis`)
 
 ---
 

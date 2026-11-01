@@ -1,7 +1,7 @@
 # Log Badawczy 06: Prawo Skalowania Horyzontu Bellmana $H_{\max}(B)/B \to 0$ dla Wielkich Liczb `BigInt` (do $4096$ bitów $\approx 10^{1233}$)
 
 - **Metoda:** `06-horizon-scaling-and-bellman-closure-4096bit`
-- **Silnik obliczeniowy:** [`rust-verifier/src/bigint_lab.rs`](file:///Users/gkucmierz/workspace/collatz-lab/rust-verifier/src/bigint_lab.rs) (`run_method6_horizon_scaling_analysis`)
+- **Silnik obliczeniowy:** `rust-verifier/src/bigint_lab.rs` (`run_method6_horizon_scaling_analysis`)
 
 ---
 

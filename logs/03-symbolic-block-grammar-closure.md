@@ -1,7 +1,7 @@
 # Log Badawczy 03: Symboliczny Transduktor na Parametrycznych Blokach Biegów $1^{a_k} 0^{b_{k-1}} \dots 1^{a_1}$
 
 - **Metoda:** `03-symbolic-block-grammar-closure`
-- **Silnik obliczeniowy:** [`rust-verifier/src/bigint_lab.rs`](file:///Users/gkucmierz/workspace/collatz-lab/rust-verifier/src/bigint_lab.rs) (`verify_method3_symbolic_grammar`)
+- **Silnik obliczeniowy:** `rust-verifier/src/bigint_lab.rs` (`verify_method3_symbolic_grammar`)
 
 ---
 

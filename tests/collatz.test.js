@@ -140,4 +140,44 @@ describe('Collatz.7u.pl — Binary Space, Pre-Carry Ternary {0,1,2}, Lyapunov & 
     const finalIter = RESEARCH_LOOP_LOGS_SUMMARY.errorConvergence[4];
     expect(finalIter.eWindow).toBe(0);
   });
+
+  it('renders research log Markdown documents (tables, formulas, code blocks) and resolves /logs/* routes without local path leaks', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const { renderLogMarkdownToHtml, resolveLogRoute } = await import('../src/engine/collatzEngine.js');
+    const sample = [
+      '# Log Badawczy #01',
+      '$$T(n) = (3n+1)/2^{\\nu_2}$$',
+      '> **Dla obwiedni $U_H(n)$ przy $0{,}0000\\%$:**',
+      '| Iteracja | Błąd |',
+      '|---|---|',
+      '| Iteracja 4 | **0.0000%** |'
+    ].join('\n');
+    const html = renderLogMarkdownToHtml(sample);
+    expect(html).toContain('class="md-h1"');
+    expect(html).toContain('class="md-math-block"');
+    expect(html).toContain('class="md-quote"');
+    expect(html).toContain('class="md-table"');
+    expect(html).toContain('<strong>0.0000%</strong>');
+    expect(html).toContain('0,0000%');
+    expect(html).not.toContain('\\{,\\}');
+
+    expect(resolveLogRoute('/')).toEqual({ isLogRoute: false, logId: null, canonicalPath: '/' });
+    expect(resolveLogRoute('/logs/01-carry-tunneling-lyapunov-bigint')).toEqual({
+      isLogRoute: true,
+      logId: '01',
+      canonicalPath: '/logs/01-carry-tunneling-lyapunov-bigint'
+    });
+    expect(resolveLogRoute('/logs/06-horizon-scaling-and-bellman-closure-4096bit.md')).toEqual({
+      isLogRoute: true,
+      logId: '06',
+      canonicalPath: '/logs/06-horizon-scaling-and-bellman-closure-4096bit'
+    });
+
+    for (const lg of RESEARCH_LOOP_LOGS_SUMMARY.logs) {
+      const mdContent = fs.readFileSync(path.resolve(process.cwd(), lg.file), 'utf8');
+      expect(mdContent).not.toContain('file://');
+      expect(mdContent).not.toMatch(/\/Users\//);
+    }
+  });
 });

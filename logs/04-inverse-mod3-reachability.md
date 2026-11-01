@@ -1,7 +1,7 @@
 # Log Badawczy 04: Drzewo Odwrotne $G_m(u) = \frac{u \cdot 2^m - 1}{3}$ od Celu `1[000...]` i 3-Stanowy Automat $\pmod 3$
 
 - **Metoda:** `04-inverse-mod3-reachability`
-- **Silnik obliczeniowy:** [`rust-verifier/src/bigint_lab.rs`](file:///Users/gkucmierz/workspace/collatz-lab/rust-verifier/src/bigint_lab.rs) (`run_method4_inverse_mod3_tree`)
+- **Silnik obliczeniowy:** `rust-verifier/src/bigint_lab.rs` (`run_method4_inverse_mod3_tree`)
 
 ---
 

@@ -1,7 +1,7 @@
 # Log Badawczy 01: Wielowarstwowy Potencjał Tunelowania Przeniesień przez Bariery Zer ($V_{\theta}(n)$) na Liczbach `BigInt`
 
 - **Metoda:** `01-carry-tunneling-lyapunov-bigint`
-- **Silnik obliczeniowy:** [`rust-verifier/src/bigint_lab.rs`](file:///Users/gkucmierz/workspace/collatz-lab/rust-verifier/src/bigint_lab.rs) (`BigBits` 128–2048 bitów, 16 wątków CPU Apple Silicon)
+- **Silnik obliczeniowy:** `rust-verifier/src/bigint_lab.rs` (`BigBits` 128–2048 bitów, 16 wątków CPU Apple Silicon)
 - **Zbiór testowy:** $8\,000$ kolejnych liczb nieparzystych $n \in [3, 16\,001]$ + $1\,000$ kontrprzykładowych liczb `BigInt` o długości $128$ i $256$ bitów (zagęszczone bloki jedynek `11` oddzielone pojedynczymi zerami `0`, w tym rekordziści typu $n = 27 = 11011_2$).
 
 ---
