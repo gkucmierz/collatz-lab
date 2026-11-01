@@ -39,19 +39,54 @@ Co oznaczają te trzy operacje na bitach liczby nieparzystej $n$?
 2. **$2n + 1$** to zamiana tego dopisanego końcowego zera na jedynkę ($\mathtt{...b_2 b_1 b_0 1_2}$).
 3. **Dzielenie przez $2^{\nu_2(3n+1)}$** to po prostu **skreślenie wszystkich końcowych zer** z prawej strony wyniku!
 
-### 2.1. Sprawdźmy to ręcznie na małym przykładzie ($n = 5 = \mathtt{101_2}$)
-- Zapis binarny $n = 5$: $\mathtt{0101_2}$
-- Przesunięte $2n + 1 = 11$: $\mathtt{1011_2}$
-- Dodajemy pisemnie w słupku od prawej do lewej:
-  - Kolumna 0 (najmłodszy bit): $1 + 1 = 2 = \mathtt{10_2}$ $\implies$ wpisujemy $\mathtt{0}$, przeniesienie $c_1 = 1$.
-  - Kolumna 1: $0 + 1 + (\text{przeniesienie } 1) = 2 = \mathtt{10_2}$ $\implies$ wpisujemy $\mathtt{0}$, przeniesienie $c_2 = 1$.
-  - Kolumna 2: $1 + 0 + (\text{przeniesienie } 1) = 2 = \mathtt{10_2}$ $\implies$ wpisujemy $\mathtt{0}$, przeniesienie $c_3 = 1$.
-  - Kolumna 3: $0 + 1 + (\text{przeniesienie } 1) = 2 = \mathtt{10_2}$ $\implies$ wpisujemy $\mathtt{0}$, przeniesienie $c_4 = 1$.
-  - Kolumna 4: zostaje samo przeniesienie $\mathtt{1}$.
-- Wynik $3 \cdot 5 + 1 = 16$: $\mathtt{10000_2}$.
-- Skreślamy $\nu_2 = 4$ końcowe zera $\implies$ zostaje $\mathtt{1_2} = 1$!
+### 2.1. Sprawdźmy to ręcznie w słupku na małym przykładzie ($n = 5 = \mathtt{101_2}$)
 
-Zauważ, co się stało: pojedyncza fala przeniesienia ($c = 1$) przebiegła przez całą liczbę $\mathtt{101_2}$ i zamieniła wszystkie jej bity w zera! Dlaczego? Wyjaśnia to Krok 3.
+Zapiszmy pod sobą $2n$ (przesunięte o jeden bit w lewo), $n$ oraz $+1$ na najniższym bicie, najpierw sumując kolumny bez przeniesień (w alfabecie $\{0, 1, 2\}$), a następnie rozładowując przeniesienia od prawej do lewej:
+
+```text
+  2n :   1 0 1 0       (10 w dziesiętnym)
++  n :   0 1 0 1       ( 5 w dziesiętnym)
++  1 :         1       (+1 na najmłodszym bicie)
+----------------
+Stan :   1 1 1 2       ← zapis przed-przeniesieniowy w alfabecie {0, 1, 2}
+Wynik: 1 0 0 0 0       ← po fali przeniesień od prawej do lewej (16 = 2⁴)
+Po /2⁴:        1       ← skreślamy 4 końcowe zera: zostaje 1!
+```
+
+Rozpiszmy każdą kolumnę tego słupka od prawej do lewej:
+- Kolumna 0 (najmłodszy bit): $0 + 1 + 1 = 2 = \mathtt{10_2}$ $\implies$ wpisujemy $\mathtt{0}$, przeniesienie $c_1 = 1$.
+- Kolumna 1: $1 + 0 + (\text{przeniesienie } 1) = 2 = \mathtt{10_2}$ $\implies$ wpisujemy $\mathtt{0}$, przeniesienie $c_2 = 1$.
+- Kolumna 2: $0 + 1 + (\text{przeniesienie } 1) = 2 = \mathtt{10_2}$ $\implies$ wpisujemy $\mathtt{0}$, przeniesienie $c_3 = 1$.
+- Kolumna 3: $1 + 0 + (\text{przeniesienie } 1) = 2 = \mathtt{10_2}$ $\implies$ wpisujemy $\mathtt{0}$, przeniesienie $c_4 = 1$.
+- Kolumna 4: zostaje samo przeniesienie $\mathtt{1}$.
+- Wynik $3 \cdot 5 + 1 = 16 = \mathtt{10000_2}$. Po skreśleniu $\nu_2 = 4$ końcowych zer zostaje $\mathtt{1_2} = 1$!
+
+### 2.2. Drugi przykład w słupku: narodziny i rozpad bloku jedynek ($\mathtt{111_2} \to \mathtt{1222} \to \mathtt{10110_2} \to \mathtt{111211} \to \mathtt{1000011_2}$)
+
+Zobaczmy teraz w słupku, co dzieje się dla $n = 7 = \mathtt{111_2}$ (trzy jedynki z rzędu):
+
+```text
+Krok A (n = 7 = 111₂):
+  2n :     1 1 1 0     (14)
++  n :     0 1 1 1     ( 7)
++  1 :           1     (+1)
+------------------
+Stan :     1 2 2 2     ← trzy kolizje '2' z rzędu!
+Wynik:   1 0 1 1 0     ← 22 = 10110₂ (po skreśleniu zera: n' = 11 = 1011₂)
+
+Krok B (n' = 11 = 1011₂, czyli równoważnie z zachowanym zerem 22 = 10110₂):
+  2n':   1 0 1 1 0     (22)
++  n':   0 1 0 1 1     (11)
++  1 :           1     (+1)
+------------------
+Stan :   1 1 1 2 2     ← na lewo od '2' powstał lont jedynek '111'!
+Wynik: 1 0 0 0 1 0     ← 34 = 100010₂ (fala z '2' wypaliła trzy jedynki w zera '000'!)
+Po /2:   1 0 0 0 1     ← 17 = 10001₂ (zostały już tylko dwie skrajne jedynki przedzielone doliną zer!)
+```
+
+Zauważ, co się stało w obu słupkach:
+1. Wszędzie tam, gdzie w stanie pośrednim $\{0, 1, 2\}$ stoją jedynki `1 1 1` na lewo od dwójki `2`, nadbiegająca z `2` fala przeniesienia ($c = 1$) przebiega przez wszystkie `1` jak po lontcie prochowym i zamienia je w ciąg zer `0 0 0`!
+2. Nawet gdy liczba składa się z samych jedynek ($\mathtt{111_2} \to \mathtt{1222}$), już po jednym kroku na jej lewym brzegu rodzi się para naprzemienna $\mathtt{10\dots}$ ($\mathtt{1011_2}$), która w kolejnym kroku staje się lontem `1 1 1` i ulega samospaleniu do `1 0 0 0 1`! Dlaczego tak się dzieje zawsze? Wyjaśnia to Krok 3.
 
 ---
 
@@ -338,7 +373,7 @@ Aby zachować maksymalną uczciwość i przejrzystość matematyczną, poniższa
 | **1. Domknięcie Bellmana** (*Bellman Closure*) | Nie występują niekontrolowane stany brzegowe; obwiednia $U_{H^*}$ zamienia spadek oknowy na spadek 1-krokowy | **Udowodnione warunkowo (Twierdzenie 8.1):** Dla każdego podzbioru stanów (lub klasy liczb), na którym horyzont rozładowania jest ograniczony przez $H(n) \le H^* < \infty$, obwiednia splotowa $U_{H^*}(n) = \min_{0 \le j \le H^*}(V_{\theta}(T^j(n)) + \delta j)$ bezwarunkowo spełnia $U_{H^*}(T(n)) \le U_{H^*}(n) - \delta$ bez żadnych wyjątków brzegowych. Na skończonych pasmach do $B=17$ bitów (pełny skan $65\,535$ liczb) i próbach do $4096$ bitów zachodzi $H^* = 87$ i błąd $\mathcal{E} = 0{,}0000\%$. |
 | **2. Skalowanie Horyzontu** (*Horizon Scaling*) | Stałe i ograniczenia nie pogarszają się przy zwiększaniu rozmiaru bitowego $B \to \infty$ | **Zweryfikowane empirycznie do $B = 4096$ bitów + Lemat lokalności:** Średni horyzont pozostaje niezmienniczy ($\mathbb{E}[H(n)] \approx 2{,}26$ kroku dla $B \in [2, 1024]$), a stosunek maksymalnego horyzontu do długości bitowej maleje: $H_{\max}(B)/B$ spada z $5{,}20$ ($B=10$) do $0{,}277$ ($B=256$), $0{,}0635$ ($B=1024$) i $0{,}0017$ ($B=4096$). **Granica analityczna ($B \to \infty$):** Wykazanie w ZFC, że $\sup_{n>1} H(n) < \infty$ (lub że $H(n) < \infty$ dla każdego $n > 1$ przy $B \to \infty$), wymaga wykluczenia nieskończonej samoregeneracji bloków $\mathtt{01^a}$ przed dotarciem do bariery zer MSB. |
 | **3. Certyfikat 4096-bit i Sito $\bmod 2^{34}$** | Obliczenia są dokładne (bez błędów zaokrągleń `float64`) i obejmują zadeklarowany zakres | **Udowodnione i w 100% dokładne:** Wszystkie iteracje $T(n) = (3n+1)/2^{v_2(3n+1)}$ oraz wykładniki $v_2$ są liczone na dokładnej arytmetyce całkowitej `u128` / `BigInt` (`rust-verifier/src/bigint_lab.rs`). Certyfikat $\bmod 2^{34}$ wyczerpująco bada wszystkie $2^{33} = 8\,589\,934\,592$ nieparzyste klasy reszt, a skan do $B=17$ bitów bada $100\%$ ($65\,535$) liczb nieparzystych. Dla $B = 256, 1024, 4096$ bitów certyfikat obejmuje celowo skonstruowane słowa patologiczne (maksymalne zagęszczenie $\mathtt{11_2}$ i pojedynczych zer $\mathtt{0}$), a nie pełne $2^{4096}$ stanów (co fizycznie przekracza liczbę atomów we Wszechświecie). |
-| **4. Funkcja Potencjału** ($V_{\theta}$ i $U_{H^*}$) | Istnieje globalna własność spadku lub równoważna gwarancja dobrze ufundowana | **Dwuwarstwowa konstrukcja:** Bazowy potencjał $V_{\theta}(n) = \log_2(n) + \Phi_{\theta}(n)$ ma ograniczoną korektę strukturalną $|\Phi_{\theta}(n)| \le C \cdot B$, więc $\lim_{n \to \infty} V_{\theta}(n) = +\infty$. Jeżeli dla każdego $n > 1$ istnieje skończony horyzont $H(n) < \infty$ taki, że $V_{\theta}(T^{H(n)}(n)) \le V_{\theta}(n) - \delta H(n)$, to z zasady dobrego uporządkowania (indukcji po wartościach $V_{\theta}$) każda trajektoria musi w skończonej liczbie kroków spaść do $n = 1$. |
+| **4. Funkcja Potencjału** ($V_{\theta}$ i $U_{H^*}$) | Istnieje globalna własność spadku lub równoważna gwarancja dobrze ufundowana | **Dwuwarstwowa konstrukcja:** Bazowy potencjał $V_{\theta}(n) = \log_2(n) + \Phi_{\theta}(n)$ ma ograniczoną korektę strukturalną $\lvert\Phi_{\theta}(n)\rvert \le C \cdot B$, więc $\lim_{n \to \infty} V_{\theta}(n) = +\infty$. Jeżeli dla każdego $n > 1$ istnieje skończony horyzont $H(n) < \infty$ taki, że $V_{\theta}(T^{H(n)}(n)) \le V_{\theta}(n) - \delta H(n)$, to z zasady dobrego uporządkowania (indukcji po wartościach $V_{\theta}$) każda trajektoria musi w skończonej liczbie kroków spaść do $n = 1$. |
 | **5. Wykluczenie Rozbieżności** ($n_t \to \infty$) | Nie istnieje żadna nieograniczona trajektoria uciekająca do nieskończoności | **Warunek redukcji:** Z Lematów 2 i 3 wynika, że rozbieżność do $\infty$ wymagałaby utrzymania średniego wykładnika parzystości $\bar{v} < \log_2 3 \approx 1{,}58496$ przez nieskończenie wiele kroków. Ponieważ każdy krok $v=1$ skraca sufiks Mersenne'a o $1$ bit ($k \mapsto k-1$), nieograniczona trajektoria musiałaby w nieskończoność regenerować długie bloki jedynek poprzez tunelowanie pojedynczych zer (Lemat 3) szybciej, niż fala przeniesień konsumuje bity słowa od LSB do MSB. |
 | **6. Wykluczenie Cykli** ($T^p(n) = n > 1$) | Nie istnieje żaden nietrywialny cykl okresowy w $\mathbb{N}^+$ | **Związek z Obwiednią Bellmana:** Gdyby istniał nietrywialny cykl $n_0 \to n_1 \to \dots \to n_p = n_0$ ($n_i > 1$), to na mocy jednoznaczności funkcji $V_{\theta}$ suma przyrostów wzdłuż cyklu wynosiłaby $\sum_{i=0}^{p-1} \Delta V_{\theta}(n_i) = 0$. Zatem dla każdego elementu cyklu zachodziłoby $H(n_i) > p$, a przy wielokrotnym obchodzeniu cyklu $H(n_i) = \infty$. Stąd każde wykazanie skończoności horyzontu $H(n) < \infty$ natychmiast i jednocześnie wyklucza zarówno rozbieżność, jak i wszystkie nietrywialne cykle! |
 
