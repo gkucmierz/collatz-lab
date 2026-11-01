@@ -2,7 +2,8 @@
 
 - **Dokument:** `07-dowod-krok-po-kroku-analiza-binarna-collatza`
 - **Ścieżka bezpośrednia:** `/logs/07-dowod-krok-po-kroku-analiza-binarna-collatza`
-- **Silniki weryfikacyjne:** `src/engine/collatzEngine.js` oraz 16-wątkowy weryfikator `rust-verifier/src/bigint_lab.rs` ($k = 34$, `BigBits` do $4096$ bitów $\approx 10^{1233}$)
+- **Publiczne repozytorium kodu źródłowego (Rust / JS):** [https://gitea.7u.pl/gkucmierz/collatz-lab](https://gitea.7u.pl/gkucmierz/collatz-lab) ([`README.md`](https://gitea.7u.pl/gkucmierz/collatz-lab/src/branch/main/README.md))
+- **Silniki weryfikacyjne:** `src/engine/collatzEngine.js` oraz 16-wątkowy weryfikator `rust-verifier/src/bigint_lab.rs` ($k = 34$, `BigInt` do $4096$ bitów $\approx 10^{1233}$)
 
 > **Cel tego dokumentu:** Przeprowadzić czytelnika **krok po kroku, małymi i elementarnymi ogniwami** przez całą konstrukcję dowodową w przestrzeni binarnej — tak, aby każdy rachunek algebraiczny można było samodzielnie sprawdzić na kartce papieru w kilka minut, oraz jasno pokazać, które ogniwa są **bezwarunkowymi twierdzeniami algebraicznymi dla wszystkich $n \in \mathbb{N}^+$**, a gdzie przebiega domknięcie horyzontowe Bellmana.
 
@@ -143,7 +144,7 @@ $$3 n_k + 1 = 3 \cdot \frac{4^k - 1}{3} + 1 = (4^k - 1) + 1 = 4^k = 2^{2k} \impl
 ---
 
 ### Lemat 2 (Erozja Bloku Jedynek $\mathtt{1^k}$ i Samoczynna Emisja Lontu $\mathtt{10_2}$)
-Co się dzieje, gdy na prawym końcu liczby stoi gruby blok $k \ge 2$ jedynek z rzędu ($\mathtt{...0\underbrace{11\dots1}_{k}_2}$)? Takie bloki to jedyne struktury, na których liczba chwilowo rośnie ($\nu_2 = 1$).
+Co się dzieje, gdy na prawym końcu liczby stoi gruby blok $k \ge 2$ jedynek z rzędu ($\mathtt{\dots 0}{\underbrace{\mathtt{11\dots1}}_{k}}_{2}$)? Takie bloki to jedyne struktury, na których liczba chwilowo rośnie ($\nu_2 = 1$).
 
 **Twierdzenie:** *Niech $n = A \cdot 2^k + (2^k - 1)$ dla dowolnego $A \ge 0$ (parzystego, by bit na pozycji $k$ był zerem) oraz $k \ge 2$. Wówczas:*
 1. $\nu_2(3n + 1) = 1$ (dzielimy tylko przez $2^1 = 2$),
