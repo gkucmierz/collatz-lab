@@ -670,6 +670,103 @@ body {
   color: var(--accent-cyan);
 }
 
+.err-conv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.err-conv-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.err-conv-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.65rem;
+}
+
+.err-name {
+  color: var(--text-muted);
+}
+
+.err-val {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--accent-cyan);
+}
+
+.err-val.zero {
+  color: var(--accent-emerald);
+}
+
+.bigint-telemetry {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.68rem;
+}
+
+.bi-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.bi-line span {
+  color: var(--text-muted);
+}
+
+.bi-line code,
+.bi-line strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--accent-cyan);
+  font-size: 0.66rem;
+}
+
+.logs-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.log-summary-item {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 0.68rem;
+  padding: 4px 7px;
+  border-radius: 6px;
+  background: var(--bg-card);
+}
+
+.log-file-badge {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.63rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.14);
+  color: var(--accent-cyan);
+}
+
+.log-title {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.log-verdict {
+  color: var(--text-muted);
+}
+
 .binary-waterfall {
   min-height: 255px;
   max-height: 255px;

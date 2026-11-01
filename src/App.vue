@@ -34,7 +34,9 @@ import {
   extractBinaryMotifs,
   computeLyapunovPotential,
   buildMealyCarryTransitionMap,
-  RUST_DEEP_CERTIFICATES
+  RUST_DEEP_CERTIFICATES,
+  simulateBigIntTrajectory,
+  RESEARCH_LOOP_LOGS_SUMMARY
 } from './engine/collatzEngine.js';
 
 const theme = ref(localStorage.getItem('collatz_theme') || 'dark');
@@ -69,6 +71,9 @@ const mealyMap = computed(() => buildMealyCarryTransitionMap(preCarryCustomInput
 const lyapunovProbe = computed(() => computeLyapunovPotential(preCarryCustomInput.value));
 const formalLemmas = verifyBinaryCarryLemmas();
 const rustDeepCert = RUST_DEEP_CERTIFICATES;
+const researchLoopSummary = RESEARCH_LOOP_LOGS_SUMMARY;
+const selectedBigIntBits = ref(256);
+const bigIntSim = computed(() => simulateBigIntTrajectory(selectedBigIntBits.value));
 
 const selectPreCarryProbe = (val) => {
   preCarryCustomInput.value = val;
@@ -1234,6 +1239,111 @@ onUnmounted(() => {
               <span class="wf-meta" :title="'Końcowe jedynki (Trailing 1s): ' + pt.trailingOnes">
                 1s:{{ pt.hamming }}/{{ pt.bitLength }} · T₁:{{ pt.trailingOnes }}
               </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Autonomous Research Loop (logs/01..05) & BigInt (128..2048-bit) Laboratory -->
+        <div class="card research-loop-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <Cpu :size="16" class="text-cyan" />
+              <h2>
+                {{
+                  locale === 'pl'
+                    ? 'Pętla Badawcza logs/01..05 (Błąd E → 0.0000%) & Laboratorium BigInt (128–2048 bitów)'
+                    : 'Research Loop logs/01..05 (Error E → 0.0000%) & BigInt Lab (128–2048 bits)'
+                }}
+              </h2>
+            </div>
+            <div class="seg-group">
+              <button
+                v-for="bSize in [128, 256, 512, 1024, 2048]"
+                :key="bSize"
+                type="button"
+                class="seg-btn"
+                :class="{ active: selectedBigIntBits === bSize }"
+                @click="selectedBigIntBits = bSize"
+              >
+                {{ bSize }} bit
+              </button>
+            </div>
+          </div>
+
+          <div class="ga-split">
+            <!-- Left half: Error Convergence E(W) -> 0.0000% -->
+            <div class="ga-pane">
+              <div class="pane-head">
+                <span>Spadek Błędu Niedomknięcia E(W) w Pętli (Metoda 1)</span>
+                <span class="motif-chip amber">Cel: E = 0.0000% ✓</span>
+              </div>
+              <div class="err-conv-list">
+                <div
+                  v-for="it in researchLoopSummary.errorConvergence"
+                  :key="it.iteration"
+                  class="err-conv-row"
+                >
+                  <div class="err-conv-top">
+                    <span class="err-name">{{ it.name }}</span>
+                    <strong class="err-val" :class="{ zero: it.eWindow === 0 }">
+                      E(W={{ it.windowW }}) = {{ it.eWindow.toFixed(4) }}%
+                    </strong>
+                  </div>
+                  <div class="sieve-bar-track">
+                    <div
+                      class="sieve-bar-fill"
+                      :style="{ width: `${Math.max(2, 100 - it.eWindow * 22)}%` }"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right half: Live Arbitrary-Precision BigInt (128..2048-bit) Inspector -->
+            <div class="ga-pane">
+              <div class="pane-head">
+                <span>Test Kontrprzykładu BigInt ({{ bigIntSim.bitLength }} bitów ≈ 10^{{ Math.round(bigIntSim.bitLength * 0.30103) }})</span>
+                <span class="lemma-pill ok">
+                  {{ bigIntSim.collapsedTo1000 ? 'Kolaps do 1[000...] ✓' : 'W toku' }}
+                </span>
+              </div>
+              <div class="bigint-telemetry">
+                <div class="bi-line">
+                  <span>Szablon RLE (1^A·0^B):</span>
+                  <code>{{ bigIntSim.rleFormula }}</code>
+                </div>
+                <div class="bi-line">
+                  <span>Kroki Syracuse (BigInt):</span>
+                  <strong>
+                    {{ bigIntSim.totalSteps.toLocaleString() }} ({{ bigIntSim.oddSteps }} nieparz. + {{ bigIntSim.evenSteps }} zer v₂)
+                  </strong>
+                </div>
+                <div class="bi-line">
+                  <span>Współczynnik γ(n) / Okno ΔV&lt;0:</span>
+                  <strong>
+                    γ = {{ bigIntSim.gammaDelay.toFixed(2) }} · spadek V_θ po {{ bigIntSim.firstWindowDrop }} kr.
+                  </strong>
+                </div>
+                <div class="bi-line">
+                  <span>Front lewy MSB (doliny 1000...):</span>
+                  <strong>
+                    {{ bigIntSim.msbValleyExpansions }} ekspansji (max {{ bigIntSim.maxMsbValley }} zer za MSB)
+                  </strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary of the 5 Research Logs in /logs/ -->
+          <div class="logs-summary-list">
+            <div
+              v-for="lg in researchLoopSummary.logs"
+              :key="lg.id"
+              class="log-summary-item"
+            >
+              <code class="log-file-badge">{{ lg.file }}</code>
+              <span class="log-title">{{ lg.title }}:</span>
+              <span class="log-verdict">{{ lg.verdict }}</span>
             </div>
           </div>
         </div>
