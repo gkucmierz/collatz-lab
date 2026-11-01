@@ -136,7 +136,7 @@ describe('Collatz.7u.pl — Binary Space, Pre-Carry Ternary {0,1,2}, Lyapunov & 
     const sim1024 = simulateBigIntTrajectory(1024);
     expect(sim1024.collapsedTo1000).toBe(true);
 
-    expect(RESEARCH_LOOP_LOGS_SUMMARY.logs.length).toBe(6);
+    expect(RESEARCH_LOOP_LOGS_SUMMARY.logs.length).toBe(7);
     const finalIter = RESEARCH_LOOP_LOGS_SUMMARY.errorConvergence[4];
     expect(finalIter.eWindow).toBe(0);
   });
@@ -172,6 +172,11 @@ describe('Collatz.7u.pl — Binary Space, Pre-Carry Ternary {0,1,2}, Lyapunov & 
       isLogRoute: true,
       logId: '06',
       canonicalPath: '/logs/06-horizon-scaling-and-bellman-closure-4096bit'
+    });
+    expect(resolveLogRoute('/logs/07-dowod-krok-po-kroku-analiza-binarna-collatza')).toEqual({
+      isLogRoute: true,
+      logId: '07',
+      canonicalPath: '/logs/07-dowod-krok-po-kroku-analiza-binarna-collatza'
     });
 
     for (const lg of RESEARCH_LOOP_LOGS_SUMMARY.logs) {

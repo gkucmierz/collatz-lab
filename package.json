@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 45099 --host",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender-logs.mjs",
     "preview": "vite preview --port 45099 --host",
     "test": "vitest run"
   },
