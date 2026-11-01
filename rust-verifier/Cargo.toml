@@ -1,0 +1,11 @@
+[package]
+name = "collatz-rust-verifier"
+version = "1.0.0"
+edition = "2021"
+description = "Multi-threaded 128-bit 2-adic contraction tree verifier, {0,1,2} carry transducer, and Lyapunov potential optimizer for Collatz Conjecture in Z_2"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"

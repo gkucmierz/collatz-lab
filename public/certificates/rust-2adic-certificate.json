@@ -1,0 +1,104 @@
+{
+  "engine": "collatz-rust-verifier 1.0 (u128 + 16 threads)",
+  "lyapunov": {
+    "formula": "V(n) = log2(n) + 0.62*T1(n) + 0.35*C11(n) - 0.25*Falt(n)",
+    "wTrail": 0.62,
+    "wCollision2": 0.35,
+    "wFuse1": 0.25,
+    "singleStepDecreasePct": 73.9767,
+    "twoStepDecreasePct": 82.9451,
+    "threeStepDecreasePct": 87.8988,
+    "meanDriftPerOddStep": -0.419600,
+    "mersenneStrictDescent": true
+  },
+  "levels": [
+    {
+      "k": 20,
+      "totalOddResidues": 524288,
+      "contractedCount": 496960,
+      "survivingCount": 27328,
+      "contractedPercent": 94.787598,
+      "visitedNodes": 63461,
+      "pruningSpeedup": 165.23,
+      "elapsedMs": 0.417,
+      "topIrreducibleSuffixes": [{"suffix": "111111111", "count": 1759, "sharePct": 6.437}, {"suffix": "001111111", "count": 1329, "sharePct": 4.863}, {"suffix": "010011111", "count": 1329, "sharePct": 4.863}, {"suffix": "011101111", "count": 1329, "sharePct": 4.863}, {"suffix": "011111111", "count": 1329, "sharePct": 4.863}, {"suffix": "100011011", "count": 1329, "sharePct": 4.863}]
+    },
+    {
+      "k": 22,
+      "totalOddResidues": 2097152,
+      "contractedCount": 2003930,
+      "survivingCount": 93222,
+      "contractedPercent": 95.554829,
+      "visitedNodes": 211339,
+      "pruningSpeedup": 218.31,
+      "elapsedMs": 0.291,
+      "topIrreducibleSuffixes": [{"suffix": "111111111", "count": 6476, "sharePct": 6.947}, {"suffix": "001111111", "count": 4654, "sharePct": 4.992}, {"suffix": "010011111", "count": 4654, "sharePct": 4.992}, {"suffix": "011101111", "count": 4654, "sharePct": 4.992}, {"suffix": "011111111", "count": 4654, "sharePct": 4.992}, {"suffix": "100011011", "count": 4654, "sharePct": 4.992}]
+    },
+    {
+      "k": 24,
+      "totalOddResidues": 8388608,
+      "contractedCount": 8102027,
+      "survivingCount": 286581,
+      "contractedPercent": 96.583688,
+      "visitedNodes": 735397,
+      "pruningSpeedup": 273.77,
+      "elapsedMs": 0.491,
+      "topIrreducibleSuffixes": [{"suffix": "111111111", "count": 22047, "sharePct": 7.693}, {"suffix": "001111111", "count": 14778, "sharePct": 5.157}, {"suffix": "010011111", "count": 14778, "sharePct": 5.157}, {"suffix": "011101111", "count": 14778, "sharePct": 5.157}, {"suffix": "011111111", "count": 14778, "sharePct": 5.157}, {"suffix": "100011011", "count": 14778, "sharePct": 5.157}]
+    },
+    {
+      "k": 26,
+      "totalOddResidues": 33554432,
+      "contractedCount": 32517058,
+      "survivingCount": 1037374,
+      "contractedPercent": 96.908385,
+      "visitedNodes": 2454883,
+      "pruningSpeedup": 355.38,
+      "elapsedMs": 0.763,
+      "topIrreducibleSuffixes": [{"suffix": "111111111", "count": 82440, "sharePct": 7.947}, {"suffix": "001111111", "count": 54016, "sharePct": 5.207}, {"suffix": "010011111", "count": 54016, "sharePct": 5.207}, {"suffix": "011101111", "count": 54016, "sharePct": 5.207}, {"suffix": "011111111", "count": 54016, "sharePct": 5.207}, {"suffix": "100011011", "count": 54016, "sharePct": 5.207}]
+    },
+    {
+      "k": 28,
+      "totalOddResidues": 134217728,
+      "contractedCount": 130693142,
+      "survivingCount": 3524586,
+      "contractedPercent": 97.373979,
+      "visitedNodes": 8054217,
+      "pruningSpeedup": 466.60,
+      "elapsedMs": 2.116,
+      "topIrreducibleSuffixes": [{"suffix": "111111111", "count": 294054, "sharePct": 8.343}, {"suffix": "001111111", "count": 186144, "sharePct": 5.281}, {"suffix": "010011111", "count": 186144, "sharePct": 5.281}, {"suffix": "011101111", "count": 186144, "sharePct": 5.281}, {"suffix": "011111111", "count": 186144, "sharePct": 5.281}, {"suffix": "100011011", "count": 186144, "sharePct": 5.281}]
+    },
+    {
+      "k": 30,
+      "totalOddResidues": 536870912,
+      "contractedCount": 524099638,
+      "survivingCount": 12771274,
+      "contractedPercent": 97.621165,
+      "visitedNodes": 27874663,
+      "pruningSpeedup": 577.81,
+      "elapsedMs": 6.503,
+      "topIrreducibleSuffixes": [{"suffix": "111111111", "count": 1093590, "sharePct": 8.563}, {"suffix": "001111111", "count": 679444, "sharePct": 5.320}, {"suffix": "010011111", "count": 679444, "sharePct": 5.320}, {"suffix": "011101111", "count": 679444, "sharePct": 5.320}, {"suffix": "011111111", "count": 679444, "sharePct": 5.320}, {"suffix": "100011011", "count": 679444, "sharePct": 5.320}]
+    },
+    {
+      "k": 32,
+      "totalOddResidues": 2147483648,
+      "contractedCount": 2106136165,
+      "survivingCount": 41347483,
+      "contractedPercent": 98.074608,
+      "visitedNodes": 100701367,
+      "pruningSpeedup": 682.41,
+      "elapsedMs": 21.789,
+      "topIrreducibleSuffixes": [{"suffix": "111111111", "count": 3713922, "sharePct": 8.982}, {"suffix": "001111111", "count": 2228329, "sharePct": 5.389}, {"suffix": "010011111", "count": 2228329, "sharePct": 5.389}, {"suffix": "011101111", "count": 2228329, "sharePct": 5.389}, {"suffix": "011111111", "count": 2228329, "sharePct": 5.389}, {"suffix": "100011011", "count": 2228329, "sharePct": 5.389}]
+    },
+    {
+      "k": 34,
+      "totalOddResidues": 8589934592,
+      "contractedCount": 8438016956,
+      "survivingCount": 151917636,
+      "contractedPercent": 98.231446,
+      "visitedNodes": 348786265,
+      "pruningSpeedup": 837.35,
+      "elapsedMs": 69.424,
+      "topIrreducibleSuffixes": [{"suffix": "111111111", "count": 13878529, "sharePct": 9.136}, {"suffix": "001111111", "count": 8223641, "sharePct": 5.413}, {"suffix": "010011111", "count": 8223641, "sharePct": 5.413}, {"suffix": "011101111", "count": 8223641, "sharePct": 5.413}, {"suffix": "011111111", "count": 8223641, "sharePct": 5.413}, {"suffix": "100011011", "count": 8223641, "sharePct": 5.413}]
+    }
+  ]
+}

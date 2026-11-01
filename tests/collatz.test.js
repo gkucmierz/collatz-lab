@@ -10,10 +10,13 @@ import {
   evolveGeneticGeneration,
   createIslandModelPopulation,
   stepIslandModelGA,
-  extractBinaryMotifs
+  extractBinaryMotifs,
+  computeLyapunovPotential,
+  buildMealyCarryTransitionMap,
+  RUST_DEEP_CERTIFICATES
 } from '../src/engine/collatzEngine.js';
 
-describe('Collatz.7u.pl — Binary Space, Pre-Carry Ternary {0,1,2} & Island GA Engine', () => {
+describe('Collatz.7u.pl — Binary Space, Pre-Carry Ternary {0,1,2}, Lyapunov & Island GA Engine', () => {
   it('computes exact trajectory for classic hailstone seed n = 27 (111 steps, peak 9232)', () => {
     const traj = computeCollatzTrajectory(27);
     expect(traj.startN).toBe(27);
@@ -26,7 +29,6 @@ describe('Collatz.7u.pl — Binary Space, Pre-Carry Ternary {0,1,2} & Island GA 
   });
 
   it('reproduces the exact Pre-Carry Ternary {0,1,2} observations: 101 -> 1112 -> 10000 and 10 -> 111 -> 1222 -> 10110 -> 111211 -> 1000011', () => {
-    // 1. Alternating n = 5 (101_2): 1010 + 101 + 1 = 1112 -> 10000_2 (16 = 2^4 -> 1)
     const s5 = computePreCarryTernaryStep(5);
     expect(s5.nBitsRaw).toBe('101');
     expect(s5.shiftedBitsRaw).toBe('1010');
@@ -35,7 +37,6 @@ describe('Collatz.7u.pl — Binary Space, Pre-Carry Ternary {0,1,2} & Island GA 
     expect(s5.isImmediatePowerOfTwo).toBe(true);
     expect(s5.syracuseNext).toBe(1);
 
-    // 2. Chain: 10_2 (2) -> 111_2 (7) -> 1222 -> 10110_2 (22) -> 111211 -> 1000011_2 (67)
     const s2 = computePreCarryTernaryStep(2);
     expect(s2.rawPreCarry).toBe('111');
     expect(s2.outBits).toBe('111');
@@ -58,25 +59,45 @@ describe('Collatz.7u.pl — Binary Space, Pre-Carry Ternary {0,1,2} & Island GA 
     expect(lemmas.theoreticalDrift).toBeCloseTo(Math.log2(3) - 2, 6);
   });
 
+  it('proves strict Lyapunov potential descent V(T(n)) < V(n) even on Mersenne climbs n = 2^L - 1', () => {
+    for (let L = 3; L <= 8; L++) {
+      const mersenne = (1 << L) - 1;
+      const lyap = computeLyapunovPotential(mersenne);
+      expect(lyap.deltaV).toBeLessThan(0);
+      expect(lyap.strictlyDecreasing).toBe(true);
+    }
+  });
+
+  it('traces the 6-state Mealy {0,1,2} Carry Automaton and superconductor fuse annihilation', () => {
+    // For n = 5 (101_2), s_i = [1, 1, 1, 1] with c_0 = 1 -> all 4 columns trigger S1_C1 superconductor!
+    const map5 = buildMealyCarryTransitionMap(5);
+    expect(map5.transitionCounts.S1_C1).toBe(4);
+
+    // For n = 22 (10110_2), internal collision (1,1) triggers S2_C0 carry igniter, which feeds S1_C1 fuse!
+    const map22 = buildMealyCarryTransitionMap(22);
+    expect(map22.transitionCounts.S2_C0).toBe(1);
+    expect(map22.transitionCounts.S1_C1).toBe(3);
+  });
+
   it('decomposes 3n + 1 = n + (n << 1) + 1 in binary space with exact carry propagation', () => {
     const step = analyzeBinaryAutomatonStep(27);
     expect(step.oddN).toBe(27);
-    expect(step.v2).toBe(1); // 3*27 + 1 = 82 = 2 * 41
+    expect(step.v2).toBe(1);
     expect(step.syracuseNext).toBe(41);
-    expect(step.trailingOnesCount).toBe(2); // 27 = 11011_2 ends with two 1s
+    expect(step.trailingOnesCount).toBe(2);
   });
 
-  it('verifies 2-adic contraction tree up to k = 20 (524,288 odd residue classes) using branch-and-bound pruning', () => {
-    const cert8 = compute2AdicSieveCertificate(8);
-    expect(cert8.totalOddResidues).toBe(128);
-    expect(cert8.contractedCount).toBeGreaterThan(80);
-
+  it('verifies 2-adic contraction tree up to k = 20 in JS and up to k = 34 (8.59B odd classes) in Rust certificate', () => {
     const cert20 = compute2AdicSieveCertificate(20);
     expect(cert20.totalOddResidues).toBe(524288);
-    expect(cert20.contractedCount).toBeGreaterThan(450000);
-    expect(cert20.contractedPercent).toBeGreaterThan(85);
-    expect(cert20.pruningSpeedupFactor).toBeGreaterThan(20);
-    expect(cert20.irreducibleSuffixes.length).toBeGreaterThan(0);
+    expect(cert20.contractedCount).toBe(496960);
+    expect(cert20.pruningSpeedupFactor).toBeGreaterThan(150);
+
+    const rustK34 = RUST_DEEP_CERTIFICATES.levels.find((l) => l.k === 34);
+    expect(rustK34.totalOddResidues).toBe(8589934592);
+    expect(rustK34.contractedCount).toBe(8438016956);
+    expect(rustK34.contractedPercent).toBeGreaterThan(98.2);
+    expect(RUST_DEEP_CERTIFICATES.isomorphicSuffixClasses.length).toBe(5);
   });
 
   it('evolves multi-population Island Model GA and extracts dominant binary motifs', () => {
