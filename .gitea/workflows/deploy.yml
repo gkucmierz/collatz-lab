@@ -8,10 +8,21 @@ on:
 
 jobs:
   deploy:
-    uses: gkucmierz/ci-workflows/.gitea/workflows/zero-downtime-deploy.yml@main
-    with:
-      container_name: collatz-lab
-      runs_on: self-hosted-pl
-      hot_swap_static: true
-      wait_timeout_sec: 180
-      healthcheck_url: http://localhost:45099/
+    name: Deploy (collatz-lab)
+    runs-on: self-hosted-pl
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Wait for @gkucmierz/* dependencies (NPM & Gitea Packages)
+        uses: gkucmierz/ci-workflows/wait-for-deps@main
+        with:
+          timeout_sec: '180'
+
+      - name: Zero-Downtime SPA Build & Nginx Hot-Swap
+        uses: gkucmierz/ci-workflows/zero-downtime-swap@main
+        with:
+          container_name: collatz-lab
+          hot_swap_static: 'true'
+          healthcheck_url: 'http://localhost:45099/'
