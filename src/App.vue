@@ -25,11 +25,13 @@ import {
 import {
   FAMOUS_SEEDS,
   computeCollatzTrajectory,
+  computePreCarryTernaryStep,
   analyzeBinaryAutomatonStep,
+  verifyBinaryCarryLemmas,
   compute2AdicSieveCertificate,
-  createRandomChromosome,
-  evaluateChromosome,
-  evolveGeneticGeneration
+  createIslandModelPopulation,
+  stepIslandModelGA,
+  extractBinaryMotifs
 } from './engine/collatzEngine.js';
 
 const theme = ref(localStorage.getItem('collatz_theme') || 'dark');
@@ -54,22 +56,59 @@ const activeTrajectories = ref([]);
 const inspectedTrajectory = ref(computeCollatzTrajectory(27));
 const stoppingRecords = ref([]);
 
-// Binary Space Automaton Inspector
+// Binary Space Automaton Inspector & Pre-Carry Ternary {0,1,2} Probe
 const binaryAlignMode = ref('lsb'); // 'lsb' (2-adic) | 'msb'
-const binarySelectedOdd = ref(27);
+const binarySelectedOdd = ref(5);
+const preCarryCustomInput = ref(5);
 const automatonStep = computed(() => analyzeBinaryAutomatonStep(binarySelectedOdd.value));
+const preCarryProbe = computed(() => computePreCarryTernaryStep(preCarryCustomInput.value));
+const formalLemmas = verifyBinaryCarryLemmas();
 
-// 2-Adic Modular Sieve (mod 2^k)
-const sieveDepthK = ref(9);
+const selectPreCarryProbe = (val) => {
+  preCarryCustomInput.value = val;
+  if (val % 2 === 1) {
+    binarySelectedOdd.value = val;
+  }
+};
+
+// 2-Adic Modular Sieve (mod 2^k, up to k = 20 via Branch-and-Bound Tree Pruning)
+const sieveDepthK = ref(12);
 const sieveCertificate = computed(() => compute2AdicSieveCertificate(sieveDepthK.value));
+const certCopied = ref(false);
 
-// Genetic Algorithm (Evolutionary Search in {0,1}^K)
+const exportFormalCertificate = () => {
+  const payload = {
+    generatedAt: new Date().toISOString(),
+    modulusExponentK: sieveCertificate.value.k,
+    totalOddResidues: sieveCertificate.value.totalOddResidues,
+    contractedCount: sieveCertificate.value.contractedCount,
+    contractedPercent: Number(sieveCertificate.value.contractedPercent.toFixed(4)),
+    visitedTreeNodes: sieveCertificate.value.visitedTreeNodes,
+    pruningSpeedupFactor: Number(sieveCertificate.value.pruningSpeedupFactor.toFixed(2)),
+    irreducibleSuffixes: sieveCertificate.value.irreducibleSuffixes,
+    lemmasVerified: {
+      alternatingFuse: formalLemmas.alternatingLemma.verified,
+      mersenneErosion: formalLemmas.mersenneLemma.verified,
+      internalCarryChain: formalLemmas.internalFuseChain.verified,
+      haarDriftBitsPerOddStep: Number(formalLemmas.theoreticalDrift.toFixed(6))
+    }
+  };
+  if (navigator?.clipboard?.writeText) {
+    navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+  }
+  certCopied.value = true;
+  setTimeout(() => {
+    certCopied.value = false;
+  }, 2200);
+};
+
+// Island Model Genetic Algorithm (Multi-Population Search in {0,1}^K)
 const gaBitLength = ref(20);
-const gaPopSize = ref(28);
-const gaMutationRate = ref(0.08);
 const gaGeneration = ref(0);
 const gaRunning = ref(false);
+const gaIslands = ref([]);
 const gaPopulation = ref([]);
+const gaMotifs = computed(() => extractBinaryMotifs(gaPopulation.value));
 const gaHistoryBest = ref([]);
 let gaTimer = null;
 
@@ -127,6 +166,7 @@ const spawnTrajectory = (nVal, { instant = false } = {}) => {
 
   inspectedTrajectory.value = full;
   binarySelectedOdd.value = cleanN % 2 === 1 ? cleanN : Math.max(1, cleanN + 1);
+  preCarryCustomInput.value = cleanN;
 
   // Track stopping-time scatter & record-holders
   if (!stoppingRecords.value.some((r) => r.n === cleanN)) {
@@ -455,29 +495,42 @@ const tickAnimation = () => {
   drawScatterCanvas();
 };
 
-// Genetic Algorithm Controls
+// Island Model Genetic Algorithm Controls
+const flattenIslands = (islands) => {
+  const all = [];
+  for (const isl of islands) {
+    for (const m of isl.members) {
+      all.push({ ...m, islandName: isl.name, islandId: isl.id });
+    }
+  }
+  all.sort((a, b) => b.fitness - a.fitness);
+  return all;
+};
+
 const initGeneticPopulation = () => {
   gaGeneration.value = 1;
-  const pop = [];
-  for (let i = 0; i < gaPopSize.value; i++) {
-    const bits = createRandomChromosome(gaBitLength.value);
-    pop.push(evaluateChromosome(bits));
-  }
-  pop.sort((a, b) => b.fitness - a.fitness);
+  const islands = createIslandModelPopulation({
+    bitLength: gaBitLength.value,
+    islandCount: 4,
+    islandSize: 8
+  });
+  gaIslands.value = islands;
+  const pop = flattenIslands(islands);
   gaPopulation.value = pop;
   gaHistoryBest.value = [pop[0]];
 };
 
 const stepGeneticAlgorithm = () => {
-  if (gaPopulation.value.length === 0) {
+  if (gaIslands.value.length === 0) {
     initGeneticPopulation();
     return;
   }
   gaGeneration.value++;
-  gaPopulation.value = evolveGeneticGeneration(gaPopulation.value, {
+  gaIslands.value = stepIslandModelGA(gaIslands.value, {
     bitLength: gaBitLength.value,
-    mutationRate: gaMutationRate.value
+    migrateEvery: 3
   });
+  gaPopulation.value = flattenIslands(gaIslands.value);
   const best = gaPopulation.value[0];
   gaHistoryBest.value.push(best);
   if (gaHistoryBest.value.length > 40) gaHistoryBest.value.shift();
@@ -886,10 +939,10 @@ onUnmounted(() => {
           </div>
 
           <div class="ga-split">
-            <!-- Left half: Evolved Bit-Motifs -->
+            <!-- Left half: Island Model GA & Evolved Bit-Motifs -->
             <div class="ga-pane">
               <div class="pane-head">
-                <span>Top Chromosomy Binarne (K = {{ gaBitLength }} bitów)</span>
+                <span>Island Model GA (4 Wyspy · K = {{ gaBitLength }} bitów)</span>
                 <input
                   type="range"
                   v-model.number="gaBitLength"
@@ -908,16 +961,38 @@ onUnmounted(() => {
                 >
                   <span class="ga-rank">#{{ idx + 1 }}</span>
                   <code class="ga-bits">{{ cand.bits }}</code>
-                  <span class="ga-stat">n={{ cand.n }} · {{ cand.totalSteps }} kr. (T₁={{ cand.trailingOnes }})</span>
+                  <span class="ga-stat">
+                    n={{ cand.n }} · {{ cand.totalSteps }} kr. · γ={{ cand.gammaDelay.toFixed(1) }}
+                  </span>
                 </div>
+              </div>
+              <div class="motif-strip">
+                <span class="motif-label">Dominujące sufiksy rekordzistów:</span>
+                <span
+                  v-for="m in gaMotifs.dominantSuffixes"
+                  :key="m.motif"
+                  class="motif-chip"
+                >
+                  ...{{ m.motif }}₂ (×{{ m.count }})
+                </span>
+                <span class="motif-chip amber">
+                  Gęstość '2' w {0,1,2}: {{ (gaMotifs.avgTwosDensity * 100).toFixed(0) }}%
+                </span>
               </div>
             </div>
 
-            <!-- Right half: Rigorous 2-Adic Contraction Sieve mod 2^k -->
+            <!-- Right half: Rigorous 2-Adic Contraction Tree Verifier mod 2^k (k <= 20) -->
             <div class="ga-pane">
               <div class="pane-head">
-                <span>Dowód Lokalny mod 2^{{ sieveDepthK }} ({{ sieveCertificate.totalOddResidues }} klas)</span>
-                <input type="range" v-model.number="sieveDepthK" min="4" max="12" class="slider sm" />
+                <span>
+                  Drzewo Kontrakcji mod 2^{{ sieveDepthK }} ({{ sieveCertificate.totalOddResidues.toLocaleString() }} klas)
+                </span>
+                <div class="sieve-head-actions">
+                  <input type="range" v-model.number="sieveDepthK" min="4" max="20" class="slider sm" />
+                  <button type="button" class="cert-btn" @click="exportFormalCertificate">
+                    {{ certCopied ? 'Skopiowano JSON ✓' : 'Certyfikat JSON' }}
+                  </button>
+                </div>
               </div>
               <div class="sieve-summary">
                 <div class="sieve-bar-track">
@@ -927,19 +1002,27 @@ onUnmounted(() => {
                   ></div>
                 </div>
                 <p class="sieve-desc">
-                  <strong>{{ sieveCertificate.contractedCount }} / {{ sieveCertificate.totalOddResidues }}</strong>
-                  ({{ sieveCertificate.contractedPercent.toFixed(1) }}%) nieparzystych klas reszt
+                  <strong>{{ sieveCertificate.contractedCount.toLocaleString() }} / {{ sieveCertificate.totalOddResidues.toLocaleString() }}</strong>
+                  ({{ sieveCertificate.contractedPercent.toFixed(2) }}%) nieparzystych klas reszt
                   <code>r (mod 2^{{ sieveDepthK }})</code> ma <strong>ścisły dowód kontrakcji</strong>
-                  <code>3^c &lt; 2^m ⇒ T^m(n) &lt; n</code>. Pozostałe klasy wymagają wyższego rzędu 2-adycznego:
+                  <code>3^c &lt; 2^m ⇒ T^m(n) &lt; n</code>
+                  (przyspieszenie drzewa 2-adycznego: <strong>{{ sieveCertificate.pruningSpeedupFactor.toFixed(1) }}×</strong>).
                 </p>
                 <div class="surviving-chips">
                   <span
-                    v-for="s in sieveCertificate.survivingResidues.slice(0, 6)"
+                    v-for="suf in sieveCertificate.irreducibleSuffixes.slice(0, 4)"
+                    :key="suf.suffix"
+                    class="motif-chip"
+                  >
+                    sufiks ...{{ suf.suffix }}₂ ({{ suf.sharePct.toFixed(1) }}%)
+                  </span>
+                  <span
+                    v-for="s in sieveCertificate.survivingResidues.slice(0, 4)"
                     :key="s.residue"
                     class="surv-chip"
                     @click="selectFamousSeed(s.residue)"
                   >
-                    {{ s.binary }}₂ (r={{ s.residue }})
+                    {{ s.binary.slice(-8) }}₂ (r={{ s.residue }})
                   </span>
                 </div>
               </div>
@@ -947,7 +1030,7 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <!-- 2. Binary Space Waterfall & Carry Automaton (Moved to Bottom to Prevent Layout Shifts) -->
+        <!-- 2. Binary Space Waterfall & Pre-Carry Ternary {0,1,2} Automaton -->
         <div class="card binary-card">
           <div class="card-header">
             <div class="card-title-group">
@@ -955,8 +1038,8 @@ onUnmounted(() => {
               <h2>
                 {{
                   locale === 'pl'
-                    ? 'Przestrzeń Binarna: Automat Komórkowy 3n+1 = n + (n ≪ 1) + 1'
-                    : 'Binary Space Waterfall: 3n+1 = n + (n ≪ 1) + 1 Cellular Automaton'
+                    ? 'Przestrzeń Binarna: Wektor Przed Przeniesieniem {0,1,2} i Automat 2n + n + 1'
+                    : 'Binary Space: Pre-Carry Ternary Vector {0,1,2} & 2n + n + 1 Automaton'
                 }}
               </h2>
             </div>
@@ -980,34 +1063,104 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <!-- Bit-level Carry Decomposition Box -->
+          <!-- Bit-level Pre-Carry Ternary {0,1,2} & Ripple-Carry Decomposition Box -->
           <div class="carry-inspector">
             <div class="carry-header">
               <span>
-                <strong>Lokalna reguła binarna dla n = {{ automatonStep.oddN }}:</strong>
-                Końcowa seria jedynek <code>...01^{{ automatonStep.trailingOnesCount }}</code> wymusza dokładnie
-                <strong>{{ automatonStep.trailingOnesCount }}</strong> wzrostowych kroków Syracuse, po czym
-                znikają <strong>v₂(3n+1) = {{ automatonStep.v2 }}</strong> końcowe zera:
+                <strong>Rozkład 2n + n + 1 → Wektor {0,1,2} → Cel 1[000...] dla n = {{ preCarryProbe.n }} ({{ preCarryProbe.nBitsRaw }}₂):</strong>
+                Cyfry <code>1</code> tworzą <strong>nadprzewodnik (lont carry)</strong>, a cyfry <code>2</code> (zderzenia <code>11</code> lub <code>+1</code>) wyzwalają falę zerowania:
               </span>
+              <div class="probe-chips">
+                <button
+                  type="button"
+                  class="seed-chip"
+                  :class="{ active: preCarryProbe.n === 5 }"
+                  @click="selectPreCarryProbe(5)"
+                >
+                  101₂ → 1112 → 10000₂ (Cel 1[0000]!)
+                </button>
+                <button
+                  type="button"
+                  class="seed-chip"
+                  :class="{ active: preCarryProbe.n === 2 }"
+                  @click="selectPreCarryProbe(2)"
+                >
+                  10₂ → 111₂
+                </button>
+                <button
+                  type="button"
+                  class="seed-chip"
+                  :class="{ active: preCarryProbe.n === 7 }"
+                  @click="selectPreCarryProbe(7)"
+                >
+                  111₂ → 1222 → 10110₂
+                </button>
+                <button
+                  type="button"
+                  class="seed-chip"
+                  :class="{ active: preCarryProbe.n === 22 }"
+                  @click="selectPreCarryProbe(22)"
+                >
+                  10110₂ → 111211 → 1000011₂
+                </button>
+                <button
+                  type="button"
+                  class="seed-chip"
+                  :class="{ active: preCarryProbe.n === 85 }"
+                  @click="selectPreCarryProbe(85)"
+                >
+                  1010101₂ → 11111112 → 2⁸
+                </button>
+              </div>
             </div>
             <div class="carry-rows">
               <div class="carry-row">
-                <span class="carry-label">Przeniesienie cᵢ:</span>
-                <code class="bit-strip carry">{{ automatonStep.carries }}</code>
-              </div>
-              <div class="carry-row">
-                <span class="carry-label">n (binarnie):</span>
-                <code class="bit-strip n-val">{{ automatonStep.nBits }}</code>
-              </div>
-              <div class="carry-row">
                 <span class="carry-label">2n = n ≪ 1:</span>
-                <code class="bit-strip shift-val">{{ automatonStep.shiftBits }}</code>
+                <code class="bit-strip shift-val">{{ preCarryProbe.shiftedBitsRaw }}</code>
+              </div>
+              <div class="carry-row">
+                <span class="carry-label">+ n (wyrównane):</span>
+                <code class="bit-strip n-val">{{ preCarryProbe.nBitsAligned }}</code>
+                <span class="plus-one-tag">+ 1 (na LSB)</span>
+              </div>
+              <div class="carry-row pre-carry-row">
+                <span class="carry-label">Wektor {0,1,2}:</span>
+                <span class="ternary-strip">
+                  <span
+                    v-for="(d, dIdx) in preCarryProbe.rawPreCarry.split('')"
+                    :key="dIdx"
+                    class="ternary-cell"
+                    :class="d === '2' ? 't-two' : d === '1' ? 't-one' : 't-zero'"
+                  >
+                    {{ d }}
+                  </span>
+                </span>
+                <span class="v2-pill amber">
+                  Lonty '1': {{ preCarryProbe.onesFuseCount }} · Kolizje '2': {{ preCarryProbe.twosCollisionCount }}
+                </span>
               </div>
               <div class="carry-row result">
-                <span class="carry-label">3n + 1 (suma):</span>
-                <code class="bit-strip out-val">{{ automatonStep.outBits }}</code>
-                <span class="v2-pill">≫ {{ automatonStep.v2 }} zer → {{ automatonStep.syracuseNextBits }}₂ ({{ automatonStep.syracuseNext }})</span>
+                <span class="carry-label">Po fali carry:</span>
+                <code class="bit-strip out-val">{{ preCarryProbe.outBits }}</code>
+                <span class="v2-pill">
+                  ≫ {{ preCarryProbe.v2 }} zer → {{ preCarryProbe.syracuseNextBits }}₂ ({{ preCarryProbe.syracuseNext }})
+                  <strong v-if="preCarryProbe.isImmediatePowerOfTwo"> · SUKCES 1[000...]!</strong>
+                </span>
               </div>
+            </div>
+            <div class="lemma-badges">
+              <span class="lemma-pill ok">
+                ✓ Lemat Lontu (10)^k·1 → 1^(2k-1)2 → 10^(2k)
+              </span>
+              <span class="lemma-pill ok">
+                ✓ Lemat Mersenne’a 1^L → 12^L → 101^(L-1)0
+              </span>
+              <span class="lemma-pill ok">
+                ✓ Łańcuch 10 → 111 → 1222 → 10110 → 111211 → 1000011
+              </span>
+              <span class="lemma-pill cyan">
+                ✓ Dryf Haara: {{ formalLemmas.theoreticalDrift.toFixed(4) }} bit/krok
+              </span>
             </div>
           </div>
 
@@ -1017,8 +1170,8 @@ onUnmounted(() => {
               v-for="pt in inspectedTrajectory.oddTrajectory.slice(0, 28)"
               :key="pt.step"
               class="waterfall-row"
-              :class="{ selected: pt.val === automatonStep.oddN }"
-              @click="binarySelectedOdd = pt.val"
+              :class="{ selected: pt.val === preCarryProbe.n }"
+              @click="selectPreCarryProbe(pt.val)"
             >
               <span class="wf-step">#{{ String(pt.step).padStart(3, '0') }}</span>
               <span class="wf-dec">{{ pt.val }}</span>

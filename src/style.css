@@ -455,6 +455,131 @@ body {
   color: var(--accent-emerald);
 }
 
+.v2-pill.amber {
+  background: rgba(245, 158, 11, 0.16);
+  color: var(--accent-amber);
+}
+
+.plus-one-tag {
+  font-size: 0.66rem;
+  color: var(--accent-amber);
+  font-weight: 700;
+}
+
+.probe-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.ternary-strip {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.ternary-cell {
+  width: 17px;
+  height: 19px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.ternary-cell.t-two {
+  background: rgba(244, 63, 94, 0.24);
+  color: var(--accent-rose);
+  border: 1px solid rgba(244, 63, 94, 0.45);
+}
+
+.ternary-cell.t-one {
+  background: rgba(16, 185, 129, 0.22);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.ternary-cell.t-zero {
+  background: rgba(56, 189, 248, 0.1);
+  color: var(--text-muted);
+}
+
+.lemma-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding-top: 5px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.lemma-pill {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.lemma-pill.ok {
+  background: rgba(16, 185, 129, 0.14);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.32);
+}
+
+.lemma-pill.cyan {
+  background: rgba(56, 189, 248, 0.14);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(56, 189, 248, 0.32);
+}
+
+.motif-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.motif-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.motif-chip {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.64rem;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgba(56, 189, 248, 0.14);
+  color: var(--accent-cyan);
+}
+
+.motif-chip.amber {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-amber);
+}
+
+.sieve-head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cert-btn {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.14);
+  color: var(--accent-emerald);
+  cursor: pointer;
+}
+
 .binary-waterfall {
   min-height: 255px;
   max-height: 255px;
