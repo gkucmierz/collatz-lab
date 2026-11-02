@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { NanoNumberStepper } from '@gkucmierz/nano-ui';
+import { NanoNumberStepper, NanoSlider } from '@gkucmierz/nano-ui';
 import '@gkucmierz/nano-ui/style.css';
 import {
   Activity,
@@ -48,8 +48,19 @@ import log05Raw from '../logs/05-adversarial-bigint-coevolution.md?raw';
 import log06Raw from '../logs/06-horizon-scaling-and-bellman-closure-4096bit.md?raw';
 import log07Raw from '../logs/07-dowod-krok-po-kroku-analiza-binarna-collatza.md?raw';
 
+const detectInitialLocale = () => {
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search || '');
+    const qLang = (params.get('lang') || '').toLowerCase();
+    if (qLang === 'en' || qLang === 'pl') return qLang;
+    const saved = localStorage.getItem('collatz_locale');
+    if (saved === 'en' || saved === 'pl') return saved;
+  }
+  return 'pl';
+};
+
 const theme = ref(localStorage.getItem('collatz_theme') || 'dark');
-const locale = ref(localStorage.getItem('collatz_locale') || 'pl');
+const locale = ref(detectInitialLocale());
 const helpDialogRef = ref(null);
 const logDialogRef = ref(null);
 
@@ -121,7 +132,7 @@ const activeLogEntry = computed(() => {
     prevLog,
     nextLog,
     raw,
-    html: renderLogMarkdownToHtml(raw)
+    html: renderLogMarkdownToHtml(raw, locale.value)
   };
 });
 
@@ -157,14 +168,14 @@ const copyActiveLogMarkdown = () => {
 const streamMode = ref('sequential'); // 'sequential' | 'random' | 'single'
 const scaleMode = ref('log2'); // 'log2' | 'linear'
 const rangeMin = ref(2);
-const rangeMax = ref(50);
+const rangeMax = ref(5000);
 const singleSeed = ref(27);
 const currentCursorN = ref(2);
 const isStreaming = ref(false);
 const streamCompleted = ref(false);
 const randomBatchRemaining = ref(0);
 const stepsPerFrame = ref(3);
-const maxTrails = ref(18);
+const maxTrails = ref(1000);
 
 // Active trajectories on the live canvas
 const activeTrajectories = ref([]);
@@ -300,7 +311,7 @@ const spawnTrajectory = (nVal, { instant = false } = {}) => {
       avgBitDrift: full.avgBitDrift,
       isRecord: full.totalSteps > prevMaxSteps
     });
-    if (stoppingRecords.value.length > 260) {
+    if (stoppingRecords.value.length > 5000) {
       stoppingRecords.value.shift();
     }
   }
@@ -476,7 +487,8 @@ const drawTrajectoryCanvas = () => {
   const total = activeTrajectories.value.length;
   activeTrajectories.value.forEach((tr, idx) => {
     const isLatest = idx === total - 1;
-    const alpha = isLatest ? 0.98 : 0.22 + 0.55 * (idx / Math.max(1, total - 1));
+    const progress = idx / Math.max(1, total - 1);
+    const alpha = isLatest ? 0.98 : 0.22 + 0.50 * Math.pow(progress, 0.55);
     ctx.strokeStyle = tr.color;
     ctx.globalAlpha = alpha;
     ctx.lineWidth = isLatest ? 2.4 : 1.35;
@@ -834,15 +846,15 @@ onUnmounted(() => {
       </div>
     </header>
 
-    <!-- Full-Page Dedicated Route View for /logs/01..06 -->
+    <!-- Full-Page Dedicated Route View for /logs/01..07 -->
     <main v-if="isFullLogRoute && activeLogEntry" class="log-route-layout">
       <aside class="card log-route-sidebar">
         <div class="log-sidebar-top">
           <button type="button" class="ctrl-btn play-active full-w-btn" @click="navigateToDashboard">
-            <span>← Powrót do Laboratorium (/)</span>
+            <span>← {{ locale === 'pl' ? 'Powrót do Laboratorium (/)' : 'Back to Dashboard (/)' }}</span>
           </button>
           <div class="log-sidebar-heading">
-            Dzienniki Badawcze (/logs/01..07)
+            {{ locale === 'pl' ? 'Dzienniki Badawcze (/logs/01..07)' : 'Research Logs (/logs/01..07)' }}
           </div>
         </div>
 
@@ -858,8 +870,8 @@ onUnmounted(() => {
             <div class="log-sidebar-link-top">
               <code class="log-file-badge">{{ lg.routePath }}</code>
             </div>
-            <div class="log-sidebar-link-title">{{ lg.title }}</div>
-            <div class="log-sidebar-link-verdict">{{ lg.verdict }}</div>
+            <div class="log-sidebar-link-title">{{ locale === 'pl' ? lg.title : lg.titleEn || lg.title }}</div>
+            <div class="log-sidebar-link-verdict">{{ locale === 'pl' ? lg.verdict : lg.verdictEn || lg.verdict }}</div>
           </a>
         </nav>
       </aside>
@@ -880,7 +892,7 @@ onUnmounted(() => {
                 :class="{ active: logViewMode === 'formatted' }"
                 @click="logViewMode = 'formatted'"
               >
-                Sformatowany artykuł
+                {{ locale === 'pl' ? 'Sformatowany artykuł' : 'Formatted Article' }}
               </button>
               <button
                 type="button"
@@ -888,11 +900,11 @@ onUnmounted(() => {
                 :class="{ active: logViewMode === 'raw' }"
                 @click="logViewMode = 'raw'"
               >
-                Źródło Markdown (.md)
+                {{ locale === 'pl' ? 'Źródło Markdown (.md)' : 'Markdown Source (.md)' }}
               </button>
             </div>
             <button type="button" class="seg-btn" @click="copyActiveLogMarkdown">
-              {{ logCopied ? 'Skopiowano ✓' : 'Kopiuj .md' }}
+              {{ logCopied ? (locale === 'pl' ? 'Skopiowano ✓' : 'Copied ✓') : (locale === 'pl' ? 'Kopiuj .md' : 'Copy .md') }}
             </button>
           </div>
         </div>
@@ -911,8 +923,8 @@ onUnmounted(() => {
             class="log-nav-card"
             @click.prevent="navigateToLogRoute(activeLogEntry.prevLog.id)"
           >
-            <span class="nav-dir">← Poprzedni dokument</span>
-            <strong>{{ activeLogEntry.prevLog.title }}</strong>
+            <span class="nav-dir">← {{ locale === 'pl' ? 'Poprzedni dokument' : 'Previous Document' }}</span>
+            <strong>{{ locale === 'pl' ? activeLogEntry.prevLog.title : activeLogEntry.prevLog.titleEn || activeLogEntry.prevLog.title }}</strong>
           </a>
           <div v-else></div>
 
@@ -922,8 +934,8 @@ onUnmounted(() => {
             class="log-nav-card right"
             @click.prevent="navigateToLogRoute(activeLogEntry.nextLog.id)"
           >
-            <span class="nav-dir">Następny dokument →</span>
-            <strong>{{ activeLogEntry.nextLog.title }}</strong>
+            <span class="nav-dir">{{ locale === 'pl' ? 'Następny dokument' : 'Next Document' }} →</span>
+            <strong>{{ locale === 'pl' ? activeLogEntry.nextLog.title : activeLogEntry.nextLog.titleEn || activeLogEntry.nextLog.title }}</strong>
           </a>
         </footer>
       </article>
@@ -1071,7 +1083,7 @@ onUnmounted(() => {
                   :class="{ active: scaleMode === 'log2' }"
                   @click="scaleMode = 'log2'"
                 >
-                  log₂(n) (Binarna)
+                  {{ locale === 'pl' ? 'log₂(n) (Binarna)' : 'log₂(n) (Binary)' }}
                 </button>
                 <button
                   type="button"
@@ -1079,14 +1091,22 @@ onUnmounted(() => {
                   :class="{ active: scaleMode === 'linear' }"
                   @click="scaleMode = 'linear'"
                 >
-                  Liniowa
+                  {{ locale === 'pl' ? 'Liniowa' : 'Linear' }}
                 </button>
               </div>
             </div>
 
             <div class="field-group compact">
               <label>{{ locale === 'pl' ? 'Szybkość' : 'Speed' }}: {{ stepsPerFrame }}x</label>
-              <input type="range" v-model.number="stepsPerFrame" min="1" max="25" class="slider" />
+              <NanoSlider
+                v-model="stepsPerFrame"
+                :min="1"
+                :max="25"
+                :step="1"
+                size="sm"
+                color="primary"
+                width="108px"
+              />
             </div>
           </div>
 
@@ -1101,7 +1121,7 @@ onUnmounted(() => {
               :class="{ active: inspectedTrajectory.startN === s.n }"
               @click="selectFamousSeed(s.n)"
             >
-              {{ s.label }}
+              {{ locale === 'pl' ? s.label : s.labelEn || s.label }}
             </button>
           </div>
         </div>
@@ -1120,10 +1140,10 @@ onUnmounted(() => {
               </h2>
             </div>
             <div class="telemetry-badges">
-              <span class="t-badge cyan">Kroki: {{ inspectedTrajectory.totalSteps }}</span>
-              <span class="t-badge amber">Szczyt: {{ inspectedTrajectory.peakValue.toLocaleString() }}</span>
+              <span class="t-badge cyan">{{ locale === 'pl' ? 'Kroki' : 'Steps' }}: {{ inspectedTrajectory.totalSteps }}</span>
+              <span class="t-badge amber">{{ locale === 'pl' ? 'Szczyt' : 'Peak' }}: {{ inspectedTrajectory.peakValue.toLocaleString() }}</span>
               <span class="t-badge emerald">
-                Śr. dryf bitowy: {{ inspectedTrajectory.avgBitDrift.toFixed(3) }} bit/krok
+                {{ locale === 'pl' ? 'Śr. dryf bitowy' : 'Avg. bit drift' }}: {{ inspectedTrajectory.avgBitDrift.toFixed(3) }} {{ locale === 'pl' ? 'bit/krok' : 'bits/step' }}
               </span>
             </div>
           </div>
@@ -1172,7 +1192,7 @@ onUnmounted(() => {
               <button type="button" class="seg-btn active" @click="toggleGeneticRun">
                 <Pause v-if="gaRunning" :size="13" />
                 <Play v-else :size="13" />
-                <span>{{ gaRunning ? 'Stop GA' : 'Ewolucja GA' }}</span>
+                <span>{{ gaRunning ? 'Stop GA' : (locale === 'pl' ? 'Ewolucja GA' : 'Evolve GA') }}</span>
               </button>
               <button type="button" class="seg-btn" @click="stepGeneticAlgorithm">
                 +1 Gen ({{ gaGeneration }})
@@ -1187,14 +1207,22 @@ onUnmounted(() => {
             <!-- Left half: Island Model GA & Evolved Bit-Motifs -->
             <div class="ga-pane">
               <div class="pane-head">
-                <span>Island Model GA (4 Wyspy · K = {{ gaBitLength }} bitów)</span>
-                <input
-                  type="range"
-                  v-model.number="gaBitLength"
-                  min="10"
-                  max="28"
-                  class="slider sm"
-                  @change="initGeneticPopulation"
+                <span>
+                  {{
+                    locale === 'pl'
+                      ? `Island Model GA (4 Wyspy · K = ${gaBitLength} bitów)`
+                      : `Island Model GA (4 Islands · K = ${gaBitLength} bits)`
+                  }}
+                </span>
+                <NanoSlider
+                  v-model="gaBitLength"
+                  :min="10"
+                  :max="28"
+                  :step="1"
+                  size="sm"
+                  color="primary"
+                  width="96px"
+                  @update:modelValue="initGeneticPopulation"
                 />
               </div>
               <div class="ga-list">
@@ -1207,12 +1235,12 @@ onUnmounted(() => {
                   <span class="ga-rank">#{{ idx + 1 }}</span>
                   <code class="ga-bits">{{ cand.bits }}</code>
                   <span class="ga-stat">
-                    n={{ cand.n }} · {{ cand.totalSteps }} kr. · γ={{ cand.gammaDelay.toFixed(1) }}
+                    n={{ cand.n }} · {{ cand.totalSteps }} {{ locale === 'pl' ? 'kr.' : 'st.' }} · γ={{ cand.gammaDelay.toFixed(1) }}
                   </span>
                 </div>
               </div>
               <div class="motif-strip">
-                <span class="motif-label">Dominujące sufiksy rekordzistów:</span>
+                <span class="motif-label">{{ locale === 'pl' ? 'Dominujące sufiksy rekordzistów:' : 'Dominant record-holder suffixes:' }}</span>
                 <span
                   v-for="m in gaMotifs.dominantSuffixes"
                   :key="m.motif"
@@ -1221,7 +1249,7 @@ onUnmounted(() => {
                   ...{{ m.motif }}₂ (×{{ m.count }})
                 </span>
                 <span class="motif-chip amber">
-                  Gęstość '2' w {0,1,2}: {{ (gaMotifs.avgTwosDensity * 100).toFixed(0) }}%
+                  {{ locale === 'pl' ? "Gęstość '2' w {0,1,2}" : "Density of '2' in {0,1,2}" }}: {{ (gaMotifs.avgTwosDensity * 100).toFixed(0) }}%
                 </span>
               </div>
             </div>
@@ -1230,12 +1258,24 @@ onUnmounted(() => {
             <div class="ga-pane">
               <div class="pane-head">
                 <span>
-                  Drzewo Kontrakcji mod 2^{{ sieveDepthK }} ({{ sieveCertificate.totalOddResidues.toLocaleString() }} klas)
+                  {{
+                    locale === 'pl'
+                      ? `Drzewo Kontrakcji mod 2^${sieveDepthK} (${sieveCertificate.totalOddResidues.toLocaleString()} klas)`
+                      : `Contraction Tree mod 2^${sieveDepthK} (${sieveCertificate.totalOddResidues.toLocaleString()} classes)`
+                  }}
                 </span>
                 <div class="sieve-head-actions">
-                  <input type="range" v-model.number="sieveDepthK" min="4" max="20" class="slider sm" />
+                  <NanoSlider
+                    v-model="sieveDepthK"
+                    :min="4"
+                    :max="20"
+                    :step="1"
+                    size="sm"
+                    color="primary"
+                    width="88px"
+                  />
                   <button type="button" class="cert-btn" @click="exportFormalCertificate">
-                    {{ certCopied ? 'Skopiowano JSON ✓' : 'Certyfikat JSON' }}
+                    {{ certCopied ? (locale === 'pl' ? 'Skopiowano JSON ✓' : 'JSON Copied ✓') : (locale === 'pl' ? 'Certyfikat JSON' : 'JSON Certificate') }}
                   </button>
                 </div>
               </div>
@@ -1246,12 +1286,19 @@ onUnmounted(() => {
                     :style="{ width: `${sieveCertificate.contractedPercent}%` }"
                   ></div>
                 </div>
-                <p class="sieve-desc">
+                <p v-if="locale === 'pl'" class="sieve-desc">
                   <strong>{{ sieveCertificate.contractedCount.toLocaleString() }} / {{ sieveCertificate.totalOddResidues.toLocaleString() }}</strong>
                   ({{ sieveCertificate.contractedPercent.toFixed(2) }}%) nieparzystych klas reszt
                   <code>r (mod 2^{{ sieveDepthK }})</code> ma <strong>ścisły dowód kontrakcji</strong>
                   <code>3^c &lt; 2^m ⇒ T^m(n) &lt; n</code>
                   (przyspieszenie drzewa 2-adycznego: <strong>{{ sieveCertificate.pruningSpeedupFactor.toFixed(1) }}×</strong>).
+                </p>
+                <p v-else class="sieve-desc">
+                  <strong>{{ sieveCertificate.contractedCount.toLocaleString() }} / {{ sieveCertificate.totalOddResidues.toLocaleString() }}</strong>
+                  ({{ sieveCertificate.contractedPercent.toFixed(2) }}%) of odd residue classes
+                  <code>r (mod 2^{{ sieveDepthK }})</code> have a <strong>strict contraction proof</strong>
+                  <code>3^c &lt; 2^m ⇒ T^m(n) &lt; n</code>
+                  (2-adic tree pruning speedup: <strong>{{ sieveCertificate.pruningSpeedupFactor.toFixed(1) }}×</strong>).
                 </p>
                 <div class="surviving-chips">
                   <span
@@ -1259,7 +1306,7 @@ onUnmounted(() => {
                     :key="suf.suffix"
                     class="motif-chip"
                   >
-                    sufiks ...{{ suf.suffix }}₂ ({{ suf.sharePct.toFixed(1) }}%)
+                    {{ locale === 'pl' ? 'sufiks' : 'suffix' }} ...{{ suf.suffix }}₂ ({{ suf.sharePct.toFixed(1) }}%)
                   </span>
                   <span
                     v-for="s in sieveCertificate.survivingResidues.slice(0, 4)"
@@ -1272,9 +1319,13 @@ onUnmounted(() => {
                 </div>
                 <div class="rust-cert-box">
                   <div class="rust-cert-head">
-                    <strong>🦀 Natywny Weryfikator Rust (u128 · 16 wątków · mod 2²⁰..2³⁴):</strong>
+                    <strong>{{ locale === 'pl' ? '🦀 Natywny Weryfikator Rust (u128 · 16 wątków · mod 2²⁰..2³⁴):' : '🦀 Native Rust Verifier (u128 · 16 threads · mod 2²⁰..2³⁴):' }}</strong>
                     <span class="motif-chip amber">
-                      k=34: 8 438 016 956 / 8 589 934 592 klas (98.231% w 69.4 ms · 837× speedup)
+                      {{
+                        locale === 'pl'
+                          ? 'k=34: 8 438 016 956 / 8 589 934 592 klas (98.231% w 69.4 ms · 837× speedup)'
+                          : 'k=34: 8,438,016,956 / 8,589,934,592 classes (98.231% in 69.4 ms · 837× speedup)'
+                      }}
                     </span>
                   </div>
                   <div class="rust-levels-strip">
@@ -1286,12 +1337,19 @@ onUnmounted(() => {
                       2^{{ lv.k }}: {{ lv.contractedPercent.toFixed(2) }}% ({{ lv.elapsedMs.toFixed(1) }}ms)
                     </span>
                   </div>
-                  <div class="iso-note">
+                  <div v-if="locale === 'pl'" class="iso-note">
                     <strong>Twierdzenie o 2-Adycznej Izomorfii Poddrzew:</strong> 5 sufiksów 9-bitowych
                     (<code>{{ rustDeepCert.isomorphicSuffixClasses.join('₂, ') }}₂</code>) ma identyczną wagę parzystości
                     <code>c=7</code> i bijektywny obraz afiniczny <code>T⁹(r) + 3⁷m (mod 2^{k-9})</code>, dając
                     <strong>dokładnie tę samą liczebność poddrzewa</strong> na każdym poziomie
                     (np. <code>8 223 641</code> przy <code>k=34</code>).
+                  </div>
+                  <div v-else class="iso-note">
+                    <strong>2-Adic Subtree Isomorphism Theorem:</strong> 5 nine-bit suffixes
+                    (<code>{{ rustDeepCert.isomorphicSuffixClasses.join('₂, ') }}₂</code>) share identical parity weight
+                    <code>c=7</code> and bijective affine image <code>T⁹(r) + 3⁷m (mod 2^{k-9})</code>, yielding
+                    <strong>the exact same subtree cardinality</strong> at every depth
+                    (e.g. <code>8,223,641</code> at <code>k=34</code>).
                   </div>
                 </div>
               </div>
@@ -1319,7 +1377,7 @@ onUnmounted(() => {
                 :class="{ active: binaryAlignMode === 'lsb' }"
                 @click="binaryAlignMode = 'lsb'"
               >
-                Wyrównanie 2-adyczne (LSB)
+                {{ locale === 'pl' ? 'Wyrównanie 2-adyczne (LSB)' : '2-Adic Alignment (LSB)' }}
               </button>
               <button
                 type="button"
@@ -1327,7 +1385,7 @@ onUnmounted(() => {
                 :class="{ active: binaryAlignMode === 'msb' }"
                 @click="binaryAlignMode = 'msb'"
               >
-                Wyrównanie MSB
+                {{ locale === 'pl' ? 'Wyrównanie MSB' : 'MSB Alignment' }}
               </button>
             </div>
           </div>
@@ -1335,9 +1393,13 @@ onUnmounted(() => {
           <!-- Bit-level Pre-Carry Ternary {0,1,2} & Ripple-Carry Decomposition Box -->
           <div class="carry-inspector">
             <div class="carry-header">
-              <span>
+              <span v-if="locale === 'pl'">
                 <strong>Rozkład 2n + n + 1 → Wektor {0,1,2} → Cel 1[000...] dla n = {{ preCarryProbe.n }} ({{ preCarryProbe.nBitsRaw }}₂):</strong>
                 Cyfry <code>1</code> tworzą <strong>nadprzewodnik (lont carry)</strong>, a cyfry <code>2</code> (zderzenia <code>11</code> lub <code>+1</code>) wyzwalają falę zerowania:
+              </span>
+              <span v-else>
+                <strong>Decomposition 2n + n + 1 → {0,1,2} Vector → Target 1[000...] for n = {{ preCarryProbe.n }} ({{ preCarryProbe.nBitsRaw }}₂):</strong>
+                Digits <code>1</code> form a <strong>superconductor (carry fuse)</strong>, while digits <code>2</code> (<code>11</code> collisions or <code>+1</code>) trigger a zeroing wave:
               </span>
               <div class="probe-chips">
                 <button
@@ -1346,7 +1408,7 @@ onUnmounted(() => {
                   :class="{ active: preCarryProbe.n === 5 }"
                   @click="selectPreCarryProbe(5)"
                 >
-                  101₂ → 1112 → 10000₂ (Cel 1[0000]!)
+                  {{ locale === 'pl' ? '101₂ → 1112 → 10000₂ (Cel 1[0000]!)' : '101₂ → 1112 → 10000₂ (Target 1[0000]!)' }}
                 </button>
                 <button
                   type="button"
@@ -1388,12 +1450,12 @@ onUnmounted(() => {
                 <code class="bit-strip shift-val">{{ preCarryProbe.shiftedBitsRaw }}</code>
               </div>
               <div class="carry-row">
-                <span class="carry-label">+ n (wyrównane):</span>
+                <span class="carry-label">{{ locale === 'pl' ? '+ n (wyrównane):' : '+ n (aligned):' }}</span>
                 <code class="bit-strip n-val">{{ preCarryProbe.nBitsAligned }}</code>
-                <span class="plus-one-tag">+ 1 (na LSB)</span>
+                <span class="plus-one-tag">{{ locale === 'pl' ? '+ 1 (na LSB)' : '+ 1 (at LSB)' }}</span>
               </div>
               <div class="carry-row pre-carry-row">
-                <span class="carry-label">Wektor {0,1,2}:</span>
+                <span class="carry-label">{{ locale === 'pl' ? 'Wektor {0,1,2}:' : 'Vector {0,1,2}:' }}</span>
                 <span class="ternary-strip">
                   <span
                     v-for="(d, dIdx) in preCarryProbe.rawPreCarry.split('')"
@@ -1405,30 +1467,30 @@ onUnmounted(() => {
                   </span>
                 </span>
                 <span class="v2-pill amber">
-                  Lonty '1': {{ preCarryProbe.onesFuseCount }} · Kolizje '2': {{ preCarryProbe.twosCollisionCount }}
+                  {{ locale === 'pl' ? "Lonty '1'" : "Fuses '1'" }}: {{ preCarryProbe.onesFuseCount }} · {{ locale === 'pl' ? "Kolizje '2'" : "Collisions '2'" }}: {{ preCarryProbe.twosCollisionCount }}
                 </span>
               </div>
               <div class="carry-row result">
-                <span class="carry-label">Po fali carry:</span>
+                <span class="carry-label">{{ locale === 'pl' ? 'Po fali carry:' : 'After carry wave:' }}</span>
                 <code class="bit-strip out-val">{{ preCarryProbe.outBits }}</code>
                 <span class="v2-pill">
-                  ≫ {{ preCarryProbe.v2 }} zer → {{ preCarryProbe.syracuseNextBits }}₂ ({{ preCarryProbe.syracuseNext }})
-                  <strong v-if="preCarryProbe.isImmediatePowerOfTwo"> · SUKCES 1[000...]!</strong>
+                  ≫ {{ preCarryProbe.v2 }} {{ locale === 'pl' ? 'zer' : 'zeros' }} → {{ preCarryProbe.syracuseNextBits }}₂ ({{ preCarryProbe.syracuseNext }})
+                  <strong v-if="preCarryProbe.isImmediatePowerOfTwo"> · {{ locale === 'pl' ? 'SUKCES 1[000...]!' : 'TARGET 1[000...]!' }}</strong>
                 </span>
               </div>
             </div>
             <div class="lemma-badges">
               <span class="lemma-pill ok">
-                ✓ Lemat Lontu (10)^k·1 → 1^(2k-1)2 → 10^(2k)
+                ✓ {{ locale === 'pl' ? 'Lemat Lontu (10)^k·1 → 1^(2k-1)2 → 10^(2k)' : 'Fuse Lemma (10)^k·1 → 1^(2k-1)2 → 10^(2k)' }}
               </span>
               <span class="lemma-pill ok">
-                ✓ Lemat Mersenne’a 1^L → 12^L → 101^(L-1)0
+                ✓ {{ locale === 'pl' ? 'Lemat Mersenne’a 1^L → 12^L → 101^(L-1)0' : 'Mersenne Lemma 1^L → 12^L → 101^(L-1)0' }}
               </span>
               <span class="lemma-pill ok">
-                ✓ Łańcuch 10 → 111 → 1222 → 10110 → 111211 → 1000011
+                ✓ {{ locale === 'pl' ? 'Łańcuch 10 → 111 → 1222 → 10110 → 111211 → 1000011' : 'Chain 10 → 111 → 1222 → 10110 → 111211 → 1000011' }}
               </span>
               <span class="lemma-pill cyan">
-                ✓ Potencjał Lapunowa V({{ lyapunovProbe.n }}) = {{ lyapunovProbe.potentialV.toFixed(2) }}
+                ✓ {{ locale === 'pl' ? 'Potencjał Lapunowa' : 'Lyapunov Potential' }} V({{ lyapunovProbe.n }}) = {{ lyapunovProbe.potentialV.toFixed(2) }}
                 → V({{ lyapunovProbe.nextOdd }}) = {{ lyapunovProbe.nextPotentialV.toFixed(2) }}
                 (ΔV = {{ lyapunovProbe.deltaV >= 0 ? '+' : '' }}{{ lyapunovProbe.deltaV.toFixed(3) }})
               </span>
@@ -1443,8 +1505,8 @@ onUnmounted(() => {
                 :class="tr.tone"
               >
                 <div class="mealy-rule">{{ tr.rule }}</div>
-                <div class="mealy-role">{{ tr.role }}</div>
-                <div class="mealy-stat">{{ tr.count }} kol. ({{ tr.sharePct.toFixed(0) }}%)</div>
+                <div class="mealy-role">{{ locale === 'pl' ? tr.role : tr.roleEn || tr.role }}</div>
+                <div class="mealy-stat">{{ tr.count }} {{ locale === 'pl' ? 'kol.' : 'cols' }} ({{ tr.sharePct.toFixed(0) }}%)</div>
               </div>
             </div>
           </div>
@@ -1470,14 +1532,14 @@ onUnmounted(() => {
                   {{ bit }}
                 </span>
               </div>
-              <span class="wf-meta" :title="'Końcowe jedynki (Trailing 1s): ' + pt.trailingOnes">
+              <span class="wf-meta" :title="(locale === 'pl' ? 'Końcowe jedynki (Trailing 1s): ' : 'Trailing ones: ') + pt.trailingOnes">
                 1s:{{ pt.hamming }}/{{ pt.bitLength }} · T₁:{{ pt.trailingOnes }}
               </span>
             </div>
           </div>
         </div>
 
-        <!-- 3. Autonomous Research Loop (logs/01..05) & BigInt (128..2048-bit) Laboratory -->
+        <!-- 3. Autonomous Research Loop (logs/01..07) & BigInt (128..2048-bit) Laboratory -->
         <div class="card research-loop-card">
           <div class="card-header">
             <div class="card-title-group">
@@ -1508,8 +1570,8 @@ onUnmounted(() => {
             <!-- Left half: Error Convergence E(W) -> 0.0000% -->
             <div class="ga-pane">
               <div class="pane-head">
-                <span>Spadek Błędu Niedomknięcia E(W) w Pętli (Metoda 1)</span>
-                <span class="motif-chip amber">Cel: E = 0.0000% ✓</span>
+                <span>{{ locale === 'pl' ? 'Spadek Błędu Niedomknięcia E(W) w Pętli (Metoda 1)' : 'Loop Non-Closure Error E(W) Decay (Method 1)' }}</span>
+                <span class="motif-chip amber">{{ locale === 'pl' ? 'Cel: E = 0.0000% ✓' : 'Target: E = 0.0000% ✓' }}</span>
               </div>
               <div class="err-conv-list">
                 <div
@@ -1518,7 +1580,7 @@ onUnmounted(() => {
                   class="err-conv-row"
                 >
                   <div class="err-conv-top">
-                    <span class="err-name">{{ it.name }}</span>
+                    <span class="err-name">{{ locale === 'pl' ? it.name : it.nameEn || it.name }}</span>
                     <strong class="err-val" :class="{ zero: it.eWindow === 0 }">
                       E(W={{ it.windowW }}) = {{ it.eWindow.toFixed(4) }}%
                     </strong>
@@ -1536,32 +1598,50 @@ onUnmounted(() => {
             <!-- Right half: Live Arbitrary-Precision BigInt (128..2048-bit) Inspector -->
             <div class="ga-pane">
               <div class="pane-head">
-                <span>Test Kontrprzykładu BigInt ({{ bigIntSim.bitLength }} bitów ≈ 10^{{ Math.round(bigIntSim.bitLength * 0.30103) }})</span>
+                <span>
+                  {{
+                    locale === 'pl'
+                      ? `Test Kontrprzykładu BigInt (${bigIntSim.bitLength} bitów ≈ 10^${Math.round(bigIntSim.bitLength * 0.30103)})`
+                      : `BigInt Counterexample Test (${bigIntSim.bitLength} bits ≈ 10^${Math.round(bigIntSim.bitLength * 0.30103)})`
+                  }}
+                </span>
                 <span class="lemma-pill ok">
-                  {{ bigIntSim.collapsedTo1000 ? 'Kolaps do 1[000...] ✓' : 'W toku' }}
+                  {{ bigIntSim.collapsedTo1000 ? (locale === 'pl' ? 'Kolaps do 1[000...] ✓' : 'Collapsed to 1[000...] ✓') : (locale === 'pl' ? 'W toku' : 'Running') }}
                 </span>
               </div>
               <div class="bigint-telemetry">
                 <div class="bi-line">
-                  <span>Szablon RLE (1^A·0^B):</span>
+                  <span>{{ locale === 'pl' ? 'Szablon RLE (1^A·0^B):' : 'RLE Template (1^A·0^B):' }}</span>
                   <code>{{ bigIntSim.rleFormula }}</code>
                 </div>
                 <div class="bi-line">
-                  <span>Kroki Syracuse (BigInt):</span>
+                  <span>{{ locale === 'pl' ? 'Kroki Syracuse (BigInt):' : 'Syracuse Steps (BigInt):' }}</span>
                   <strong>
-                    {{ bigIntSim.totalSteps.toLocaleString() }} ({{ bigIntSim.oddSteps }} nieparz. + {{ bigIntSim.evenSteps }} zer v₂)
+                    {{
+                      locale === 'pl'
+                        ? `${bigIntSim.totalSteps.toLocaleString()} (${bigIntSim.oddSteps} nieparz. + ${bigIntSim.evenSteps} zer v₂)`
+                        : `${bigIntSim.totalSteps.toLocaleString()} (${bigIntSim.oddSteps} odd + ${bigIntSim.evenSteps} v₂ zeros)`
+                    }}
                   </strong>
                 </div>
                 <div class="bi-line">
-                  <span>Współczynnik γ(n) / Okno ΔV&lt;0:</span>
+                  <span>{{ locale === 'pl' ? 'Współczynnik γ(n) / Okno ΔV<0:' : 'Delay Factor γ(n) / ΔV<0 Window:' }}</span>
                   <strong>
-                    γ = {{ bigIntSim.gammaDelay.toFixed(2) }} · spadek V_θ po {{ bigIntSim.firstWindowDrop }} kr.
+                    {{
+                      locale === 'pl'
+                        ? `γ = ${bigIntSim.gammaDelay.toFixed(2)} · spadek V_θ po ${bigIntSim.firstWindowDrop} kr.`
+                        : `γ = ${bigIntSim.gammaDelay.toFixed(2)} · V_θ drop after ${bigIntSim.firstWindowDrop} st.`
+                    }}
                   </strong>
                 </div>
                 <div class="bi-line">
-                  <span>Front lewy MSB (doliny 1000...):</span>
+                  <span>{{ locale === 'pl' ? 'Front lewy MSB (doliny 1000...):' : 'Left MSB Front (1000... valleys):' }}</span>
                   <strong>
-                    {{ bigIntSim.msbValleyExpansions }} ekspansji (max {{ bigIntSim.maxMsbValley }} zer za MSB)
+                    {{
+                      locale === 'pl'
+                        ? `${bigIntSim.msbValleyExpansions} ekspansji (max ${bigIntSim.maxMsbValley} zer za MSB)`
+                        : `${bigIntSim.msbValleyExpansions} expansions (max ${bigIntSim.maxMsbValley} zeros behind MSB)`
+                    }}
                   </strong>
                 </div>
               </div>
@@ -1578,7 +1658,7 @@ onUnmounted(() => {
                     : 'Research Logs /logs/01..07.md — click any document to open live preview:'
                 }}
               </span>
-              <span class="sub-mono">7 pełnych raportów .md</span>
+              <span class="sub-mono">{{ locale === 'pl' ? '7 pełnych raportów .md' : '7 full .md reports' }}</span>
             </div>
             <div
               v-for="lg in researchLoopSummary.logs"
@@ -1597,8 +1677,8 @@ onUnmounted(() => {
               >
                 {{ lg.routePath }}
               </a>
-              <span class="log-title">{{ lg.title }}:</span>
-              <span class="log-verdict">{{ lg.verdict }}</span>
+              <span class="log-title">{{ locale === 'pl' ? lg.title : lg.titleEn || lg.title }}:</span>
+              <span class="log-verdict">{{ locale === 'pl' ? lg.verdict : lg.verdictEn || lg.verdict }}</span>
               <div class="log-item-actions" @click.stop>
                 <button
                   type="button"
@@ -1606,15 +1686,15 @@ onUnmounted(() => {
                   :class="{ active: selectedLogId === lg.id }"
                   @click="selectResearchLog(lg.id)"
                 >
-                  {{ selectedLogId === lg.id ? 'Ukryj ▴' : 'Podgląd ▾' }}
+                  {{ selectedLogId === lg.id ? (locale === 'pl' ? 'Ukryj ▴' : 'Hide ▴') : (locale === 'pl' ? 'Podgląd ▾' : 'Preview ▾') }}
                 </button>
                 <a
                   :href="lg.routePath"
                   class="log-action-pill modal-btn link-btn"
-                  title="Otwórz dedykowany route dokumentu"
+                  :title="locale === 'pl' ? 'Otwórz dedykowany route dokumentu' : 'Open dedicated document route'"
                   @click.prevent="navigateToLogRoute(lg.id)"
                 >
-                  Pełna strona ↗
+                  {{ locale === 'pl' ? 'Pełna strona ↗' : 'Full Page ↗' }}
                 </a>
               </div>
             </div>
@@ -1632,7 +1712,7 @@ onUnmounted(() => {
                   :class="{ active: selectedLogId === lg.id }"
                   @click="selectedLogId = lg.id"
                 >
-                  Metoda {{ lg.id }}
+                  {{ locale === 'pl' ? `Metoda ${lg.id}` : `Method ${lg.id}` }}
                 </button>
               </div>
 
@@ -1644,7 +1724,7 @@ onUnmounted(() => {
                     :class="{ active: logViewMode === 'formatted' }"
                     @click="logViewMode = 'formatted'"
                   >
-                    Sformatowany
+                    {{ locale === 'pl' ? 'Sformatowany' : 'Formatted' }}
                   </button>
                   <button
                     type="button"
@@ -1656,14 +1736,14 @@ onUnmounted(() => {
                   </button>
                 </div>
                 <button type="button" class="seg-btn" @click="copyActiveLogMarkdown">
-                  {{ logCopied ? 'Skopiowano ✓' : 'Kopiuj .md' }}
+                  {{ logCopied ? (locale === 'pl' ? 'Skopiowano ✓' : 'Copied ✓') : (locale === 'pl' ? 'Kopiuj .md' : 'Copy .md') }}
                 </button>
                 <a
                   :href="activeLogEntry.routePath"
                   class="seg-btn active link-btn"
                   @click.prevent="navigateToLogRoute(activeLogEntry.id)"
                 >
-                  Pełna strona ({{ activeLogEntry.routePath }}) ↗
+                  {{ locale === 'pl' ? `Pełna strona (${activeLogEntry.routePath}) ↗` : `Full Page (${activeLogEntry.routePath}) ↗` }}
                 </a>
                 <button type="button" class="seg-btn" @click="selectedLogId = null">
                   ✕
@@ -1673,7 +1753,7 @@ onUnmounted(() => {
 
             <div class="log-preview-meta">
               <code>{{ activeLogEntry.routePath }}</code>
-              <span>{{ activeLogEntry.title }}</span>
+              <span>{{ locale === 'pl' ? activeLogEntry.title : activeLogEntry.titleEn || activeLogEntry.title }}</span>
             </div>
 
             <div
@@ -1703,11 +1783,11 @@ onUnmounted(() => {
                   :class="{ active: selectedLogId === lg.id }"
                   @click="selectedLogId = lg.id"
                 >
-                  Metoda {{ lg.id }}
+                  {{ locale === 'pl' ? `Metoda ${lg.id}` : `Method ${lg.id}` }}
                 </button>
               </div>
             </div>
-            <h2 id="logModalTitle">{{ activeLogEntry.title }}</h2>
+            <h2 id="logModalTitle">{{ locale === 'pl' ? activeLogEntry.title : activeLogEntry.titleEn || activeLogEntry.title }}</h2>
           </div>
           <div class="log-preview-controls">
             <div class="seg-group">
@@ -1717,7 +1797,7 @@ onUnmounted(() => {
                 :class="{ active: logViewMode === 'formatted' }"
                 @click="logViewMode = 'formatted'"
               >
-                Sformatowany
+                {{ locale === 'pl' ? 'Sformatowany' : 'Formatted' }}
               </button>
               <button
                 type="button"
@@ -1729,7 +1809,7 @@ onUnmounted(() => {
               </button>
             </div>
             <button type="button" class="seg-btn" @click="copyActiveLogMarkdown">
-              {{ logCopied ? 'Skopiowano ✓' : 'Kopiuj .md' }}
+              {{ logCopied ? (locale === 'pl' ? 'Skopiowano ✓' : 'Copied ✓') : (locale === 'pl' ? 'Kopiuj .md' : 'Copy .md') }}
             </button>
             <button type="button" class="ctrl-btn" @click="closeLogModal">
               <X :size="15" />
@@ -1750,14 +1830,26 @@ onUnmounted(() => {
       <div class="help-inner">
         <div class="help-head">
           <div>
-            <h2 id="helpTitle">Formalizacja Binarna Hipotezy Collatza (3n + 1)</h2>
-            <p>Dlaczego przestrzeń binarna (ℤ₂) ujawnia ukryte schematy 0 i 1?</p>
+            <h2 id="helpTitle">
+              {{
+                locale === 'pl'
+                  ? 'Formalizacja Binarna Hipotezy Collatza (3n + 1)'
+                  : 'Binary Formalization of the Collatz Conjecture (3n + 1)'
+              }}
+            </h2>
+            <p>
+              {{
+                locale === 'pl'
+                  ? 'Dlaczego przestrzeń binarna (ℤ₂) ujawnia ukryte schematy 0 i 1?'
+                  : 'Why does 2-adic binary space (ℤ₂) reveal hidden 0 and 1 patterns?'
+              }}
+            </p>
           </div>
           <button type="button" class="ctrl-btn" @click="closeHelpModal">
             <X :size="15" />
           </button>
         </div>
-        <div class="help-body">
+        <div v-if="locale === 'pl'" class="help-body">
           <p>
             <strong>1. Operacja 3n + 1 jako lokalny automat komórkowy z przeniesieniem (Carry):</strong>
             W zapisie dwójkowym mnożenie przez 3 to dodanie liczby przesuniętej o 1 bit w lewo:
@@ -1774,6 +1866,25 @@ onUnmounted(() => {
             Każdy nieparzysty krok wydłuża zapis binarny o <code>log₂(3) ≈ 1.58496</code> bitu, ale obcięcie
             końcowych zer skraca go średnio o <code>∑ k / 2^k = 2.00000</code> bity, dając ujemny dryf
             <code>-0.41504 bitu na krok nieparzysty</code>.
+          </p>
+        </div>
+        <div v-else class="help-body">
+          <p>
+            <strong>1. The 3n + 1 operation as a local cellular automaton with ripple-carry:</strong>
+            In base 2, multiplying by 3 is adding the number shifted left by 1 bit:
+            <code>3n + 1 = n + (n ≪ 1) + 1</code>. Dividing by <code>2^k</code> simply strips trailing zeros!
+          </p>
+          <p>
+            <strong>2. Deterministic erosion of trailing 1-runs:</strong>
+            Every odd integer ending in a run of <code>L</code> ones (<code>...011...1₂</code>, i.e.
+            <code>n ≡ -1 mod 2^L</code>) executes <code>(3n+1)/2</code> steps that erode one trailing <code>1</code>
+            per step from the right while emitting alternating <code>10</code> fuses to the left.
+          </p>
+          <p>
+            <strong>3. Mean bit-entropy drift:</strong>
+            Each odd step lengthens the binary representation by <code>log₂(3) ≈ 1.58496</code> bits, while stripping
+            trailing zeros shortens it by an average of <code>∑ k / 2^k = 2.00000</code> bits, yielding a net drift of
+            <code>-0.41504 bits per odd step</code>.
           </p>
         </div>
       </div>

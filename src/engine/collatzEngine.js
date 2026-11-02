@@ -11,16 +11,68 @@
  * 5. Multi-Population Island Model Genetic Algorithm in {0,1}^K with Binary Motif Extractor
  */
 
+import { renderMarkdown } from '@gkucmierz/md-engine';
+
 export const FAMOUS_SEEDS = [
-  { n: 5, label: 'n = 5 (101₂ → 1112 → 10000₂ w 1 kroku!)' },
-  { n: 7, label: 'n = 7 (111₂ → 1222 → 10110₂)' },
-  { n: 27, label: 'n = 27 (Klasyczny Szczyt 9232, 111 kroków)' },
-  { n: 85, label: 'n = 85 (1010101₂ → 11111112 → 2⁸)' },
-  { n: 871, label: 'n = 871 (178 kroków, szczyt 190 996)' },
-  { n: 6171, label: 'n = 6171 (261 kroków, szczyt 975 400)' },
-  { n: 77031, label: 'n = 77031 (350 kroków, szczyt 21 933 016)' },
-  { n: 837799, label: 'n = 837799 (Rekord < 10⁶: 524 kroki)' }
+  {
+    n: 5,
+    label: 'n = 5 (101₂ → 1112 → 10000₂ w 1 kroku!)',
+    labelEn: 'n = 5 (101₂ → 1112 → 10000₂ in 1 step!)'
+  },
+  {
+    n: 7,
+    label: 'n = 7 (111₂ → 1222 → 10110₂)',
+    labelEn: 'n = 7 (111₂ → 1222 → 10110₂)'
+  },
+  {
+    n: 27,
+    label: 'n = 27 (Klasyczny Szczyt 9232, 111 kroków)',
+    labelEn: 'n = 27 (Classic Peak 9232, 111 steps)'
+  },
+  {
+    n: 85,
+    label: 'n = 85 (1010101₂ → 11111112 → 2⁸)',
+    labelEn: 'n = 85 (1010101₂ → 11111112 → 2⁸)'
+  },
+  {
+    n: 871,
+    label: 'n = 871 (178 kroków, szczyt 190 996)',
+    labelEn: 'n = 871 (178 steps, peak 190,996)'
+  },
+  {
+    n: 6171,
+    label: 'n = 6171 (261 kroków, szczyt 975 400)',
+    labelEn: 'n = 6171 (261 steps, peak 975,400)'
+  },
+  {
+    n: 77031,
+    label: 'n = 77031 (350 kroków, szczyt 21 933 016)',
+    labelEn: 'n = 77031 (350 steps, peak 21,933,016)'
+  },
+  {
+    n: 837799,
+    label: 'n = 837799 (Rekord < 10⁶: 524 kroki)',
+    labelEn: 'n = 837799 (Record < 10⁶: 524 steps)'
+  }
 ];
+
+export function toPositiveBigInt(inputVal) {
+  if (typeof inputVal === 'bigint') {
+    return inputVal >= 1n ? inputVal : 1n;
+  }
+  if (typeof inputVal === 'string') {
+    const trimmed = inputVal.trim();
+    if (/^\d+$/.test(trimmed)) {
+      const b = BigInt(trimmed);
+      return b >= 1n ? b : 1n;
+    }
+    if (/^0b[01]+$/i.test(trimmed)) {
+      const b = BigInt(trimmed);
+      return b >= 1n ? b : 1n;
+    }
+  }
+  return BigInt(Math.max(1, Math.floor(Number(inputVal) || 1)));
+}
 
 const POW3 = Array.from({ length: 25 }, (_, i) => Math.pow(3, i));
 const POW2 = Array.from({ length: 25 }, (_, i) => Math.pow(2, i));
@@ -76,7 +128,7 @@ export function bigIntLog2(x) {
  * - n = 22 (10110_2):2n = 101100, n = 010110, +1 => preCarry = "111211" -> resolved = "1000011" (67)
  */
 export function computePreCarryTernaryStep(inputN) {
-  const n = BigInt(Math.max(1, Math.floor(Number(inputN) || 1)));
+  const n = toPositiveBigInt(inputN);
   const shifted = n << 1n;
   const result3n1 = 3n * n + 1n;
   const v2 = countTrailingZerosBigInt(result3n1);
@@ -142,7 +194,7 @@ export function computePreCarryTernaryStep(inputN) {
  * Computes full hailstone trajectory and binary-space telemetry for a starting integer n >= 1.
  */
 export function computeCollatzTrajectory(startN, maxSteps = 2500) {
-  let n = BigInt(Math.max(1, Math.floor(Number(startN) || 1)));
+  let n = toPositiveBigInt(startN);
   const initialN = n;
 
   const points = [];
@@ -223,6 +275,7 @@ export function computeCollatzTrajectory(startN, maxSteps = 2500) {
 
   return {
     startN: Number(initialN),
+    startNStr: initialN.toString(),
     startBits: initialN.toString(2),
     totalSteps: step,
     oddSteps: oddStepCount,
@@ -230,6 +283,7 @@ export function computeCollatzTrajectory(startN, maxSteps = 2500) {
     glideSteps: droppedBelowInitial ? glideSteps : step,
     gammaDelay,
     peakValue: Number(peakVal),
+    peakValueStr: peakVal.toString(),
     peakLog2: bigIntLog2(peakVal),
     avgV2,
     avgBitDrift,
@@ -244,7 +298,7 @@ export function computeCollatzTrajectory(startN, maxSteps = 2500) {
  * showing both the Pre-Carry Ternary Column-Sum Vector d_i ∈ {0,1,2} and the ripple-carry chain.
  */
 export function analyzeBinaryAutomatonStep(oddInput) {
-  let n = BigInt(Math.max(1, Math.floor(Number(oddInput) || 1)));
+  let n = toPositiveBigInt(oddInput);
   if ((n & 1n) === 0n) n |= 1n; // Ensure odd for Syracuse automaton inspection
 
   const shifted = n << 1n;
@@ -572,10 +626,10 @@ export function evolveGeneticGeneration(population, { bitLength = 20, mutationRa
  */
 export function createIslandModelPopulation({ bitLength = 20, islandCount = 4, islandSize = 10 } = {}) {
   const islandProfiles = [
-    { id: 'alpha', name: 'Wyspa α (Gęste 1s)', biasOnes: 0.68, mutationRate: 0.06 },
-    { id: 'beta', name: 'Wyspa β (Sufiksy Mersenne)', biasOnes: 0.58, mutationRate: 0.09 },
-    { id: 'gamma', name: 'Wyspa γ (Eksplorator Mutacji)', biasOnes: 0.5, mutationRate: 0.14 },
-    { id: 'delta', name: 'Wyspa δ (Równowaga 2-Adyczna)', biasOnes: 0.62, mutationRate: 0.07 }
+    { id: 'alpha', name: 'Wyspa α (Gęste 1s)', nameEn: 'Island α (Dense 1s)', biasOnes: 0.68, mutationRate: 0.06 },
+    { id: 'beta', name: 'Wyspa β (Sufiksy Mersenne)', nameEn: 'Island β (Mersenne Suffixes)', biasOnes: 0.58, mutationRate: 0.09 },
+    { id: 'gamma', name: 'Wyspa γ (Eksplorator Mutacji)', nameEn: 'Island γ (Mutation Explorer)', biasOnes: 0.5, mutationRate: 0.14 },
+    { id: 'delta', name: 'Wyspa δ (Równowaga 2-Adyczna)', nameEn: 'Island δ (2-Adic Balance)', biasOnes: 0.62, mutationRate: 0.07 }
   ];
 
   return Array.from({ length: islandCount }, (_, idx) => {
@@ -802,6 +856,7 @@ export function buildMealyCarryTransitionMap(inputN) {
       id: 'S1_C1',
       rule: '(s=1, c=1) → (y=0, c′=1)',
       role: 'Nadprzewodnik (Anihilacja Lontu → 0)',
+      roleEn: 'Superconductor (Fuse Annihilation → 0)',
       count: transitionCounts.S1_C1,
       sharePct: (transitionCounts.S1_C1 / totalCols) * 100,
       tone: 'emerald'
@@ -810,6 +865,7 @@ export function buildMealyCarryTransitionMap(inputN) {
       id: 'S2_C0',
       rule: '(s=2, c=0) → (y=0, c′=1)',
       role: 'Zapalnik Carry (Kolizja 11 budzi falę)',
+      roleEn: 'Carry Igniter (11 collision triggers wave)',
       count: transitionCounts.S2_C0,
       sharePct: (transitionCounts.S2_C0 / totalCols) * 100,
       tone: 'amber'
@@ -818,6 +874,7 @@ export function buildMealyCarryTransitionMap(inputN) {
       id: 'S2_C1',
       rule: '(s=2, c=1) → (y=1, c′=1)',
       role: 'Kaskada 1222 (Blok 111 podtrzymuje 1)',
+      roleEn: '1222 Cascade (111 block sustains 1)',
       count: transitionCounts.S2_C1,
       sharePct: (transitionCounts.S2_C1 / totalCols) * 100,
       tone: 'rose'
@@ -826,6 +883,7 @@ export function buildMealyCarryTransitionMap(inputN) {
       id: 'S0_C1',
       rule: '(s=0, c=1) → (y=1, c′=0)',
       role: 'Zapora 00 (Wygaszenie fali carry)',
+      roleEn: '00 Barrier (Carry wave quench)',
       count: transitionCounts.S0_C1,
       sharePct: (transitionCounts.S0_C1 / totalCols) * 100,
       tone: 'cyan'
@@ -834,6 +892,7 @@ export function buildMealyCarryTransitionMap(inputN) {
       id: 'S1_C0',
       rule: '(s=1, c=0) → (y=1, c′=0)',
       role: 'Lont bierny (Naprzemienne 01/10 bez c)',
+      roleEn: 'Passive Fuse (Alternating 01/10 without c)',
       count: transitionCounts.S1_C0,
       sharePct: (transitionCounts.S1_C0 / totalCols) * 100,
       tone: 'muted'
@@ -842,6 +901,7 @@ export function buildMealyCarryTransitionMap(inputN) {
       id: 'S0_C0',
       rule: '(s=0, c=0) → (y=0, c′=0)',
       role: 'Dolina zerowa (00 bez przeniesienia)',
+      roleEn: 'Zero Valley (00 without carry)',
       count: transitionCounts.S0_C0,
       sharePct: (transitionCounts.S0_C0 / totalCols) * 100,
       tone: 'muted'
@@ -1064,15 +1124,60 @@ export function simulateBigIntTrajectory(bitLength = 256) {
 }
 
 /**
- * Summary of the 6 Research Loop Logs stored in `logs/`
+ * Summary of the 7 Research Loop Logs stored in `logs/`
  */
 export const RESEARCH_LOOP_LOGS_SUMMARY = {
   errorConvergence: [
-    { iteration: 0, name: 'Iteracja 0: Bazowy log₂(n)', e1: 52.04, e3: 27.37, e6: 14.59, eWindow: 3.8889, windowW: 16 },
-    { iteration: 1, name: 'Iteracja 1: Korekta 1-blokowa T₁(n)−1', e1: 23.31, e3: 11.50, e6: 6.78, eWindow: 1.5556, windowW: 16 },
-    { iteration: 2, name: 'Iteracja 2: Tożsamość ...01^{a₂}01₂ + tunel b₁=1', e1: 32.02, e3: 11.62, e6: 6.30, eWindow: 0.6667, windowW: 24 },
-    { iteration: 3, name: 'Iteracja 3: Kaskada 3-blokowa + Dolina MSB', e1: 32.87, e3: 11.57, e6: 6.26, eWindow: 0.2222, windowW: 36 },
-    { iteration: 4, name: 'Iteracja 4: Obwiednia Bellmana-Lapunowa U_H(n)', e1: 0.0, e3: 0.0, e6: 0.0, eWindow: 0.0000, windowW: 68 }
+    {
+      iteration: 0,
+      name: 'Iteracja 0: Bazowy log₂(n)',
+      nameEn: 'Iteration 0: Baseline log₂(n)',
+      e1: 52.04,
+      e3: 27.37,
+      e6: 14.59,
+      eWindow: 3.8889,
+      windowW: 16
+    },
+    {
+      iteration: 1,
+      name: 'Iteracja 1: Korekta 1-blokowa T₁(n)−1',
+      nameEn: 'Iteration 1: 1-Block Correction T₁(n)−1',
+      e1: 23.31,
+      e3: 11.50,
+      e6: 6.78,
+      eWindow: 1.5556,
+      windowW: 16
+    },
+    {
+      iteration: 2,
+      name: 'Iteracja 2: Tożsamość ...01^{a₂}01₂ + tunel b₁=1',
+      nameEn: 'Iteration 2: Identity ...01^{a₂}01₂ + Tunnel b₁=1',
+      e1: 32.02,
+      e3: 11.62,
+      e6: 6.30,
+      eWindow: 0.6667,
+      windowW: 24
+    },
+    {
+      iteration: 3,
+      name: 'Iteracja 3: Kaskada 3-blokowa + Dolina MSB',
+      nameEn: 'Iteration 3: 3-Block Cascade + MSB Valley',
+      e1: 32.87,
+      e3: 11.57,
+      e6: 6.26,
+      eWindow: 0.2222,
+      windowW: 36
+    },
+    {
+      iteration: 4,
+      name: 'Iteracja 4: Obwiednia Bellmana-Lapunowa U_H(n)',
+      nameEn: 'Iteration 4: Bellman-Lyapunov Envelope U_H(n)',
+      e1: 0.0,
+      e3: 0.0,
+      e6: 0.0,
+      eWindow: 0.0000,
+      windowW: 68
+    }
   ],
   logs: [
     {
@@ -1081,7 +1186,9 @@ export const RESEARCH_LOOP_LOGS_SUMMARY = {
       routePath: '/logs/01-carry-tunneling-lyapunov-bigint',
       file: 'logs/01-carry-tunneling-lyapunov-bigint.md',
       title: 'Metoda 1: Potencjał Tunelowania Przeniesień przez Bariery Zer',
-      verdict: 'Błąd E(W) zbity z 3.8889% do 0.0000% (W=68); odkryto dokładną tożsamość (3·(...01^{a₂}01₂)+1)/8 ≡ −1 (mod 2^{a₂−1}).'
+      titleEn: 'Method 1: Carry-Tunneling Potential Across Zero Barriers',
+      verdict: 'Błąd E(W) zbity z 3.8889% do 0.0000% (W=68); odkryto dokładną tożsamość (3·(...01^{a₂}01₂)+1)/8 ≡ −1 (mod 2^{a₂−1}).',
+      verdictEn: 'Error E(W) reduced from 3.8889% to 0.0000% (W=68); discovered exact identity (3·(...01^{a₂}01₂)+1)/8 ≡ −1 (mod 2^{a₂−1}).'
     },
     {
       id: '02',
@@ -1089,7 +1196,9 @@ export const RESEARCH_LOOP_LOGS_SUMMARY = {
       routePath: '/logs/02-two-sided-msb-lsb-annihilation',
       file: 'logs/02-two-sided-msb-lsb-annihilation.md',
       title: 'Metoda 2: Dwustronne Zderzenie Frontów (Dolina MSB 1000... × Erozja LSB)',
-      verdict: 'W 57.45% kroków nieparzystych fala carry wypala dolinę zer za MSB (do 11 zer z rzędu), co niszczy ujemne cykle 2-adyczne (−1, −5, −17).'
+      titleEn: 'Method 2: Two-Sided Front Collision (MSB Zero Valley 1000... × LSB Erosion)',
+      verdict: 'W 57.45% kroków nieparzystych fala carry wypala dolinę zer za MSB (do 11 zer z rzędu), co niszczy ujemne cykle 2-adyczne (−1, −5, −17).',
+      verdictEn: 'In 57.45% of odd steps the carry wave carves a zero valley behind the MSB (up to 11 consecutive zeros), destroying negative 2-adic cycles (−1, −5, −17).'
     },
     {
       id: '03',
@@ -1097,7 +1206,9 @@ export const RESEARCH_LOOP_LOGS_SUMMARY = {
       routePath: '/logs/03-symbolic-block-grammar-closure',
       file: 'logs/03-symbolic-block-grammar-closure.md',
       title: 'Metoda 3: Symboliczny Transduktor na Blokach Biegów 1^A 0^B',
-      verdict: 'Udowodniono 4 reguły (59/59 dla L=2..60): erozja bloku 1^L emituje na lewo pary naprzemienne 10, zamieniając kolizje w lonty!'
+      titleEn: 'Method 3: Symbolic Transducer on Run-Length Blocks 1^A 0^B',
+      verdict: 'Udowodniono 4 reguły (59/59 dla L=2..60): erozja bloku 1^L emituje na lewo pary naprzemienne 10, zamieniając kolizje w lonty!',
+      verdictEn: 'Proved 4 rules (59/59 for L=2..60): erosion of a 1^L block emits alternating 10 pairs to the left, converting collisions into superconducting fuses!'
     },
     {
       id: '04',
@@ -1105,7 +1216,9 @@ export const RESEARCH_LOOP_LOGS_SUMMARY = {
       routePath: '/logs/04-inverse-mod3-reachability',
       file: 'logs/04-inverse-mod3-reachability.md',
       title: 'Metoda 4: Drzewo Odwrotne n = (u·2^m − 1)/3 od Celu 1[000...]',
-      verdict: 'Idealna równowaga Haara (1/3, 1/3, 1/3) reszt mod 3 (2414 : 2419 : 2423) na 38 664 węzłach wstecznych.'
+      titleEn: 'Method 4: Inverse Reachability Tree n = (u·2^m − 1)/3 from Target 1[000...]',
+      verdict: 'Idealna równowaga Haara (1/3, 1/3, 1/3) reszt mod 3 (2414 : 2419 : 2423) na 38 664 węzłach wstecznych.',
+      verdictEn: 'Exact Haar equipartition (1/3, 1/3, 1/3) of mod 3 residues (2414 : 2419 : 2423) across 38,664 inverse tree nodes.'
     },
     {
       id: '05',
@@ -1113,7 +1226,9 @@ export const RESEARCH_LOOP_LOGS_SUMMARY = {
       routePath: '/logs/05-adversarial-bigint-coevolution',
       file: 'logs/05-adversarial-bigint-coevolution.md',
       title: 'Metoda 5: Współewolucyjny Łowca Kontrprzykładów BigInt (128–2048 bitów)',
-      verdict: '100% kolaps do 1[000...] dla liczb 128, 256, 512, 1024 i 2048-bitowych; dla ≥512 bitów spadek V_θ(n) już w 1 kroku!'
+      titleEn: 'Method 5: Co-Evolutionary BigInt Counterexample Hunter (128–2048 bits)',
+      verdict: '100% kolaps do 1[000...] dla liczb 128, 256, 512, 1024 i 2048-bitowych; dla ≥512 bitów spadek V_θ(n) już w 1 kroku!',
+      verdictEn: '100% collapse to 1[000...] across 128, 256, 512, 1024, and 2048-bit numbers; for ≥512 bits V_θ(n) drops in just 1 step!'
     },
     {
       id: '06',
@@ -1121,7 +1236,9 @@ export const RESEARCH_LOOP_LOGS_SUMMARY = {
       routePath: '/logs/06-horizon-scaling-and-bellman-closure-4096bit',
       file: 'logs/06-horizon-scaling-and-bellman-closure-4096bit.md',
       title: 'Metoda 6: Prawo Skalowania Horyzontu Bellmana H_max(B)/B → 0 (do 4096 bitów ≈ 10¹²³³)',
-      verdict: 'Pełny skan 65 535 liczb nieparzystych + BigInt 4096-bit: stały średni horyzont E[H] = 2.26 kroku i spadek H_max(B)/B z 5.20 do 0.0017!'
+      titleEn: 'Method 6: Bellman Horizon Scaling Law H_max(B)/B → 0 (up to 4096 bits ≈ 10¹²³³)',
+      verdict: 'Pełny skan 65 535 liczb nieparzystych + BigInt 4096-bit: stały średni horyzont E[H] = 2.26 kroku i spadek H_max(B)/B z 5.20 do 0.0017!',
+      verdictEn: 'Full scan of 65,535 odd integers + 4096-bit BigInt: constant mean horizon E[H] = 2.26 steps and H_max(B)/B drop from 5.20 to 0.0017!'
     },
     {
       id: '07',
@@ -1129,7 +1246,9 @@ export const RESEARCH_LOOP_LOGS_SUMMARY = {
       routePath: '/logs/07-dowod-krok-po-kroku-analiza-binarna-collatza',
       file: 'logs/07-dowod-krok-po-kroku-analiza-binarna-collatza.md',
       title: 'Dowód Krok po Kroku (07): Pełna Rygorystyczna Analiza Binarna, Lematy 1–3 i Obwiednia Bellmana-Lapunowa',
-      verdict: 'Kompletny przewodnik dowodowy w 9 elementarnych krokach: 6-stanowy automat Mealy’ego, 3 ścisłe lematy algebraiczne i dowód spadku U_H(T(n)) ≤ U_H(n) − δ.'
+      titleEn: 'Step-by-Step Proof (07): Rigorous Binary Analysis, Lemmas 1–3, Bellman-Lyapunov Envelope & Lean 4 Verification',
+      verdict: 'Kompletny przewodnik dowodowy w 9 elementarnych krokach: 6-stanowy automat Mealy’ego, 3 ścisłe lematy algebraiczne, certyfikat Lean 4 (exit code 0) i redukcja mod 32 (87.5%).',
+      verdictEn: 'Complete 9-step proof guide: 6-state Mealy carry automaton, 3 algebraic lemmas, Lean 4 certificate (exit code 0), and 87.5% mod 32 sieve reduction.'
     }
   ]
 };
@@ -1166,487 +1285,15 @@ export function resolveLogRoute(pathname = '/') {
 }
 
 /**
- * Helper: extracts a balanced `{...}` group starting at index `openIdx` (where `str[openIdx] === '{'`).
- * Returns `{ content, endIdx }` where `endIdx` is the index right after the matching `}`.
+ * Renders a Markdown research log (`logs/01..07.md`) into structured, semantic HTML
+ * using `@gkucmierz/md-engine` (Marked + KaTeX + Highlight.js + GFM Alerts + ANSI ECMA-48 + Lean 4).
  */
-function readBalancedBraces(str, openIdx) {
-  if (str[openIdx] !== '{') return null;
-  let depth = 0;
-  for (let i = openIdx; i < str.length; i++) {
-    if (str[i] === '\\' && (str[i + 1] === '{' || str[i + 1] === '}')) {
-      i++;
-      continue;
-    }
-    if (str[i] === '{') depth++;
-    else if (str[i] === '}') {
-      depth--;
-      if (depth === 0) {
-        return {
-          content: str.slice(openIdx + 1, i),
-          endIdx: i + 1
-        };
-      }
-    }
-  }
-  return null;
-}
-
-/**
- * Replaces a 1-argument LaTeX macro `\cmd{...}` with balanced brace support.
- */
-function replaceMacro1(str, cmdName, replacer) {
-  const token = `\\${cmdName}`;
-  let out = '';
-  let idx = 0;
-  while (idx < str.length) {
-    const pos = str.indexOf(token, idx);
-    if (pos === -1) {
-      out += str.slice(idx);
-      break;
-    }
-    const afterCmd = pos + token.length;
-    if ( /[a-zA-Z]/.test(str[afterCmd] || '') ) {
-      out += str.slice(idx, afterCmd);
-      idx = afterCmd;
-      continue;
-    }
-    let braceStart = afterCmd;
-    while (braceStart < str.length && str[braceStart] === ' ') braceStart++;
-    if (str[braceStart] !== '{') {
-      out += str.slice(idx, afterCmd);
-      idx = afterCmd;
-      continue;
-    }
-    const g1 = readBalancedBraces(str, braceStart);
-    if (!g1) {
-      out += str.slice(idx, afterCmd);
-      idx = afterCmd;
-      continue;
-    }
-    out += str.slice(idx, pos) + replacer(g1.content);
-    idx = g1.endIdx;
-  }
-  return out;
-}
-
-/**
- * Replaces a 2-argument LaTeX macro `\cmd{...}{...}` (or `\cmd{...}_{...}`) with balanced brace support.
- */
-function replaceMacro2(str, cmdName, sepChar, replacer) {
-  const token = `\\${cmdName}`;
-  let out = '';
-  let idx = 0;
-  while (idx < str.length) {
-    const pos = str.indexOf(token, idx);
-    if (pos === -1) {
-      out += str.slice(idx);
-      break;
-    }
-    const afterCmd = pos + token.length;
-    if (/[a-zA-Z]/.test(str[afterCmd] || '')) {
-      out += str.slice(idx, afterCmd);
-      idx = afterCmd;
-      continue;
-    }
-    let b1 = afterCmd;
-    while (b1 < str.length && str[b1] === ' ') b1++;
-    if (str[b1] !== '{') {
-      out += str.slice(idx, afterCmd);
-      idx = afterCmd;
-      continue;
-    }
-    const g1 = readBalancedBraces(str, b1);
-    if (!g1) {
-      out += str.slice(idx, afterCmd);
-      idx = afterCmd;
-      continue;
-    }
-    let b2 = g1.endIdx;
-    while (b2 < str.length && str[b2] === ' ') b2++;
-    if (sepChar) {
-      if (str[b2] !== sepChar) {
-        out += str.slice(idx, pos) + replacer(g1.content, null);
-        idx = g1.endIdx;
-        continue;
-      }
-      b2++;
-      while (b2 < str.length && str[b2] === ' ') b2++;
-    }
-    if (str[b2] !== '{') {
-      out += str.slice(idx, afterCmd);
-      idx = afterCmd;
-      continue;
-    }
-    const g2 = readBalancedBraces(str, b2);
-    if (!g2) {
-      out += str.slice(idx, afterCmd);
-      idx = afterCmd;
-      continue;
-    }
-    out += str.slice(idx, pos) + replacer(g1.content, g2.content);
-    idx = g2.endIdx;
-  }
-  return out;
-}
-
-/**
- * Replaces `^{...}` and `_{...}` groups with balanced brace support.
- */
-function replaceScriptsBalanced(str, opChar, tagName) {
-  let out = '';
-  let idx = 0;
-  while (idx < str.length) {
-    const pos = str.indexOf(opChar, idx);
-    if (pos === -1) {
-      out += str.slice(idx);
-      break;
-    }
-    if (str[pos + 1] !== '{') {
-      out += str.slice(idx, pos + 1);
-      idx = pos + 1;
-      continue;
-    }
-    const grp = readBalancedBraces(str, pos + 1);
-    if (!grp) {
-      out += str.slice(idx, pos + 1);
-      idx = pos + 1;
-      continue;
-    }
-    out += `${str.slice(idx, pos)}<${tagName}>${formatMathLatex(grp.content)}</${tagName}>`;
-    idx = grp.endIdx;
-  }
-  return out;
-}
-
-/**
- * Converts LaTeX math snippets from research logs into rich, structured mathematical HTML
- * (stacked fractions, cases environments, underbraces, overbars, and recursive sub/superscripts).
- */
-function formatMathLatex(tex) {
-  if (!tex) return '';
-  let s = String(tex);
-
-  // 1. Handle \begin{cases} ... \end{cases} before HTML-escaping '&'
-  s = s.replace(/\\begin\{cases\}([\s\S]*?)\\end\{cases\}/g, (_, body) => {
-    const rows = body
-      .split('\\\\')
-      .map((r) => r.trim())
-      .filter(Boolean)
-      .map((row) => {
-        const parts = row.split('&').map((p) => p.trim());
-        const exprHtml = formatMathLatex(parts[0] || '');
-        const condHtml = parts[1] ? `<span class="math-cases-cond">${formatMathLatex(parts[1])}</span>` : '';
-        return `<span class="math-cases-row"><span class="math-cases-expr">${exprHtml}</span>${condHtml}</span>`;
-      });
-    return `<span class="math-cases"><span class="math-cases-brace">{</span><span class="math-cases-body">${rows.join('')}</span></span>`;
-  });
-
-  // 2. Recursive balanced-brace macros: \underbrace{A}_{B}, \frac{A}{B}, \xrightarrow{A}, \bar{A}, \mathtt{A}, \mathbf{A}, \text{A}, \pmod{A}
-  s = replaceMacro2(s, 'underbrace', '_', (expr, sub) => {
-    const topHtml = formatMathLatex(expr);
-    if (sub === null) return topHtml;
-    return `<span class="math-underbrace"><span class="math-ub-top">${topHtml}</span><span class="math-ub-brace">⏟</span><span class="math-ub-sub">${formatMathLatex(sub)}</span></span>`;
-  });
-
-  s = replaceMacro2(s, 'frac', null, (num, den) => {
-    return `<span class="math-frac"><span class="math-num">${formatMathLatex(num)}</span><span class="math-den">${formatMathLatex(den)}</span></span>`;
-  });
-
-  s = replaceMacro1(s, 'xrightarrow', (label) => {
-    return `<span class="math-xarrow"><span class="math-xarrow-label">${formatMathLatex(label)}</span><span class="math-xarrow-body">⟶</span></span>`;
-  });
-
-  s = replaceMacro1(s, 'bar', (inner) => `<span class="math-overbar">${formatMathLatex(inner)}</span>`);
-  s = replaceMacro1(s, 'mathtt', (inner) => `<code class="math-tt">${formatMathLatex(inner)}</code>`);
-  s = replaceMacro1(s, 'mathbf', (inner) => `<strong>${formatMathLatex(inner)}</strong>`);
-  s = replaceMacro1(s, 'textbf', (inner) => `<strong>${formatMathLatex(inner)}</strong>`);
-  s = replaceMacro1(s, 'pmod', (inner) => ` <span class="math-pmod">(mod ${formatMathLatex(inner)})</span>`);
-  s = replaceMacro1(s, 'text', (inner) => {
-    const clean = inner
-      .replace(/\{,\}/g, ',')
-      .replace(/\\%/g, '%')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-    return `<span class="math-text">${clean}</span>`;
-  });
-
-  const bbMap = { Z: 'ℤ', N: 'ℕ', O: '𝕆', E: '𝔼', R: 'ℝ', Q: 'ℚ', C: 'ℂ', P: 'ℙ' };
-  s = replaceMacro1(s, 'mathbb', (inner) => bbMap[inner.trim()] || inner);
-
-  const calMap = { E: 'ℰ', A: '𝒜', R: 'ℛ', S: '𝒮', G: '𝒢', O: '𝒪', H: 'ℋ', L: 'ℒ', T: '𝒯' };
-  s = replaceMacro1(s, 'mathcal', (inner) => calMap[inner.trim()] || inner);
-
-  // 3. Protect already-generated HTML tags in slots before escaping raw <, >, &
-  const htmlSlots = [];
-  s = s.replace(/<\/?[a-zA-Z][^>]*>/g, (tag) => {
-    const idx = htmlSlots.length;
-    htmlSlots.push(tag);
-    return `@@HTAG_${idx}@@`;
-  });
-
-  s = s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\{,\}/g, ',')
-    .replace(/\\%/g, '%')
-    .replace(/\\\{/g, '{')
-    .replace(/\\\}/g, '}');
-
-  // Restore protected HTML tags before balanced ^{...} and _{...}
-  s = s.replace(/@@HTAG_(\d+)@@/g, (_, idx) => htmlSlots[Number(idx)] || '');
-
-  // 4. Balanced superscripts ^{...} and subscripts _{...}
-  s = replaceScriptsBalanced(s, '^', 'sup');
-  s = replaceScriptsBalanced(s, '_', 'sub');
-
-  // 5. Standard LaTeX operators and symbols (handle before single-char _/ ^ so \Phi_1 matches \Phi before _1)
-  s = s
-    .replace(/\\pmod\s+([0-9a-zA-Z]+)/g, ' <span class="math-pmod">(mod $1)</span>')
-    .replace(/\\lvert\b|\\rvert\b/g, '|')
-    .replace(/\\not\\equiv/g, '≢')
-    .replace(/\\not\\in(?![a-zA-Z])|\\notin(?![a-zA-Z])/g, '∉')
-    .replace(/\\subsetneq(?![a-zA-Z])/g, '⊊')
-    .replace(/\\subseteq(?![a-zA-Z])/g, '⊆')
-    .replace(/\\subset(?![a-zA-Z])/g, '⊂')
-    .replace(/\\setminus(?![a-zA-Z])/g, '∖')
-    .replace(/\\bowtie(?![a-zA-Z])/g, '⋈')
-    .replace(/\\gg(?![a-zA-Z])/g, '≫')
-    .replace(/\\ll(?![a-zA-Z])/g, '≪')
-    .replace(/\\sim(?![a-zA-Z])/g, '∼')
-    .replace(/\\blacksquare(?![a-zA-Z])/g, '∎')
-    .replace(/\\bmod(?![a-zA-Z])/g, ' mod ')
-    .replace(/\\lfloor(?![a-zA-Z])/g, '⌊')
-    .replace(/\\rfloor(?![a-zA-Z])/g, '⌋')
-    .replace(/\\lceil(?![a-zA-Z])/g, '⌈')
-    .replace(/\\rceil(?![a-zA-Z])/g, '⌉')
-    .replace(/\\(?:big|Big|bigl|bigr|Bigl|Bigr|left|right)(?![a-zA-Z])/g, '')
-    .replace(/\\log_2/g, 'log₂')
-    .replace(/\\log(?![a-zA-Z])/g, 'log')
-    .replace(/\\lim(?![a-zA-Z])/g, 'lim')
-    .replace(/\\nu_2/g, 'ν₂')
-    .replace(/\\nu(?![a-zA-Z])/g, 'ν')
-    .replace(/\\theta(?![a-zA-Z])/g, 'θ')
-    .replace(/\\delta(?![a-zA-Z])/g, 'δ')
-    .replace(/\\gamma(?![a-zA-Z])/g, 'γ')
-    .replace(/\\alpha(?![a-zA-Z])/g, 'α')
-    .replace(/\\beta(?![a-zA-Z])/g, 'β')
-    .replace(/\\epsilon(?![a-zA-Z])|\\varepsilon(?![a-zA-Z])/g, 'ε')
-    .replace(/\\lambda(?![a-zA-Z])/g, 'λ')
-    .replace(/\\mu(?![a-zA-Z])/g, 'μ')
-    .replace(/\\rho(?![a-zA-Z])/g, 'ρ')
-    .replace(/\\sigma(?![a-zA-Z])/g, 'σ')
-    .replace(/\\Delta(?![a-zA-Z])/g, 'Δ')
-    .replace(/\\Phi(?![a-zA-Z])/g, 'Φ')
-    .replace(/\\le(?![a-zA-Z])|\\leq(?![a-zA-Z])/g, '≤')
-    .replace(/\\ge(?![a-zA-Z])|\\geq(?![a-zA-Z])/g, '≥')
-    .replace(/\\ne(?![a-zA-Z])|\\neq(?![a-zA-Z])/g, '≠')
-    .replace(/\\equiv(?![a-zA-Z])/g, '≡')
-    .replace(/\\approx(?![a-zA-Z])/g, '≈')
-    .replace(/\\iff(?![a-zA-Z])/g, '⟺')
-    .replace(/\\implies(?![a-zA-Z])/g, '⟹')
-    .replace(/\\leftrightarrow(?![a-zA-Z])/g, '↔')
-    .replace(/\\lor(?![a-zA-Z])/g, '∨')
-    .replace(/\\land(?![a-zA-Z])/g, '∧')
-    .replace(/\\to(?![a-zA-Z])|\\rightarrow(?![a-zA-Z])/g, '→')
-    .replace(/\\mapsto(?![a-zA-Z])/g, '↦')
-    .replace(/\\infty(?![a-zA-Z])/g, '∞')
-    .replace(/\\cdot(?![a-zA-Z])/g, '·')
-    .replace(/\\times(?![a-zA-Z])/g, '×')
-    .replace(/\\pm(?![a-zA-Z])/g, '±')
-    .replace(/\\in(?![a-zA-Z])/g, '∈')
-    .replace(/\\forall(?![a-zA-Z])/g, '∀')
-    .replace(/\\exists(?![a-zA-Z])/g, '∃')
-    .replace(/\\sum(?![a-zA-Z])/g, '∑')
-    .replace(/\\prod(?![a-zA-Z])/g, '∏')
-    .replace(/\\min(?![a-zA-Z])/g, 'min')
-    .replace(/\\max(?![a-zA-Z])/g, 'max')
-    .replace(/\\inf(?![a-zA-Z])/g, 'inf')
-    .replace(/\\sup(?![a-zA-Z])/g, 'sup')
-    .replace(/\\(?:dots|ldots|cdots)(?![a-zA-Z])/g, '…')
-    .replace(/\\[,;:!]/g, ' ')
-    .replace(/\\quad(?![a-zA-Z])|\\qquad(?![a-zA-Z])/g, '  ')
-    .replace(/\^([0-9a-zA-Z+-])/g, '<sup>$1</sup>')
-    .replace(/_([0-9a-zA-Z])/g, '<sub>$1</sub>');
-
-  return s;
-}
-
-function formatInlineMarkdown(line) {
-  // Strip any accidental markdown file:/// links into clean inline text
-  const sanitized = String(line || '')
+export function renderLogMarkdownToHtml(markdown, lang = 'pl') {
+  const sanitized = String(markdown || '')
     .replace(/\[([^\]]+)\]\(file:\/\/[^)]+\)/g, '$1')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-
-  // 1. Protect inline code `...`
-  const slots = [];
-  let out = sanitized.replace(/`([^`]+)`/g, (_, code) => {
-    const idx = slots.length;
-    slots.push(`<code class="md-inline-code">${code}</code>`);
-    return `@@SLOT_${idx}@@`;
+    .replace(/\{,\}/g, ',');
+  return renderMarkdown(sanitized, {
+    lang,
+    legacyCollatzClasses: true
   });
-
-  // 2. Protect inline math $...$ before bold/italic replacement so * or _ inside math never breaks markdown
-  out = out.replace(/\$([^$]+)\$/g, (_, tex) => {
-    const idx = slots.length;
-    slots.push(`<span class="md-inline-math">${formatMathLatex(tex)}</span>`);
-    return `@@SLOT_${idx}@@`;
-  });
-
-  // 3. Markdown links [label](href)
-  out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
-    const safeHref = href.trim();
-    return `<a href="${safeHref}" class="md-link">${label}</a>`;
-  });
-
-  // 4. Bold **...** and Italic *...*
-  out = out.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  out = out.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-
-  // 5. Restore slots (twice in case a link label contained an inline code/math slot)
-  out = out.replace(/@@SLOT_(\d+)@@/g, (_, idx) => slots[Number(idx)] || '');
-  out = out.replace(/@@SLOT_(\d+)@@/g, (_, idx) => slots[Number(idx)] || '');
-  return out;
-}
-
-/**
- * Renders a Markdown research log (`logs/01..06.md`) into structured, semantic HTML
- * supporting headings, GFM tables, fenced code blocks, display math `$$...$$`, blockquotes, and lists.
- */
-export function renderLogMarkdownToHtml(markdown) {
-  const lines = String(markdown || '').replace(/\r\n/g, '\n').split('\n');
-  const html = [];
-  let i = 0;
-
-  while (i < lines.length) {
-    const rawLine = lines[i];
-    const trimmed = rawLine.trim();
-
-    if (!trimmed) {
-      i++;
-      continue;
-    }
-
-    // Horizontal rule
-    if (/^---+$/.test(trimmed)) {
-      html.push('<hr class="md-hr" />');
-      i++;
-      continue;
-    }
-
-    // Fenced code block ```
-    if (trimmed.startsWith('```')) {
-      const codeLines = [];
-      i++;
-      while (i < lines.length && !lines[i].trim().startsWith('```')) {
-        codeLines.push(
-          lines[i].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        );
-        i++;
-      }
-      if (i < lines.length) i++;
-      html.push(`<pre class="md-code-block"><code>${codeLines.join('\n')}</code></pre>`);
-      continue;
-    }
-
-    // Display math block $$...$$
-    if (trimmed.startsWith('$$')) {
-      if (trimmed.endsWith('$$') && trimmed.length > 4) {
-        const inner = trimmed.slice(2, -2).trim();
-        html.push(`<div class="md-math-block">${formatMathLatex(inner)}</div>`);
-        i++;
-        continue;
-      }
-      const mathLines = [trimmed.slice(2)];
-      i++;
-      while (i < lines.length && !lines[i].trim().endsWith('$$')) {
-        mathLines.push(lines[i]);
-        i++;
-      }
-      if (i < lines.length) {
-        mathLines.push(lines[i].trim().slice(0, -2));
-        i++;
-      }
-      html.push(`<div class="md-math-block">${formatMathLatex(mathLines.join(' '))}</div>`);
-      continue;
-    }
-
-    // Blockquote > ...
-    if (trimmed.startsWith('>')) {
-      const quoteLines = [];
-      while (i < lines.length && lines[i].trim().startsWith('>')) {
-        quoteLines.push(lines[i].trim().replace(/^>\s?/, ''));
-        i++;
-      }
-      html.push(`<blockquote class="md-quote">${formatInlineMarkdown(quoteLines.join(' '))}</blockquote>`);
-      continue;
-    }
-
-    // Headings #, ##, ###, ####, #####, ######
-    const hMatch = trimmed.match(/^(#{1,6})\s+(.*)$/);
-    if (hMatch) {
-      const level = hMatch[1].length;
-      const tagLevel = Math.min(6, level + 1);
-      html.push(`<h${tagLevel} class="md-h${level}">${formatInlineMarkdown(hMatch[2])}</h${tagLevel}>`);
-      i++;
-      continue;
-    }
-
-    // GFM Table | ... |
-    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
-      const tableLines = [];
-      while (i < lines.length && lines[i].trim().startsWith('|') && lines[i].trim().endsWith('|')) {
-        tableLines.push(lines[i].trim());
-        i++;
-      }
-      if (tableLines.length >= 2) {
-        const parseCells = (row) =>
-          row
-            .slice(1, -1)
-            .split('|')
-            .map((c) => c.trim());
-        const headers = parseCells(tableLines[0]);
-        const bodyRows = tableLines.slice(2).map(parseCells);
-        const thHtml = headers.map((h) => `<th>${formatInlineMarkdown(h)}</th>`).join('');
-        const trHtml = bodyRows
-          .map(
-            (row) =>
-              `<tr>${row.map((c) => `<td>${formatInlineMarkdown(c)}</td>`).join('')}</tr>`
-          )
-          .join('');
-        html.push(
-          `<div class="md-table-wrap"><table class="md-table"><thead><tr>${thHtml}</tr></thead><tbody>${trHtml}</tbody></table></div>`
-        );
-        continue;
-      }
-    }
-
-    // Unordered or ordered list items
-    if (/^(\*|-|\d+\.)\s+/.test(trimmed)) {
-      const isOrdered = /^\d+\.\s+/.test(trimmed);
-      const tag = isOrdered ? 'ol' : 'ul';
-      const items = [];
-      while (i < lines.length && /^(\s*)(\*|-|\d+\.)\s+/.test(lines[i])) {
-        const numMatch = lines[i].trim().match(/^(\d+)\.\s+(.*)$/);
-        if (isOrdered && numMatch) {
-          items.push(`<li value="${numMatch[1]}">${formatInlineMarkdown(numMatch[2])}</li>`);
-        } else {
-          const itemText = lines[i].replace(/^(\s*)(\*|-|\d+\.)\s+/, '');
-          items.push(`<li>${formatInlineMarkdown(itemText)}</li>`);
-        }
-        i++;
-      }
-      html.push(`<${tag} class="md-list">${items.join('')}</${tag}>`);
-      continue;
-    }
-
-    // Standard paragraph
-    html.push(`<p class="md-p">${formatInlineMarkdown(trimmed)}</p>`);
-    i++;
-  }
-
-  return html.join('\n');
 }
