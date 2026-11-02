@@ -175,7 +175,8 @@ const isStreaming = ref(false);
 const streamCompleted = ref(false);
 const randomBatchRemaining = ref(0);
 const stepsPerFrame = ref(3);
-const maxTrails = ref(1000);
+const maxTrails = ref(100);
+let needsRedraw = true;
 
 // Active trajectories on the live canvas
 const activeTrajectories = ref([]);
@@ -275,13 +276,19 @@ watch(
   (val) => {
     localStorage.setItem('collatz_theme', val);
     document.documentElement.setAttribute('data-theme', val);
+    needsRedraw = true;
   },
   { immediate: true }
 );
 
+watch(scaleMode, () => {
+  needsRedraw = true;
+});
+
 watch(locale, (val) => localStorage.setItem('collatz_locale', val));
 
 const spawnTrajectory = (nVal, { instant = false } = {}) => {
+  needsRedraw = true;
   const cleanN = Math.max(1, Math.floor(Number(nVal) || 1));
   const full = computeCollatzTrajectory(cleanN, 2500);
   const color = PALETTE[cleanN % PALETTE.length];
@@ -593,6 +600,7 @@ const tickAnimation = () => {
   animId = requestAnimationFrame(tickAnimation);
 
   if (isStreaming.value) {
+    needsRedraw = true;
     if (activeTrajectories.value.length === 0) {
       const nextN = pickNextStreamNumber();
       if (nextN !== null) {
@@ -624,8 +632,11 @@ const tickAnimation = () => {
     }
   }
 
-  drawTrajectoryCanvas();
-  drawScatterCanvas();
+  if (needsRedraw) {
+    needsRedraw = false;
+    drawTrajectoryCanvas();
+    drawScatterCanvas();
+  }
 };
 
 // Island Model Genetic Algorithm Controls
@@ -716,9 +727,14 @@ const handleKeyDown = (e) => {
   }
 };
 
+const handleResize = () => {
+  needsRedraw = true;
+};
+
 onMounted(() => {
   syncRouteFromLocation();
   window.addEventListener('popstate', syncRouteFromLocation);
+  window.addEventListener('resize', handleResize);
   currentCursorN.value = Math.max(2, rangeMin.value) - 1;
   spawnTrajectory(27, { instant: true });
   for (let n = 2; n <= 45; n++) {
@@ -743,6 +759,7 @@ onUnmounted(() => {
   if (gaTimer) clearInterval(gaTimer);
   window.removeEventListener('keydown', handleKeyDown);
   window.removeEventListener('popstate', syncRouteFromLocation);
+  window.removeEventListener('resize', handleResize);
 });
 </script>
 
