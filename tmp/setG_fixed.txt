@@ -1,0 +1,107 @@
+-- k = 200, m = 326 (c = 126, 2^200 > 3^126)
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq704623 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 704623) := checkAffineDrop_sound 326 (2 ^ 200) 704623 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq837799 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 837799) := checkAffineDrop_sound 326 (2 ^ 200) 837799 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq1056935 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 1056935) := checkAffineDrop_sound 326 (2 ^ 200) 1056935 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq1256699 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 1256699) := checkAffineDrop_sound 326 (2 ^ 200) 1256699 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq1413787 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 1413787) := checkAffineDrop_sound 326 (2 ^ 200) 1413787 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq1585403 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 1585403) := checkAffineDrop_sound 326 (2 ^ 200) 1585403 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq1590511 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 1590511) := checkAffineDrop_sound 326 (2 ^ 200) 1590511 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq1993215 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 1993215) := checkAffineDrop_sound 326 (2 ^ 200) 1993215 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq2234131 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 2234131) := checkAffineDrop_sound 326 (2 ^ 200) 2234131 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq2385767 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 2385767) := checkAffineDrop_sound 326 (2 ^ 200) 2385767 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq2725659 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 2725659) := checkAffineDrop_sound 326 (2 ^ 200) 2725659 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq2788863 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 2788863) := checkAffineDrop_sound 326 (2 ^ 200) 2788863 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq2929311 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 2929311) := checkAffineDrop_sound 326 (2 ^ 200) 2929311 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq2989823 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 2989823) := checkAffineDrop_sound 326 (2 ^ 200) 2989823 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq3066367 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 3066367) := checkAffineDrop_sound 326 (2 ^ 200) 3066367 (by decide) k
+theorem horizon_drop_mod1606938044258990275541962092341162602522202993782792835301376_eq3137471 (k : Nat) : HasHorizonDrop (2 ^ 200 * k + 3137471) := checkAffineDrop_sound 326 (2 ^ 200) 3137471 (by decide) k
+
+-- k = 202, m = 329 (c = 127, 2^202 > 3^127)
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq626331 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 626331) := checkAffineDrop_sound 329 (2 ^ 202) 626331 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq665215 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 665215) := checkAffineDrop_sound 329 (2 ^ 202) 665215 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq997823 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 997823) := checkAffineDrop_sound 329 (2 ^ 202) 997823 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq1056935 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 1056935) := checkAffineDrop_sound 329 (2 ^ 202) 1056935 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq1256699 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 1256699) := checkAffineDrop_sound 329 (2 ^ 202) 1256699 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq1409247 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 1409247) := checkAffineDrop_sound 329 (2 ^ 202) 1409247 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq1413787 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 1413787) := checkAffineDrop_sound 329 (2 ^ 202) 1413787 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq1564063 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 1564063) := checkAffineDrop_sound 329 (2 ^ 202) 1564063 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq1590511 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 1590511) := checkAffineDrop_sound 329 (2 ^ 202) 1590511 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq1675599 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 1675599) := checkAffineDrop_sound 329 (2 ^ 202) 1675599 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq2113871 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 2113871) := checkAffineDrop_sound 329 (2 ^ 202) 2113871 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq2195439 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 2195439) := checkAffineDrop_sound 329 (2 ^ 202) 2195439 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq2385767 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 2385767) := checkAffineDrop_sound 329 (2 ^ 202) 2385767 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq2513399 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 2513399) := checkAffineDrop_sound 329 (2 ^ 202) 2513399 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq2725659 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 2725659) := checkAffineDrop_sound 329 (2 ^ 202) 2725659 (by decide) k
+theorem horizon_drop_mod6427752177035961102167848369364650410088811975131171341205504_eq2827575 (k : Nat) : HasHorizonDrop (2 ^ 202 * k + 2827575) := checkAffineDrop_sound 329 (2 ^ 202) 2827575 (by decide) k
+
+-- k = 204, m = 332 (c = 128, 2^204 > 3^128)
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq665215 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 665215) := checkAffineDrop_sound 332 (2 ^ 204) 665215 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq704623 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 704623) := checkAffineDrop_sound 332 (2 ^ 204) 704623 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq1056935 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 1056935) := checkAffineDrop_sound 332 (2 ^ 204) 1056935 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq1252663 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 1252663) := checkAffineDrop_sound 332 (2 ^ 204) 1252663 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq1330431 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 1330431) := checkAffineDrop_sound 332 (2 ^ 204) 1330431 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq1409247 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 1409247) := checkAffineDrop_sound 332 (2 ^ 204) 1409247 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq1590511 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 1590511) := checkAffineDrop_sound 332 (2 ^ 204) 1590511 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq1675599 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 1675599) := checkAffineDrop_sound 332 (2 ^ 204) 1675599 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq1878995 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 1878995) := checkAffineDrop_sound 332 (2 ^ 204) 1878995 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq2195439 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 2195439) := checkAffineDrop_sound 332 (2 ^ 204) 2195439 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq2234131 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 2234131) := checkAffineDrop_sound 332 (2 ^ 204) 2234131 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq2385767 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 2385767) := checkAffineDrop_sound 332 (2 ^ 204) 2385767 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq2513399 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 2513399) := checkAffineDrop_sound 332 (2 ^ 204) 2513399 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq2552575 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 2552575) := checkAffineDrop_sound 332 (2 ^ 204) 2552575 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq2725659 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 2725659) := checkAffineDrop_sound 332 (2 ^ 204) 2725659 (by decide) k
+theorem horizon_drop_mod25711008708143844408671393477458601640355247900524685364822016_eq2827575 (k : Nat) : HasHorizonDrop (2 ^ 204 * k + 2827575) := checkAffineDrop_sound 332 (2 ^ 204) 2827575 (by decide) k
+
+-- k = 205, m = 334 (c = 129, 2^205 > 3^129)
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq704623 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 704623) := checkAffineDrop_sound 334 (2 ^ 205) 704623 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq1252663 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 1252663) := checkAffineDrop_sound 334 (2 ^ 205) 1252663 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq1256699 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 1256699) := checkAffineDrop_sound 334 (2 ^ 205) 1256699 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq1413787 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 1413787) := checkAffineDrop_sound 334 (2 ^ 205) 1413787 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq1590511 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 1590511) := checkAffineDrop_sound 334 (2 ^ 205) 1590511 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq1675599 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 1675599) := checkAffineDrop_sound 334 (2 ^ 205) 1675599 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq1878995 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 1878995) := checkAffineDrop_sound 334 (2 ^ 205) 1878995 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq2195439 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 2195439) := checkAffineDrop_sound 334 (2 ^ 205) 2195439 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq2234131 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 2234131) := checkAffineDrop_sound 334 (2 ^ 205) 2234131 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq2513399 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 2513399) := checkAffineDrop_sound 334 (2 ^ 205) 2513399 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq2725659 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 2725659) := checkAffineDrop_sound 334 (2 ^ 205) 2725659 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq2827575 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 2827575) := checkAffineDrop_sound 334 (2 ^ 205) 2827575 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq3605743 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 3605743) := checkAffineDrop_sound 334 (2 ^ 205) 3605743 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq3718483 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 3718483) := checkAffineDrop_sound 334 (2 ^ 205) 3718483 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq4394175 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 4394175) := checkAffineDrop_sound 334 (2 ^ 205) 4394175 (by decide) k
+theorem horizon_drop_mod51422017416287688817342786954917203280710495801049370729644032_eq4637979 (k : Nat) : HasHorizonDrop (2 ^ 205 * k + 4637979) := checkAffineDrop_sound 334 (2 ^ 205) 4637979 (by decide) k
+
+-- k = 207, m = 337 (c = 130, 2^207 > 3^130)
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq626331 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 626331) := checkAffineDrop_sound 337 (2 ^ 207) 626331 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq665215 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 665215) := checkAffineDrop_sound 337 (2 ^ 207) 665215 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq704623 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 704623) := checkAffineDrop_sound 337 (2 ^ 207) 704623 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq997823 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 997823) := checkAffineDrop_sound 337 (2 ^ 207) 997823 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq1056935 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 1056935) := checkAffineDrop_sound 337 (2 ^ 207) 1056935 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq1252663 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 1252663) := checkAffineDrop_sound 337 (2 ^ 207) 1252663 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq1413787 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 1413787) := checkAffineDrop_sound 337 (2 ^ 207) 1413787 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq1496735 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 1496735) := checkAffineDrop_sound 337 (2 ^ 207) 1496735 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq1565727 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 1565727) := checkAffineDrop_sound 337 (2 ^ 207) 1565727 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq1590511 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 1590511) := checkAffineDrop_sound 337 (2 ^ 207) 1590511 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq1675599 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 1675599) := checkAffineDrop_sound 337 (2 ^ 207) 1675599 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq2195439 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 2195439) := checkAffineDrop_sound 337 (2 ^ 207) 2195439 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq2234131 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 2234131) := checkAffineDrop_sound 337 (2 ^ 207) 2234131 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq2245103 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 2245103) := checkAffineDrop_sound 337 (2 ^ 207) 2245103 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq2268955 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 2268955) := checkAffineDrop_sound 337 (2 ^ 207) 2268955 (by decide) k
+theorem horizon_drop_mod205688069665150755269371147819668813122841983204197482918576128_eq2513399 (k : Nat) : HasHorizonDrop (2 ^ 207 * k + 2513399) := checkAffineDrop_sound 337 (2 ^ 207) 2513399 (by decide) k
+
+-- k = 208, m = 339 (c = 131, 2^208 > 3^131)
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq626331 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 626331) := checkAffineDrop_sound 339 (2 ^ 208) 626331 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq665215 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 665215) := checkAffineDrop_sound 339 (2 ^ 208) 665215 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq704623 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 704623) := checkAffineDrop_sound 339 (2 ^ 208) 704623 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq997823 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 997823) := checkAffineDrop_sound 339 (2 ^ 208) 997823 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq1256699 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 1256699) := checkAffineDrop_sound 339 (2 ^ 208) 1256699 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq1413787 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 1413787) := checkAffineDrop_sound 339 (2 ^ 208) 1413787 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq1496735 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 1496735) := checkAffineDrop_sound 339 (2 ^ 208) 1496735 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq1675599 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 1675599) := checkAffineDrop_sound 339 (2 ^ 208) 1675599 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq2234131 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 2234131) := checkAffineDrop_sound 339 (2 ^ 208) 2234131 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq2513399 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 2513399) := checkAffineDrop_sound 339 (2 ^ 208) 2513399 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq2989823 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 2989823) := checkAffineDrop_sound 339 (2 ^ 208) 2989823 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq3542887 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 3542887) := checkAffineDrop_sound 339 (2 ^ 208) 3542887 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq3605743 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 3605743) := checkAffineDrop_sound 339 (2 ^ 208) 3605743 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq3732423 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 3732423) := checkAffineDrop_sound 339 (2 ^ 208) 3732423 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq4484735 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 4484735) := checkAffineDrop_sound 339 (2 ^ 208) 4484735 (by decide) k
+theorem horizon_drop_mod411376139330301510538742295639337626245683966408394965837152256_eq4637979 (k : Nat) : HasHorizonDrop (2 ^ 208 * k + 4637979) := checkAffineDrop_sound 339 (2 ^ 208) 4637979 (by decide) k

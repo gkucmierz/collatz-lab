@@ -38,12 +38,12 @@ function traceSymbolicAffine(modPow2, residue, maxSteps = 64) {
     // is strictly less than initial (2^modPow2) * q + residue for all q >= 0:
     const curCoeff = (1n << BigInt(coeffExp2)) * (3n ** coeffExp3);
     const initCoeff = 1n << BigInt(modPow2);
-    if (curCoeff < initCoeff && constant < BigInt(residue)) {
+    if (curCoeff < initCoeff && constant < BigInt(residue) && constant > 1n) {
       return {
         contracted: true,
         steps: step,
-        initMod: Number(initCoeff),
-        residue,
+        initMod: initCoeff.toString(),
+        residue: residue.toString(),
         finalCoeff: curCoeff.toString(),
         finalConst: constant.toString(),
         history
@@ -53,19 +53,19 @@ function traceSymbolicAffine(modPow2, residue, maxSteps = 64) {
 
   return {
     contracted: false,
-    initMod: Number(1n << BigInt(modPow2)),
-    residue,
+    initMod: (1n << BigInt(modPow2)).toString(),
+    residue: residue.toString(),
     history
   };
 }
 
 function huntLevels(maxBitDepth = 7) {
-  let surviving = [7, 15, 27, 31]; // Surviving classes at mod 32 (2^5)
+  let surviving = [7n, 15n, 27n, 31n]; // Surviving classes at mod 32 (2^5)
   console.log(`[Collatz Horizon Hunter] Starting from mod 32 surviving classes: {${surviving.join(', ')}} (4/32 = 12.500%)`);
 
   for (let k = 6; k <= maxBitDepth; k++) {
-    const mod = 1 << k;
-    const halfMod = 1 << (k - 1);
+    const mod = 1n << BigInt(k);
+    const halfMod = 1n << BigInt(k - 1);
     const nextSurviving = [];
     const newlyClosed = [];
 
@@ -80,15 +80,17 @@ function huntLevels(maxBitDepth = 7) {
       }
     }
 
-    const closedRatio = ((mod - nextSurviving.length) / mod * 100).toFixed(4);
+    const closedCount = mod - BigInt(nextSurviving.length);
+    const closedRatio = (Number(closedCount * 1000000n / mod) / 10000).toFixed(4);
     console.log(
       `\n=== Depth k = ${k} (mod ${mod}) ===\n` +
       `  Newly closed infinite families : ${newlyClosed.length}\n` +
-      `  Total closed in N              : ${mod - nextSurviving.length} / ${mod} (${closedRatio}%)\n` +
-      `  Remaining surviving classes    : ${nextSurviving.length} / ${mod} ({${nextSurviving.join(', ')}})`
+      `  Total closed in N              : ${closedCount} / ${mod} (${closedRatio}%)\n` +
+      `  Remaining surviving classes    : ${nextSurviving.length} / ${mod}` +
+      (nextSurviving.length <= 64 ? ` ({${nextSurviving.join(', ')}})` : '')
     );
 
-    for (const c of newlyClosed) {
+    for (const c of newlyClosed.slice(0, 20)) {
       console.log(
         `  [PROVED mod ${c.initMod}] n = ${c.initMod}*k + ${c.residue} --(${c.steps} steps)--> ` +
         `${c.finalCoeff}*k + ${c.finalConst} < ${c.initMod}*k + ${c.residue} (for all k >= 0)`
@@ -134,11 +136,24 @@ const targetDepth = Number(process.argv[2] || 12);
 huntLevels(targetDepth);
 
 console.log('\n=== Deep Infinite-Family Horizon Contraction for Mersenne Progressions M_p = 2^p - 1 ===');
-for (let p = 3; p <= 24; p++) {
-  const mp = (1 << p) - 1;
+for (let p = 3; p <= 35; p++) {
+  const mp = (1n << BigInt(p)) - 1n;
   const info = huntInfiniteFamilyForResidue(mp);
   console.log(
     `  M_${p} = ${mp}: 2^${info.bitDepthK}*k + ${mp} --(${info.stepsM} steps)--> ` +
     `3^${info.oddSteps}*k + ${info.finalConst} < 2^${info.bitDepthK}*k + ${mp} (Lean 4: checkAffineDrop_sound ${info.stepsM} (2 ^ ${info.bitDepthK}) ${mp})`
   );
+}
+
+console.log('\n=== Deep 2-Adic Threshold Levels k = 40, 42, 43 (up to mod 2^43 = 8796093022208) ===');
+const deepTargets = { 40: [], 42: [], 43: [] };
+for (let r0 = 3; r0 < 50000; r0 += 2) {
+  const info = huntInfiniteFamilyForResidue(r0);
+  if (deepTargets[info.bitDepthK] && deepTargets[info.bitDepthK].length < 8) {
+    deepTargets[info.bitDepthK].push(info);
+  }
+}
+for (const k of [40, 42, 43]) {
+  const mod = 1n << BigInt(k);
+  console.log(`  [Level k = ${k}, mod ${mod}]: ${deepTargets[k].map((x) => `${x.residue} (${x.stepsM} steps)`).join(', ')}`);
 }
