@@ -162,6 +162,16 @@ function main() {
   );
   fs.writeFileSync(baseIndexPath, updatedRootHtml, 'utf8');
 
+  // Copy lean4 formal verification files into dist/lean4/ for direct public download
+  const leanSrcDir = path.join(rootDir, 'lean4');
+  const leanDistDir = path.join(distDir, 'lean4');
+  if (fs.existsSync(leanSrcDir)) {
+    fs.mkdirSync(leanDistDir, { recursive: true });
+    for (const file of fs.readdirSync(leanSrcDir)) {
+      fs.copyFileSync(path.join(leanSrcDir, file), path.join(leanDistDir, file));
+    }
+  }
+
   console.log(`[prerender-logs] Pre-rendered ${RESEARCH_LOGS.length} research logs into dist/logs/<slug>/index.html and dist/logs/<slug>.md`);
 }
 

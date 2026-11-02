@@ -8,7 +8,8 @@
     "dev": "vite --port 45099 --host",
     "build": "vite build && node scripts/prerender-logs.mjs",
     "preview": "vite preview --port 45099 --host",
-    "test": "vitest run"
+    "test": "vitest run",
+    "proof": "PATH=\"$HOME/.elan/bin:$PATH\" lean lean4/CollatzProof.lean"
   },
   "dependencies": {
     "@gkucmierz/analytics": "^1.0.1",

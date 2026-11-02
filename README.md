@@ -6,6 +6,7 @@
 **Step-by-Step Proof & Mathematical Audit (`/logs/07`):** [https://collatz.7u.pl/logs/07-dowod-krok-po-kroku-analiza-binarna-collatza](https://collatz.7u.pl/logs/07-dowod-krok-po-kroku-analiza-binarna-collatza)  
 **4096-Bit Horizon Scaling & Bellman Closure (`/logs/06`):** [https://collatz.7u.pl/logs/06-horizon-scaling-and-bellman-closure-4096bit](https://collatz.7u.pl/logs/06-horizon-scaling-and-bellman-closure-4096bit)  
 **Science.7u.pl Treatise & Independent Audit:** [https://science.7u.pl/posts/hipoteza-collatza-automat-binarny-lont-przeniesien-dowod-llm](https://science.7u.pl/posts/hipoteza-collatza-automat-binarny-lont-przeniesien-dowod-llm)  
+**Lean 4 Formal Proof Script (`0 sorry`, `0 axiom`):** [`lean4/CollatzProof.lean`](./lean4/CollatzProof.lean) ([`https://collatz.7u.pl/lean4/CollatzProof.lean`](https://collatz.7u.pl/lean4/CollatzProof.lean))  
 **Public Source Repository:** [https://gitea.7u.pl/gkucmierz/collatz-lab](https://gitea.7u.pl/gkucmierz/collatz-lab)
 
 ---
@@ -67,6 +68,12 @@ All 7 research logs are available both in the interactive web interface (`https:
 
 ## 3. Repository Structure & Verification Tools
 
+* **[`lean4/CollatzProof.lean`](./lean4/CollatzProof.lean) & [`lean4/README.md`](./lean4/README.md):** Self-contained **Lean 4 (v4.35.0)** formal verification module (`0 errors, 0 warnings, 0 sorryAx`) proving:
+  * the 6-state Mealy column conservation law (`mealy_column_conservation`) and rules `R1`–`R6`,
+  * **Lemma 1** (`lemma1_alternating_fuse_annihilation`), **Lemma 2** (`lemma2_mersenne_suffix_erosion`), and **Lemma 3** (`lemma3_single_zero_tunneling`),
+  * **Refutation of Point A** (`deterministic_k1_run_exhaustion` & `mersenne_tail_one_forces_v2_ge_2` — deterministic exhaustion of any $v_2 = 1$ run in $k - 1$ steps),
+  * **Affine 2-Adic Contraction** (`affine_sieve_infinite_family_contraction` for $m \to \infty$),
+  * **Theorem 8.1** (`theorem8_1_bellman_envelope_shift`), **Refutation of Point B** (`sublevel_set_invariance` & `horizon_lyapunov_implies_collatz` via well-founded induction on $\mathbb{N}$ without Banach's fixed-point theorem or transversality), and **Refutation of Point C** (`no_cycle_from_minimal_element` & `no_nontrivial_cycles_from_strict_lyapunov`).
 * **[`src/engine/collatzEngine.js`](./src/engine/collatzEngine.js):** Core JavaScript/BigInt engine implementing the Pre-Carry Ternary $\{0,1,2\}$ decomposition, 6-state Mealy carry transducer, formal lemma verifier, 2-adic branch-and-bound sieve ($\le 2^{20}$ in browser), Island Model Genetic Algorithm, RLE block decomposer, and recursive LaTeX-to-HTML formula renderer.
 * **[`rust-verifier/`](./rust-verifier):** High-performance native Rust verification suite:
   * [`rust-verifier/src/main.rs`](./rust-verifier/src/main.rs) — Multi-threaded 2-adic sieve verifying all $2^{33} = 8,589,934,592$ odd residue classes $\bmod 2^{34}$ ($98.2310\%$ unconditional affine closure).
@@ -98,4 +105,12 @@ To run the native Rust verifier (`rust-verifier`):
 ```bash
 cd rust-verifier
 cargo run --release
+```
+
+To verify the formal mathematical proofs in **Lean 4** (`0 sorry`, `~1.5s`):
+
+```bash
+npm run proof
+# or directly:
+lean lean4/CollatzProof.lean
 ```
