@@ -9,11 +9,13 @@
     "build": "vite build && node scripts/prerender-logs.mjs",
     "preview": "vite preview --port 45099 --host",
     "test": "vitest run",
-    "proof": "PATH=\"$HOME/.elan/bin:$PATH\" lean lean4/CollatzProof.lean"
+    "proof": "PATH=\"$HOME/.elan/bin:$PATH\" lean lean4/CollatzProof.lean",
+    "hunt": "node scripts/hunt-surviving-horizon.mjs"
   },
   "dependencies": {
     "@gkucmierz/analytics": "^1.0.1",
     "@gkucmierz/dport": "^1.6.0",
+    "@gkucmierz/md-engine": "^1.0.0",
     "@gkucmierz/nano-ui": "^1.8.3",
     "lucide-vue-next": "^0.564.0",
     "vue": "^3.5.13"

@@ -95,27 +95,33 @@ function main() {
     // 1. Copy raw .md file to dist/logs/<slug>.md for direct LLM / researcher download
     fs.copyFileSync(mdFilePath, path.join(logsDistDir, `${log.slug}.md`));
 
-    // 2. Render semantic HTML + raw LaTeX/Markdown block for crawlers and LLMs (Gemini, ChatGPT, etc.)
-    const renderedArticleHtml = renderLogMarkdownToHtml(rawMd);
+    // 2. Render semantic HTML (PL + EN) + raw LaTeX/Markdown block for crawlers and LLMs (Gemini, ChatGPT, etc.)
+    const renderedArticleHtmlPl = renderLogMarkdownToHtml(rawMd, 'pl');
+    const renderedArticleHtmlEn = renderLogMarkdownToHtml(rawMd, 'en');
     const canonicalUrl = `https://collatz.7u.pl/logs/${log.slug}`;
     const mdUrl = `https://collatz.7u.pl/logs/${log.slug}.md`;
-    const pageTitle = `${log.title} — Collatz.7u.pl Research Log #${log.id}`;
-    const pageDescription = `${log.verdict} Pełny tekst matematyczny, lematy i certyfikaty obliczeniowe w przestrzeni binarnej 3n+1.`;
+    const pageTitle = `${log.title} / ${log.titleEn || log.title} — Collatz.7u.pl Research Log #${log.id}`;
+    const pageDescription = `${log.verdict} | ${log.verdictEn || ''}`;
 
     const staticBodyHtml = `
       <main class="ssr-log-prerender" style="max-width: 980px; margin: 0 auto; padding: 2rem 1.25rem;">
         <header style="margin-bottom: 1.5rem; border-bottom: 1px solid rgba(148,163,184,0.2); padding-bottom: 1rem;">
           <p style="font-family: monospace; font-size: 0.85rem; opacity: 0.8;">
             Collatz.7u.pl Research Log #${escapeHtml(log.id)}
-            · <a href="${escapeAttr(mdUrl)}">Pobierz surowy plik Markdown / LaTeX (.md)</a>
-            · <a href="https://collatz.7u.pl/">Powrót do laboratorium głównego</a>
+            · <a href="${escapeAttr(mdUrl)}">Download Raw Markdown / LaTeX (.md)</a>
+            · <a href="https://collatz.7u.pl/?lang=en">Open Interactive Lab (EN)</a>
+            · <a href="https://collatz.7u.pl/?lang=pl">Otwórz Laboratorium (PL)</a>
           </p>
         </header>
-        <article class="md-document">
-          ${renderedArticleHtml}
+        <article class="md-document" lang="en">
+          ${renderedArticleHtmlEn}
+        </article>
+        <hr style="margin: 2.5rem 0; border: none; border-top: 1px solid rgba(148,163,184,0.2);" />
+        <article class="md-document" lang="pl">
+          ${renderedArticleHtmlPl}
         </article>
         <section style="margin-top: 2.5rem; border-top: 1px solid rgba(148,163,184,0.2); padding-top: 1rem;">
-          <h2>Surowy zapis źródłowy Markdown / LaTeX (dla audytorów i modeli AI)</h2>
+          <h2>Raw Markdown / LaTeX Source (PL + EN for Auditors &amp; AI Models)</h2>
           <pre class="log-raw-source" style="white-space: pre-wrap; word-break: break-word;">${escapeHtml(rawMd)}</pre>
         </section>
       </main>
