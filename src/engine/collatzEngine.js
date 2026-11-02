@@ -1585,11 +1585,12 @@ export function renderLogMarkdownToHtml(markdown) {
       continue;
     }
 
-    // Headings #, ##, ###
-    const hMatch = trimmed.match(/^(#{1,3})\s+(.*)$/);
+    // Headings #, ##, ###, ####, #####, ######
+    const hMatch = trimmed.match(/^(#{1,6})\s+(.*)$/);
     if (hMatch) {
       const level = hMatch[1].length;
-      html.push(`<h${level + 1} class="md-h${level}">${formatInlineMarkdown(hMatch[2])}</h${level + 1}>`);
+      const tagLevel = Math.min(6, level + 1);
+      html.push(`<h${tagLevel} class="md-h${level}">${formatInlineMarkdown(hMatch[2])}</h${tagLevel}>`);
       i++;
       continue;
     }

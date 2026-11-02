@@ -944,6 +944,15 @@ body {
   color: var(--accent-emerald);
 }
 
+.md-h4,
+.md-h5,
+.md-h6 {
+  margin: 10px 0 5px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
 .md-p {
   margin: 0 0 10px;
 }
