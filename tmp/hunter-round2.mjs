@@ -207,7 +207,7 @@ let round2Md = `
 # Raport Rundy 2 — Architekt 4 (Eksplorator Kontrprzykładów i Łowca Ekstremalnych Klas)
 
 Data analizy: \`2026-11-02\`  
-Skrypt generujący: \`/Users/gkucmierz/workspace/collatz-lab/tmp/hunter-round2.mjs\`
+Skrypt generujący: \`./tmp/hunter-round2.mjs\`
 
 ---
 
@@ -300,6 +300,6 @@ round2Md += `
    Połączenie twierdzeń o sprzężeniu z bezpiecznikiem jedno-zerowym ($c_2 = 1, b_2 = 1$) oraz twierdzeń o sprzężeniu dwublokowym dla $v_1 = 2, 3$ pokrywa ponad **85%** wszystkich ścieżek wyjścia z pierwszego bloku na drzewie \`mod 1024\`.
 `;
 
-const prevMd = fs.readFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md', 'utf8');
-fs.writeFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md', prevMd + round2Md, 'utf8');
-console.log('Successfully appended Round 2 report to /Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md');
+const prevMd = fs.readFileSync('./tmp/architect4-gpt-hunter.md', 'utf8');
+fs.writeFileSync('./tmp/architect4-gpt-hunter.md', prevMd + round2Md, 'utf8');
+console.log('Successfully appended Round 2 report to ./tmp/architect4-gpt-hunter.md');
