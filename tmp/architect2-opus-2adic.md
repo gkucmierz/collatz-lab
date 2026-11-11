@@ -1,8 +1,6 @@
 # Raport Architekta 2 (Fotel Teoretyka 2-Adycznego — Claude Opus 5.5)
 ## Runda 1: Liniowe Podnoszenie Hensela `mod 512` (Okres 64) oraz Twierdzenie o Sprzężeniu Dwóch Bloków Makro-Erozji RLE (Two-Block RLE Coupling)
 
----
-
 ## Część I. Uniwersalny Liniowy Lifter Hensela `pow9_mod512` (Okres 64) i Inwersja Rezonansowa $v_2 \ge 9$
 
 ### 1.1. Dlaczego potęgi $9^k \bmod 2^v$ poddają się liniowej arytmetyce Presburgera (`omega`)?
@@ -122,8 +120,6 @@ theorem two_zero_valley_mod512_resonance_step14 (r W : Nat) :
   simp only [collatzIter, collatzStep, heven, ↓reduceIte]
   omega
 ```
-
----
 
 ## Część II. Twierdzenie o Sprzężeniu Dwóch Bloków Makro-Erozji RLE (Two-Block RLE Coupling)
 
@@ -401,8 +397,6 @@ theorem mod1024_linear_inverse (A M W u0 c b : Nat)
   omega
 ```
 
----
-
 ## 6. Kompletna Tabela Wzorów Liniowej Inwersji `t1024(s)` (`mod 1024`, $v_2 \ge 10$) dla Wszystkich 8 Kanonicznych Rodzin
 
 Dla każdej rodziny $(A, u_0, c)$ szukamy $t_{1024}(s) \in \{0, \dots, 127\}$ spełniającego:
@@ -516,8 +510,6 @@ theorem two_zero_valley_mod1024_contraction (r W : Nat)
   have hge1 : collatzIter (5 * r + 15) n0 ≥ 1 := by rw [hcasc]; omega
   exact ⟨hlt, hasHorizonDrop_of_ge_one_and_lt (5 * r + 15) n0 (by omega) hge1 hlt⟩
 ```
-
----
 
 ## 7. Sprzężenie Dwu- i Trójblokowe Makro-Erozji RLE ($K = 2, 3$, Multi-Block RLE Coupling)
 
@@ -1009,8 +1001,6 @@ theorem four_block_rle_coupling_v1_eq3_v2_eq3_v3_eq3_v4_eq3_step32 (r1 r2 r3 r4 
   exact two_zero_valley_mod8_resonance_step8 r4 W4
 ```
 
----
-
 ## 9. Międzyrodzinowe Sprzężenie Wieloblokowe (`-7 ↔ -5`, Cross-Family Multi-Block Coupling)
 
 ### 9.1. Stałe przesunięcia diofantycznego dla przejść `-7 ↔ -5`
@@ -1136,8 +1126,6 @@ theorem cross_family_coupling_minus5_to_minus7_v1_eq3_v2_eq3_step16 (r1 r2 W1 W2
   rw [hb1]
   exact two_zero_valley_mod8_resonance_step8 r2 W2
 ```
-
----
 
 ## 10. Uniwersalny Lemat Kontrakcji Wieloblokowej (`multi_block_rle_contraction_criterion`)
 
@@ -1453,8 +1441,6 @@ theorem five_block_rle_coupling_v1_eq3_v2_eq3_v3_eq3_v4_eq3_v5_eq3_step40
   exact two_zero_valley_mod8_resonance_step8 r5 W5
 ```
 
----
-
 ## 12. Sprzężenia Międzyfazowe (`Cross-Phase RLE Coupling`): Przejścia z Rodziny `-7` (`3r + 3`) do Faz Przesuniętych `shifted_valley_d1` (`3r + 1`) oraz `two_zero_valley_d5` (`3r + 5`)
 
 W rzeczywistych trajektoriach przetrwałych klas (np. przy zmianie reszty wykładnika potęgi dwójki $\bmod 3$) wyjście z bloku makro-erozji $-7$ o wykładniku $3 r_1 + 3$:
@@ -1572,8 +1558,6 @@ theorem cross_phase_coupling_minus7_to_d5_v1_eq3_step17
   rw [hb1]
   exact two_zero_valley_d5_odd_prefix_step9_exit r2 M2
 ```
-
----
 
 ## 13. Indukcyjny Teleskop Kontrakcji Wieloblokowej (`multi_block_rle_telescoping_step` i `multi_block_rle_exit_envelope`) oraz Twierdzenia o Kontrakcji dla $K = 2, 3, 4, 5$ Bloków
 
@@ -2077,8 +2061,6 @@ theorem six_block_rle_contraction_v1_eq2_v2_eq1_v3_eq1_v4_eq3_v5_eq1_v6_eq3
     _ _ _ (by omega) (by omega) hge1 henv hbarrier
 ```
 
----
-
 ## 15. Kompletne Domknięcie Sprzężeń Międzyfazowych do Faz `d = 4` (`two_zero_valley_d4`, `3r + 4`) oraz `d = 2` (`shifted_valley_d2`, `3r + 2`)
 
 Wraz z udowodnionymi w Rundzie 5 przejściami do `shifted_valley_d1` (`3r + 1`) i `two_zero_valley_d5` (`3r + 5`), domykamy teraz pełną macierz przejść z bazowej rodziny `-7` (`3r₁ + 3`) do wszystkich przesuniętych faz Modulo-3:
@@ -2188,8 +2170,6 @@ theorem cross_phase_coupling_minus7_to_shifted_d2_v1_eq3_step14
   rw [hb1]
   exact shifted_valley_d2_odd_prefix_step6_exit r2 M2 hM2
 ```
-
----
 
 ## 16. Konkretne Certyfikaty Wieloblokowe (`_drop_...`) Rozstrzygane Automatycznie przez `(by decide)`
 
@@ -2637,8 +2617,6 @@ theorem seven_block_rle_contraction_v1_eq2_v2_eq1_v3_eq1_v4_eq3_v5_eq1_v6_eq1_v7
     _ _ _ (by omega) (by omega) hge1 henv hbarrier
 ```
 
----
-
 ## 18. Sprzężenia Międzyfazowe z Rodziny `-5` (`shifted_valley`, `3r₁ + 3`) do Przesuniętych Faz `shifted_valley_d1` (`3r₂ + 1`) oraz `two_zero_valley_d5` (`3r₂ + 5`)
 
 W Rundach 5 i 6 domknęliśmy macierz przejść wychodzących z rodziny `-7` (`two_zero_valley`) do wszystkich przesuniętych faz Modulo-3 (`d = 1, 2, 4, 5`) oraz przejścia między głównymi rodzinami `-7 ↔ -5`. Teraz domykamy analogiczne przejścia wychodzące z drugiej rodziny głównej **`-5` (`shifted_valley`, faza `3r₁ + 3`)** do przesuniętych faz `shifted_valley_d1` (`3r₂ + 1, c₂ = 5`) oraz `two_zero_valley_d5` (`3r₂ + 5, c₂ = 7`):
@@ -2750,8 +2728,6 @@ theorem cross_phase_coupling_minus5_to_d5_v1_eq3_step17
   rw [hb1]
   exact two_zero_valley_d5_odd_prefix_step9_exit r2 M2
 ```
-
----
 
 ## 19. Konkretne Certyfikaty 7-Blokowe i 8-Blokowe (`_drop_...`) Rozstrzygane przez `(by decide)`
 
@@ -3223,8 +3199,6 @@ theorem ten_block_rle_contraction_v1_eq3_to_v10_eq3
     _ _ _ (by omega) (by omega) hge1 henv hbarrier
 ```
 
----
-
 ## 21. Domknięcie Pełnej Macierzy Międzyfazowej $2 \times 4$ z Rodziny `-5` (`shifted_valley` $\to$ `two_zero_valley_d4` oraz `shifted_valley_d2`)
 
 Wraz z udowodnionymi w Rundzie 7 przejściami z rodziny `-5` (`shifted_valley`, faza `3r₁ + 3`) do faz `shifted_valley_d1` (`3r₂ + 1`) i `two_zero_valley_d5` (`3r₂ + 5`), domykamy teraz ostatnie 4 brakujące przejścia do faz `two_zero_valley_d4` (`3r₂ + 4, c₂ = 7`) oraz `shifted_valley_d2` (`3r₂ + 2, c₂ = 5`). Tym samym w `CollatzProof.lean` skompletowana zostaje pełna macierz **wszystkich 16 międzyfazowych przejść** z obu kanonicznych rodzin głównych (`-7` i `-5`, dla $v_1 \in \{2, 3\}$) do wszystkich 4 przesuniętych faz Modulo-3 (`d1`, `d2`, `d4`, `d5`):
@@ -3336,8 +3310,6 @@ theorem cross_phase_coupling_minus5_to_shifted_d2_v1_eq3_step14
   rw [hb1]
   exact shifted_valley_d2_odd_prefix_step6_exit r2 M2 hM2
 ```
-
----
 
 ## 22. Konkretne Certyfikaty 9-Blokowe, 10-Blokowe oraz 8-Blokowe (`r0 = 871`) Rozstrzygane przez `(by decide)`
 
@@ -3849,8 +3821,6 @@ theorem twelve_block_rle_contraction_v1_eq3_to_v12_eq3
     _ _ _ (by omega) (by omega) hge1 henv hbarrier
 ```
 
----
-
 ## 24. Sprzężenia Międzyfazowe z Rodzin Dwublokowych `rle_10011` (`-13`, `3r₁ + 7`) oraz `rle_10111` (`-9`, `3r₁ + 8`) do Dominujących Atraktorów `shifted_valley_d1` (`3r₂ + 1`) i `shifted_valley_d2` (`3r₂ + 2`)
 
 Po domknięciu w Rundzie 8 pełnej macierzy $2 \times 4$ przejść międzyfazowych z kanonicznych rodzin głównych (`-7` i `-5`), rozpoczynamy formalizację przejść wychodzących z dwóch rodzin dwublokowych: **`rle_10011` (`c₁ = 13`, faza `3r₁ + 7`)** oraz **`rle_10111` (`c₁ = 9`, faza `3r₁ + 8`)** do najczęstszych faz docelowych (`shifted_valley_d1` oraz `shifted_valley_d2`, które odpowiadają za ponad $54\%$ wszystkich przesuniętych wejść):
@@ -3982,8 +3952,6 @@ theorem cross_phase_coupling_10111_to_shifted_d2_v1_eq3_step22
   rw [hb1]
   exact shifted_valley_d2_odd_prefix_step6_exit r2 M2 hM2
 ```
-
----
 
 ## 25. Konkretne Certyfikaty 11-Blokowe, 12-Blokowe oraz 9-Blokowe (`r0 = 871`) Rozstrzygane przez `(by decide)`
 

@@ -29,8 +29,6 @@ Dla wszystkich 8 rodzin wzór na $t(s) \in \{0, \dots, 63\}$ (gdzie $U = 512W + 
 | 7 | **`two_zero_valley_d4`** (`-7`, $3r+4$) | $9^{r+2}U - 29$ | $s_{512}(r+2)$ | $(11s + 3 + 16\lfloor\frac{s}{2}\rfloor + 32\lfloor\frac{s}{4}\rfloor + 32\lfloor\frac{s+1}{4}\rfloor) \bmod 64$<br>$U = 512W + 5 + 8t(s)$ | $5r+17$ | **$r \le 39$** (**$2^{121}$**, $212$ kr.) | `_drop_r34..r39` (6 tw.) |
 | 8 | **`shifted_valley_d2`** (`-5`, $3r+2$) | $27\cdot 9^r U - 29$ | $s_{512}(r)$ | $(s + 4 + 16\lfloor\frac{s+1}{2}\rfloor + 32\lfloor\frac{s}{4}\rfloor + 32\lfloor\frac{s+1}{4}\rfloor) \bmod 64$<br>$U = 512W + 7 + 8t(s)$ | $5r+14$ | **$r \le 36$** (**$2^{110}$**, $194$ kr.)<br>*(bonus: $r=36$ też działa!)* | `_drop_r30..r36` (7 tw.) |
 
----
-
 ## 2. Gotowy do wklejenia i zweryfikowany w `lean --stdin` blok kodu Lean 4
 
 Poniższy kod został w całości przetestowany w `~/.elan/bin/lean --stdin` (zero błędów, zero ostrzeżeń, domyślny `maxHeartbeats 200000`, `0 sorryAx`). Można go wkleić bezpośrednio przed `end CollatzLab` w `CollatzProof.lean`:
@@ -739,8 +737,6 @@ W Rundzie 3 wyprowadziłem, zweryfikowałem w `node -e` (pełna symulacja trajek
 - 16 głównych twierdzeń parametrycznych (8 par `_mod1024_resonance_step...` + `_mod1024_contraction` dla wszystkich 8 rodzin RLE i faz Modulo-3),
 - 48 konkretnych twierdzeń horyzontowych `_mod1024_drop_r...` (po 6 najwyższych rzędów na rodzinę, sięgających aż do **`r = 62` (`2^193`, `331` kroków Collatza!)** dla `rle_10011`).
 
----
-
 ## 2. Dwa kluczowe odkrycia konstrukcyjne Rundy 3
 
 ### Odkrycie A: Most Biliniowy dla `pow9_mod1024` (redukcja z >200 000 do <15 000 heartbeats!)
@@ -770,8 +766,6 @@ Ponadto zastosowanie wzorca:
 ```
 całkowicie ukrywa definicje `s` i `U` przed taktyką `omega`, dzięki czemu wszystkie 16 twierdzeń rezonansowych i kontrakcyjnych kompiluje się w ułamku sekundy!
 
----
-
 ## 3. Zbiorcza Tabela Wszystkich 8 Rodzin na Poziomie `mod 1024` (`v₂ ≥ 10`, okres 128)
 
 | # | Rodzina | Licznik $\equiv 0 \pmod{1024}$ | Indeks $s$ | Wzór na $t(s) \bmod 128$ (gdzie $U = 1024W + u_{\text{base}} + 8t(s)$) | Kroki | Pułap $r_{\max}$ (`mod 1024`) | Twierdzenia `_drop_r...` |
@@ -784,8 +778,6 @@ całkowicie ukrywa definicje `s` i `U` przed taktyką `omega`, dzięki czemu wsz
 | 6 | **`two_zero_valley_d5`** (`-7`, $3r+5$) | $3\cdot 9^{r+1}U - 5$ | $s_{1024}(r+1)$ | $(17s + 42 + 16\lfloor\frac{s+1}{2}\rfloor + 32\lfloor\frac{s}{4}\rfloor + 32\lfloor\frac{s+1}{4}\rfloor + 64\sum_{j \in \{2,3,4,5\}}\lfloor\frac{s+j}{8}\rfloor) \bmod 128$ | $5r+18$ | **`r = 60`** ($2^{185}$, $318$ kr.) | `r55..r60` (`u0 = 535, 287, 487, 623, 183, 703`) |
 | 7 | **`two_zero_valley_d4`** (`-7`, $3r+4$) | $9^{r+2}U - 29$ | $s_{1024}(r+2)$ | $(11s + 3 + 16\lfloor\frac{s}{2}\rfloor + 32\lfloor\frac{s}{4}\rfloor + 32\lfloor\frac{s+1}{4}\rfloor + 64\sum_{j \in \{1,3,4,6\}}\lfloor\frac{s+j}{8}\rfloor) \bmod 128$ | $5r+18$ | **`r = 45`** ($2^{139}$, $243$ kr.) | `r40..r45` (`u0 = 205, 933, 445, 277, 941, 901`) |
 | 8 | **`shifted_valley_d2`** (`-5`, $3r+2$) | $27\cdot 9^r U - 29$ | $s_{1024}(r)$ | $(s + 4 + 16\lfloor\frac{s+1}{2}\rfloor + 32\lfloor\frac{s}{4}\rfloor + 32\lfloor\frac{s+1}{4}\rfloor + 64\sum_{j \in \{0,1,6,7\}}\lfloor\frac{s+j}{8}\rfloor) \bmod 128$ | $5r+15$ | **`r = 42`** ($2^{128}$, $225$ kr.) | `r37..r42` (`u0 = 847, 663, 415, 615, 751, 311`) |
-
----
 
 ## 4. Gotowy, Zweryfikowany w `~/.elan/bin/lean` Blok Kodu Lean 4 (72 Twierdzenia `mod 1024`, `0 sorryAx`)
 
@@ -1637,8 +1629,6 @@ W Rundzie 4 wyprowadziłem, zweryfikowałem w `node -e` (pełna symulacja trajek
 - 16 głównych twierdzeń parametrycznych (8 par `_mod2048_resonance_step...` + `_mod2048_contraction` dla wszystkich 8 rodzin RLE i faz Modulo-3),
 - 48 konkretnych twierdzeń horyzontowych `_mod2048_drop_r...` (po 6 najwyższych rzędów na rodzinę, sięgających aż do **`r = 68` (`2^211`, `362` kroków Collatza!)** dla `rle_10011`).
 
----
-
 ## 2. Trzy kluczowe odkrycia konstrukcyjne Rundy 4
 
 ### Odkrycie A: 6-członowy Most Biliniowy bezpośrednio jako `pow9_mod2048` (czas kompilacji `< 0.2 s`!)
@@ -1665,8 +1655,6 @@ Dzięki temu **żadna z 8 rodzin na poziomie `mod 2048` nie potrzebuje członów
 ### Odkrycie C: Dwuwymiarowa siatka refleksyjna `checkResonanceGrid16` (eliminacja `maxRecDepth` przy okresie 256)
 Przy okresie $256$, jednowymiarowa rekursja unarna `checkResonanceTable ... 256` osiąga w jądrze Lean 4 domyślny limit głębokości stosu `maxRecDepth = 512` podczas ewaluacji `(by decide)`. Zastąpienie jej dwuwymiarową siatką $16 \times 16$ (`checkResonanceRow` o długości 16 wewnątrz `checkResonanceGrid16` o długości 16) redukuje maksymalną głębokość rekursji z $256$ do $16 + 16 = 32$, dzięki czemu `(by decide)` wykonuje się natychmiast bez żadnego `set_option maxRecDepth`.
 
----
-
 ## 3. Zestawienie wszystkich 8 rodzin na poziomie `mod 2048` (`v₂ ≥ 11`, okres 256)
 
 | # | Rodzina | Licznik $\equiv 0 \pmod{2048}$ | Indeks $s$ | Wzór biliniowy na $t(s) \bmod 256$ | Kroki | Pułap $r_{\max}$ (`mod 2048`) | Twierdzenia `_drop_r...` |
@@ -1681,8 +1669,6 @@ Przy okresie $256$, jednowymiarowa rekursja unarna `checkResonanceTable ... 256`
 | 8 | **`shifted_valley_d2`** (`-5`, $3r+2$) | $27 \cdot 9^r U - 29$ | $s_{2048}(r)$ | `(81*s + 132 + 240*(s/2) + 96*(s/4) + 96*((s+1)/4) + 192*(s%4)*(s/4)) % 256` | $5r+16$ | **`r = 48`** (`2^146`, 256 kr.) | `r43 .. r48` (6 tw.) |
 
 *(Uwaga: dla `two_zero_valley_d4` dokładny pułap nierówności $9^{r+2} + 4096 \le 2048 \cdot 2^{3r+4} = 2^{3r+15}$ wynosi `r = 50` (`2^154`), ponieważ $9^{52} < 2^{165}$ natomiast $9^{53} > 2^{168}$; dlatego wygenerowałem 6 najwyższych twierdzeń horyzontowych `r45 .. r50`.)*
-
----
 
 ## 4. Kompletny, zweryfikowany kod Lean 4 dla Części 53 i 54 (`mod 2048`, `v₂ ≥ 11`, 0 sorryAx)
 
@@ -2472,8 +2458,6 @@ W Rundzie 5 wyprowadziłem, zweryfikowałem w `node -e` (pełna symulacja trajek
 - 16 głównych twierdzeń parametrycznych (8 par `_mod4096_resonance_step...` + `_mod4096_contraction` dla wszystkich 8 rodzin RLE i faz Modulo-3),
 - 49 konkretnych twierdzeń horyzontowych `_mod4096_drop_r...` (po 6 najwyższych rzędów na rodzinę + bonusowy rząd `r71` dla `rle_10111`, sięgających aż do **`r = 74` (`2^229`, `393` kroków Collatza!)** dla `rle_10011`).
 
----
-
 ## 2. Dwa kluczowe odkrycia konstrukcyjne Rundy 5
 
 ### Odkrycie A: 8-członowy Most Biliniowy bezpośrednio jako `pow9_mod4096` (8 gałęzi `k % 8`, kompilacja w `0,3 s`!)
@@ -2503,8 +2487,6 @@ W rezultacie **wszystkie 8 wzorów na $t_{4096}(s) \bmod 512$ powstaje ze wzoró
    - `shifted_valley_d1`: `(379 * s + 341 + 336 * (s / 2) + 32 * (s / 4) + 288 * ((s + 1) / 4) + 256 * (s / 8) + 64 * (s % 4) * (s / 4)) % 512`
    - `two_zero_valley_d4`: `(395 * s + 3 + 80 * (s / 2) + 32 * (s / 4) + 288 * ((s + 1) / 4) + 256 * (s / 8) + 64 * (s % 4) * (s / 4)) % 512`
 
----
-
 ## 3. Zestawienie wszystkich 8 rodzin na poziomie `mod 4096` (`v₂ ≥ 12`, okres 512)
 
 | # | Rodzina | Licznik $\equiv 0 \pmod{4096}$ | Indeks $s$ | Wzór biliniowy na $t(s) \bmod 512$ | Kroki | Pułap $r_{\max}$ (`mod 4096`) | Twierdzenia `_drop_r...` |
@@ -2519,8 +2501,6 @@ W rezultacie **wszystkie 8 wzorów na $t_{4096}(s) \bmod 512$ powstaje ze wzoró
 | 8 | **`shifted_valley_d2`** (`-5`, $3r+2$) | $27 \cdot 9^r U - 29$ | $s_{4096}(r)$ | `(337*s + 132 + 496*(s/2) + 96*(s/4) + 352*((s+1)/4) + 256*(s/8) + 192*(s%4)*(s/4)) % 512` | $5r+17$ | **`r = 54`** (`2^164`, 287 kr.) | `r49 .. r54` (6 tw.) |
 
 *(Uwaga: dla `rle_10111` warunek kontrakcji $27 \cdot 9^{r+1} + 8192 \le 4096 \cdot 2^{3r+8}$ zachodzi aż do **`r = 71` (`2^221`, `380` kroków)**, więc dołączyłem wszystkie 7 twierdzeń `r65 .. r71`; z kolei dla `two_zero_valley_d4` dokładny pułap wynosi `r = 56` (`2^172`), czyli o $+6$ rzędów wyżej niż `r = 50` na poziomie `mod 2048`, dlatego wygenerowałem 6 nowych twierdzeń `r51 .. r56`.)*
-
----
 
 ## 4. Kompletny, zweryfikowany kod Lean 4 dla Części 55 i 56 (`mod 4096`, `v₂ ≥ 12`, 0 sorryAx)
 
@@ -3292,8 +3272,6 @@ $$s_{8192}(k) = \left(k + 8\lfloor k/2 \rfloor + 80\lfloor k/4 \rfloor + 80\lflo
 3. **Weryfikator tabelaryczny `checkResonanceGrid16_sound` na siatce $64 \times 16 = 1024$:**
    Istniejący dwuwymiarowy weryfikator `checkResonanceGrid16_sound 8192 A uBase c tFn 64 (by decide) s hs_lt` (64 wiersze po 16 kolumn) ma głębokość rekursji $64 + 16 = 80 \ll 512$ (`maxRecDepth`) i zamyka każde z 8 twierdzeń rezonansowych w `~1.4 s` bez potrzeby definiowania nowej siatki.
 
----
-
 ## 2. Uniwersalna struktura odwrotności modularnych $t_{8192}(s) \bmod 1024$ dla wszystkich 8 rodzin
 
 Zastąpienie czynnika $(s \bmod 4)$ przez $(s \bmod 8)$ w członie biliniowym z poziomu `mod 4096` automatycznie kompensuje skok kwadratowy $512 \cdot \lfloor s/8 \rfloor$ na nieparzystych czwórkach $s \bmod 8 \in \{4, 5, 6, 7\}$, dzięki czemu wszystkie 8 rodzin na poziomie `mod 8192` zachowuje **symetryczne współczynniki przy $\lfloor s/4 \rfloor$ i $\lfloor (s+1)/4 \rfloor$** oraz dzieli się na dwie grupy:
@@ -3307,8 +3285,6 @@ Zastąpienie czynnika $(s \bmod 4)$ przez $(s \bmod 8)$ w członie biliniowym z 
    - `rle_10111`: `(611 * s + 720 + 208 * (s / 2) + 544 * (s / 4) + 544 * ((s + 1) / 4) + 768 * (s / 8) + 512 * ((s + 1) / 8) + 512 * ((s + 3) / 8) + 64 * (s % 8) * (s / 4)) % 1024`
    - `shifted_valley_d1`: `(379 * s + 341 + 848 * (s / 2) + 800 * (s / 4) + 800 * ((s + 1) / 4) + 256 * (s / 8) + 512 * ((s + 2) / 8) + 64 * (s % 8) * (s / 4)) % 1024`
    - `two_zero_valley_d4`: `(907 * s + 3 + 592 * (s / 2) + 288 * (s / 4) + 288 * ((s + 1) / 4) + 256 * (s / 8) + 512 * ((s + 2) / 8) + 64 * (s % 8) * (s / 4)) % 1024`
-
----
 
 ## 3. Zestawienie wszystkich 8 rodzin na poziomie `mod 8192` (`v₂ ≥ 13`, okres 1024)
 
@@ -3324,8 +3300,6 @@ Zastąpienie czynnika $(s \bmod 4)$ przez $(s \bmod 8)$ w członie biliniowym z 
 | 8 | **`shifted_valley_d2`** (`-5`, $3r+2$) | $27 \cdot 9^r U - 29$ | $s_{8192}(r)$ | `(337*s + 644 + 1008*(s/2) + 352*(s/4) + 352*((s+1)/4) + 768*(s/8) + 512*((s+2)/8) + 192*(s%8)*(s/4)) % 1024` | $5r+18$ | **`r = 60`** (`2^182`, 318 kr.) | `r55 .. r60` (6 tw.) |
 
 *(Uwaga: dla `rle_10011` nierówność kontrakcji $9^{r+2} + 16384 \le 8192 \cdot 2^{3r+7}$ zachodzi aż do **`r = 80`** — ponieważ $82 \log_2 9 \approx 259.93385 < 260 = 13 + 3 \cdot 80 + 7$ — co pozwala osiągnąć rekordowy pułap **`2^247` w `424` krokach Collatza** i daje 6 nowych twierdzeń `r75 .. r80`! Z kolei dla `rle_10111` dokładny pułap wynosi `r = 76` (`2^236`, `406` kroków), co daje 5 nowych twierdzeń `r72 .. r76` ponad `r71` z poziomu `mod 4096`.)*
-
----
 
 ## 4. Kompletny, zweryfikowany kod Lean 4 dla Części 57 i 58 (`mod 8192`, `v₂ ≥ 13`, 0 sorryAx)
 
@@ -4156,8 +4130,6 @@ $$s_{16384}(k) = \Big(k + 8\lfloor k/2 \rfloor + 1104\lfloor k/4 \rfloor + 80\lf
 3. **Siatka `checkResonanceGrid16_sound` o wymiarze $128 \times 16 = 2048$ i `set_option exponentiation.threshold 512`:**
    Istniejący weryfikator `checkResonanceGrid16_sound 16384 A uBase c tFn 128 (by decide) s hs_lt` (głębokość rekursji $128 + 16 = 144 \ll 512$) domyka każde z 8 twierdzeń rezonansowych w `~2 s`, a `set_option exponentiation.threshold 512` odblokowuje wykładniki $2^{259}, 2^{262}, 2^{265}$ dla `rle_10011_mod16384_drop_r84..r86`.
 
----
-
 ## 2. Uniwersalna struktura odwrotności modularnych $t_{16384}(s) \bmod 2048$ dla wszystkich 8 rodzin
 
 Po zastąpieniu $(s \bmod 8)$ przez $(s \bmod 16)$ oraz spłaszczeniu skoków wewnątrz bloków czwórkowych w członie biliniowym, wszystkie 8 rodzin zachowuje **symetryczne współczynniki przy $\lfloor s/4 \rfloor$ i $\lfloor (s+1)/4 \rfloor$** oraz dzieli się na dwie grupy o identycznych ogonach `/ 8` i `/ 16`:
@@ -4171,8 +4143,6 @@ Po zastąpieniu $(s \bmod 8)$ przez $(s \bmod 16)$ oraz spłaszczeniu skoków we
    - `rle_10111`: `(1635 * s + 1744 + 1232 * (s / 2) + 544 * (s / 4) + 544 * ((s + 1) / 4) + 768 * (s / 8) + 1536 * (s / 16) + 1536 * ((s + 4) / 16) + (64 * (s % 16) + 1536 * (((s + 1) % 4) / 2)) * (s / 4)) % 2048`
    - `shifted_valley_d1`: `(379 * s + 1365 + 848 * (s / 2) + 800 * (s / 4) + 800 * ((s + 1) / 4) + 768 * (s / 8) + 1536 * (s / 16) + 1536 * ((s + 4) / 16) + (64 * (s % 16) + 512 * ((s % 4) / 2) + 1024 * ((s % 4) / 3)) * (s / 4)) % 2048`
    - `two_zero_valley_d4`: `(907 * s + 3 + 592 * (s / 2) + 288 * (s / 4) + 288 * ((s + 1) / 4) + 768 * (s / 8) + 1536 * (s / 16) + 1536 * ((s + 4) / 16) + (64 * (s % 16) + 1024 * (s % 2) + 512 * ((s % 4) / 2) + 1024 * ((s % 4) / 3)) * (s / 4)) % 2048`
-
----
 
 ## 3. Zestawienie wszystkich 8 rodzin na poziomie `mod 16384` (`v₂ ≥ 14`, okres 2048)
 
@@ -4188,8 +4158,6 @@ Po zastąpieniu $(s \bmod 8)$ przez $(s \bmod 16)$ oraz spłaszczeniu skoków we
 | 8 | **`shifted_valley_d2`** (`-5`, $3r+2$) | $27 \cdot 9^r U - 29$ | $s_{16384}(r)$ | $5r+19$ | **`r = 66`** (`2^200`, 349 kr.) | `r61 .. r66` (6 tw.) |
 
 *(Uwaga: dla `shifted_valley_d1` dokładny pułap nierówności $3 \cdot 9^r + 16384 \le 16384 \cdot 2^{3r+1}$ wynosi **`r = 78`** (`2^235`, `406` kroków), ponieważ dla $r = 79$ mamy $159 \log_2 3 \approx 252.00904 > 252 = 14 + 238$, czyli $3 \cdot 9^{79} > 16384 \cdot 2^{238}$. Z kolei dla `rle_10011` osiągamy rekordowy pułap **`r = 86`** — aż **`2^265` w `455` krokach Collatza**!)*
-
----
 
 ## 4. Kompletny, zweryfikowany kod Lean 4 dla Części 59 i 60 (`mod 16384`, `v₂ ≥ 14`, 0 sorryAx)
 
@@ -5068,8 +5036,6 @@ $$s_{32768}(k) = \Big(k + 8\lfloor k/2 \rfloor + 2640\lfloor k/4 \rfloor + 80\lf
 3. **Brak `s / 32` i `s % 32` w odwrotnościach modularnych $t_{32768}(s) \bmod 4096$:**
    Ponieważ w Grupie I ($u_{\text{base}} = 7$) zachodzi $16 \times 192 = 3072 \equiv 4 d_2 \pmod{4096}$, a w Grupie II ($u_{\text{base}} = 5$) zachodzi $16 \times 64 = 1024 \equiv 4 d_2 \pmod{4096}$, człon biliniowy `C * (s % 16) * (s / 4)` z dodatkiem uniwersalnego członu `2048 * (s % 2) * (s / 8)` **dokładnie kompensuje krzywiznę kwadratową modulo 4096 bez użycia `s / 32` ani `s % 32`**!
 
----
-
 ## 2. Uniwersalna struktura odwrotności modularnych $t_{32768}(s) \bmod 4096$ dla wszystkich 8 rodzin
 
 Wszystkie 8 rodzin dzieli się na dwie grupy o identycznych ogonach `/ 16` i wspólnym członie `+ 2048 * (s % 2) * (s / 8)`:
@@ -5084,8 +5050,6 @@ Wszystkie 8 rodzin dzieli się na dwie grupy o identycznych ogonach `/ 16` i wsp
    - `shifted_valley_d1`: `(2427 * s + 1365 + 848 * (s / 2) + 800 * (s / 4) + 2848 * ((s + 1) / 4) + 2816 * (s / 8) + 1536 * (s / 16) + 1536 * ((s + 4) / 16) + 2048 * (s % 2) * (s / 8) + (64 * (s % 16) + 2048 * (s % 2) + 512 * ((s % 4) / 2) + 1024 * ((s % 4) / 3)) * (s / 4)) % 4096`
    - `two_zero_valley_d4`: `(907 * s + 3 + 592 * (s / 2) + 2336 * (s / 4) + 288 * ((s + 1) / 4) + 2816 * (s / 8) + 1536 * (s / 16) + 1536 * ((s + 4) / 16) + 2048 * (s % 2) * (s / 8) + (64 * (s % 16) + 1024 * (s % 2) + 2560 * ((s % 4) / 2) + 1024 * ((s % 4) / 3)) * (s / 4)) % 4096`
 
----
-
 ## 3. Zestawienie wszystkich 8 rodzin na poziomie `mod 32768` (`v₂ ≥ 15`, okres 4096)
 
 | # | Rodzina | Licznik $\equiv 0 \pmod{32768}$ | Indeks $s$ | Kroki | Pułap $r_{\max}$ (`mod 32768`) | Twierdzenia `_drop_r...` |
@@ -5098,8 +5062,6 @@ Wszystkie 8 rodzin dzieli się na dwie grupy o identycznych ogonach `/ 16` i wsp
 | 6 | **`two_zero_valley_d5`** (`-7`, $3r+5$) | $3 \cdot 9^{r+1} U - 5$ | $s_{32768}(r+1)$ | $5r+23$ | **`r = 89`** (`2^272`, 468 kr.) | `r84 .. r89` (6 tw.) |
 | 7 | **`two_zero_valley_d4`** (`-7`, $3r+4$) | $9^{r+2} U - 29$ | $s_{32768}(r+2)$ | $5r+23$ | **`r = 74`** (`2^226`, 393 kr.) | `r69 .. r74` (6 tw.) |
 | 8 | **`shifted_valley_d2`** (`-5`, $3r+2$) | $27 \cdot 9^r U - 29$ | $s_{32768}(r)$ | $5r+20$ | **`r = 72`** (`2^218`, 380 kr.) | `r67 .. r72` (6 tw.) |
-
----
 
 ## 4. Kompletny, zweryfikowany kod Lean 4 dla Części 61 i 62 (`mod 32768`, `v₂ ≥ 15`, 0 sorryAx)
 
@@ -6022,8 +5984,6 @@ theorem shifted_valley_d2_mod32768_drop_r72 (W : Nat) : HasHorizonDrop ((32768 *
 **Autor:** Architekt 3 (Fotel Inżyniera Automatu RLE i Tunelowania MSB-LSB — profil konstrukcyjny Claude Sonnet 5.5)  
 **Status weryfikacji Lean 4:** **100% ZWERYFIKOWANE** (`~/.elan/bin/lean /tmp/test_mod65536.lean` — kod wyjścia `0`, **70 twierdzeń docelowych + 3 lematy krokowe = 73 deklaracje**, **`0 sorryAx`**, domyślny `maxRecDepth 512`).
 
----
-
 ## 1. Pomost Biliniowy dla `pow9_mod65536` (Okres 8192, `v₂ = 16`) oraz Trójpodział Indukcyjny Kroków `k % 16`
 
 W Rundzie 9 podnosimy wykładnik rezonansu 2-adycznego o kolejny rząd: z $M = 32768 = 2^{15}$ (okres $4096 = 2^{12}$) do **$M = 65536 = 2^{16}$** (okres **$8192 = 2^{13}$**, $v_2 ge 16$).
@@ -6047,8 +6007,6 @@ Aby utrzymać kompilację `pow9_mod65536` w ~4 sekundach przy domyślnym `maxRec
 
 Dodatkowo, ponieważ `r + 1 + 1` jest definicyjnie równe `r + 2` w Lean 4 (a `r + 1 + 16` jest definicyjnie równe `r + 17`), lematy przesunięte `pow9_mod65536_succ` oraz `pow9_mod65536_succ2` dowodzone są natychmiastowo jedną linijką `exact pow9_mod65536 (r + 1)` oraz `exact pow9_mod65536 (r + 2)` bez kosztownego przepisywania `rw`.
 
----
-
 ## 2. Dwuwymiarowy Ewaluator `checkResonanceGrid128` i Uniwersalne Prawo Skalowania Afinicznego Odwrotności 2-Adycznej
 
 ### 2.1. Siatka `checkResonanceGrid128` ($64 	imes 128 = 8192$)
@@ -6071,8 +6029,6 @@ gdzie:
 7. **`two_zero_valley_d4`** ($A=1, u_{\text{base}}=5, c=29$): $t_0 = 3,\; M = 3515$,
 8. **`shifted_valley_d2`** ($A=27, u_{\text{base}}=7, c=29$): $t_0 = 5764,\; M = 737$.
 
----
-
 ## 3. Zbiorcza Tabela Wszystkich 8 Rodzin `mod 65536` (`v₂ ≥ 16`, Części 63 i 64)
 
 | # | Rodzina / Faza Modulo-3 | Licznik Wyjściowy | $s \in [0, 8192)$ | Liczba kroków | Maksymalny zasięg kontrakcji $r_{\max}$ | Twierdzenia horyzontowe `_mod65536_drop_r...` |
@@ -6087,8 +6043,6 @@ gdzie:
 | 8 | **`shifted_valley_d2`** (`-5`, $3r+2$) | $27 \cdot 9^r U - 29$ | $s_{65536}(r)$ | $5r+21$ | **`r = 77`** (`2^233`, 406 kr.) | `r72 .. r77` (`u₀ = 50023, 41967, 4663, 36927, 4103, 29583`) |
 
 *(Uwaga arytmetyczna dla `shifted_valley_d2`: dla $r = 77$ zachodzi $27 \cdot 9^{77} + 65536 < 65536 \cdot 2^{233}$, natomiast dla $r = 78$ mamy $27 \cdot 9^{78} / 2^{234} \approx 263306{,}35 > 262144 = 65536 \cdot 2^2$, zatem dokładny próg bezwarunkowej kontrakcji wynosi $r_{\max} = 77$, a 6 twierdzeń horyzontowych obejmuje `r72 .. r77`).*
-
----
 
 ## 4. Kompletny, zweryfikowany kod Lean 4 dla Części 63 i 64 (`mod 65536`, `v₂ ≥ 16`, 0 sorryAx)
 

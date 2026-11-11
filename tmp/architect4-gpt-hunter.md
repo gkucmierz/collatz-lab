@@ -1,9 +1,7 @@
 # Raport Rundy 1 — Architekt 4 (Eksplorator Kontrprzykładów i Łowca Ekstremalnych Klas)
 
 Data analizy: `2026-11-02`  
-Skrypt generujący: `/Users/gkucmierz/workspace/collatz-lab/tmp/hunter-round1.mjs`
-
----
+Skrypt generujący: `./tmp/hunter-round1.mjs`
 
 ## Część 1. Głębokie Sito 2-Adyczne na Poziomach `k = 143..161` (do Części 47 i 48 w `CollatzProof.lean`)
 
@@ -369,8 +367,6 @@ theorem horizon_drop_mod2923003274661805836407369665432566039311865085952_eq3701
 theorem horizon_drop_mod2923003274661805836407369665432566039311865085952_eq400159 (k : Nat) : HasHorizonDrop (2 ^ 161 * k + 400159) := checkAffineDrop_sound 262 (2 ^ 161) 400159 (by decide) k
 ```
 
----
-
 ## Część 2. Empiryczny Rozkład Wieloblokowy RLE (`Multi-Block Macro-Erosion`) dla Najtrudniejszych Trajektorii
 
 ### 2.1. Kanoniczny Dispatcher Wieloblokowy $(r_i, d_i, c_i, v_i)$
@@ -508,8 +504,6 @@ Trajektoria pokonuje barierę logarytmiczną $(9/8)^{O_K/2}$ dokładnie wtedy, g
 | **#15** | `2283821` | `c=1 (b=1, -3)` | `1141911` | `1` | `0` | **`2`** | `4` | `21` | `27` | `(55, 84)` | `1.5 / 4.673` | `856433` |
 | **#16** | `856433` | `c=7 (d=3)` | `107055` | `3` | `0` | **`5`** | `10` | `21` | `32` | `(57, 92)` | `6.5 / 4.843` | `30109` **SPADEK** |
 
----
-
 ## Część 3. Wnioski dla Architekta 1, 2 i 3 (Podstawa pod Hipotezę H3 — Multi-Block RLE Coupling)
 
 1. **Kompresja wykładnicza trajektorii:**  
@@ -528,9 +522,7 @@ Trajektoria pokonuje barierę logarytmiczną $(9/8)^{O_K/2}$ dokładnie wtedy, g
 # Raport Rundy 2 — Architekt 4 (Eksplorator Kontrprzykładów i Łowca Ekstremalnych Klas)
 
 Data analizy: `2026-11-02`  
-Skrypt generujący: `/Users/gkucmierz/workspace/collatz-lab/tmp/hunter-round2.mjs`
-
----
+Skrypt generujący: `./tmp/hunter-round2.mjs`
 
 ## Część 4. Głębokie Sito 2-Adyczne na Poziomach `c = 102..113` (`k = 162..180`, `m = 264..293`) — Zestaw C (Część 49) i Zestaw D (Część 50)
 
@@ -771,8 +763,6 @@ theorem horizon_drop_mod1532495540865888858358347027150309183618739122183602176_
 theorem horizon_drop_mod1532495540865888858358347027150309183618739122183602176_eq1330431 (k : Nat) : HasHorizonDrop (2 ^ 180 * k + 1330431) := checkAffineDrop_sound 293 (2 ^ 180) 1330431 (by decide) k
 ```
 
----
-
 ## Część 5. Analiza Pokrycia Dwublokowego i Trójblokowego Sprzężenia RLE (`K = 2, 3`) na Wszystkich 64 Ocalałych Klasach `mod 1024`
 
 ### 5.1. Statystyka skumulowanego przełamania bariery $(9/8)^r$ w funkcji liczby bloków $K = 1..15$
@@ -884,9 +874,7 @@ Dla wszystkich 64 klas bazowych z `survivingMod1024` zbadano:
 # Raport Rundy 3 — Architekt 4 (Eksplorator Kontrprzykładów i Łowca Ekstremalnych Klas)
 
 Data analizy: `2026-11-02`  
-Skrypt generujący: `/Users/gkucmierz/workspace/collatz-lab/tmp/hunter-round3.mjs`
-
----
+Skrypt generujący: `./tmp/hunter-round3.mjs`
 
 ## Część 6. Głębokie Sito 2-Adyczne na Poziomach `c = 114..125` (`k = 181..199`, `m = 295..324`) — Zestaw E (Część 51) i Zestaw F (Część 52)
 
@@ -1150,8 +1138,6 @@ theorem horizon_drop_mod50216813883093446110686315385661331328818843555712276103
 theorem horizon_drop_mod50216813883093446110686315385661331328818843555712276103168_eq4393967 (k : Nat) : HasHorizonDrop (2 ^ 195 * k + 4393967) := checkAffineDrop_sound 318 (2 ^ 195) 4393967 (by decide) k
 ```
 
----
-
 ## Część 7. Analiza Grafu Przejść Fazowych Modulo-3 pomiędzy Blokami RLE (`K = 1 -> 2 -> 3 -> 4`)
 
 ### 7.1. Macierz najczęstszych przejść fazowych $(c_i, d_i) \to (c_{i+1}, d_{i+1})$ dla 64 ocalałych klas `mod 1024`
@@ -1234,7 +1220,7 @@ Dla każdej z 64 ocalałych klas obliczono trzy kluczowe miary uśrednionej ekst
 
 ### 8.2. Gotowe bloki kodu Lean 4 (Zestaw G — Część 53 oraz Zestaw H — Część 54)
 
-*(Pełny kod został również zapisany w pliku [`sieve_200_220_lean.txt`](file:///Users/gkucmierz/workspace/collatz-lab/tmp/sieve_200_220_lean.txt).)*
+*(Pełny kod został również zapisany w pliku [`sieve_200_220_lean.txt`](tmp/sieve_200_220_lean.txt).)*
 
 ```lean
 -- ============================================================================
@@ -1483,8 +1469,6 @@ theorem horizon_drop_mod16849966666969149871666884429387269171023215264087857800
 
 ```
 
----
-
 ## Część 9. Anatomia Dwóch Ekstremalnych Klas 4-Blokowych (`r0 ∈ {103, 871}`) oraz Test Wieloblokowy ($K = 5, 6, 8, 10$)
 
 ### 9.1. Pełny rozkład blokowy RLE (Modulo-3 Macro-Blocks `c ∈ {1, 5, 7}`) dla `r0 = 103` oraz `r0 = 871`
@@ -1634,7 +1618,7 @@ W Rundzie 3 odkryliśmy, że po $K = 4$ makro-blokach RLE spośród wszystkich 6
 
 ### 10.2. Gotowe bloki kodu Lean 4 (Zestaw I — Część 55 oraz Zestaw J — Część 56)
 
-*(Pełny kod został również zapisany w pliku [`sieve_221_240_lean.txt`](file:///Users/gkucmierz/workspace/collatz-lab/tmp/sieve_221_240_lean.txt).)*
+*(Pełny kod został również zapisany w pliku [`sieve_221_240_lean.txt`](tmp/sieve_221_240_lean.txt).)*
 
 ```lean
 -- ============================================================================
@@ -1883,8 +1867,6 @@ theorem horizon_drop_mod17668470647783843295832975007429185158274838968756189581
 
 ```
 
----
-
 ## Część 11. Jawna Tablica Certyfikatów 5-Blokowych dla Wszystkich 64 Klas `survivingMod1024`
 
 ### 11.1. Rozkład minimalnego horyzontu certyfikacji $K^*(r_0) \in \{1, 2, 3, 4, 5\}$ pośród 64 klas bazowych
@@ -2035,7 +2017,7 @@ Wszystkie 208 twierdzeń Zestawu K (96 twierdzeń) oraz Zestawu L (112 twierdze�
 
 ### 12.2. Gotowe, zweryfikowane w Lean 4 bloki kodu (Zestaw K — Część 57 oraz Zestaw L — Część 58)
 
-*(Pełny kod został również zapisany w pliku [`sieve_242_261_lean.txt`](file:///Users/gkucmierz/workspace/collatz-lab/tmp/sieve_242_261_lean.txt).)*
+*(Pełny kod został również zapisany w pliku [`sieve_242_261_lean.txt`](tmp/sieve_242_261_lean.txt).)*
 
 ```lean
 -- ============================================================================
@@ -2286,8 +2268,6 @@ theorem horizon_drop_mod37053468555941182535542715202780130513046395093004980492
 
 ```
 
----
-
 ## Część 13. Anatomia 8-Blokowego Domknięcia dla 1024 Klas Podniesionych (`mod 16384`)
 
 ### 13.1. Rozkład i histogram średniej waluacji fazowej $\bar{v}_K = \frac{1}{K}\sum_{i=1}^K (d_i + v_i)$ (oraz $\bar{v}_{\text{exit}, K} = \frac{1}{K}\sum_{i=1}^K v_i$) dla $K = 5, 6, 7, 8$
@@ -2373,7 +2353,7 @@ Wszystkie **208 twierdzeń** Zestawu M (96 twierdzeń) oraz Zestawu N (112 twier
 
 ### 14.2. Gotowe, zweryfikowane w Lean 4 bloki kodu (Zestaw M — Część 59 oraz Zestaw N — Część 60)
 
-*(Pełny kod został również zapisany w pliku [`sieve_262_282_lean.txt`](file:///Users/gkucmierz/workspace/collatz-lab/tmp/sieve_262_282_lean.txt).)*
+*(Pełny kod został również zapisany w pliku [`sieve_262_282_lean.txt`](tmp/sieve_262_282_lean.txt).)*
 
 ```lean
 set_option exponentiation.threshold 512
@@ -2624,8 +2604,6 @@ theorem horizon_drop_mod77706755689029162836778476272940756265696273562085580850
 
 ```
 
----
-
 ## Część 15. Anatomia Wieloblokowego Domknięcia na Poziomie `mod 32768` (2048 Podniesionych Klas Reszt, $K \in \{1..10\}$)
 
 Analizę na poziomie `mod 32768` przeprowadzono dla obu naturalnych 2048-elementowych rodzin klas reszt:
@@ -2798,7 +2776,7 @@ Wszystkie **208 twierdzeń** Zestawu O (96 twierdzeń) oraz Zestawu P (112 twier
 
 ### 16.2. Gotowe, zweryfikowane w Lean 4 bloki kodu (Zestaw O — Część 61 oraz Zestaw P — Część 62)
 
-*(Pełny kod został również zapisany w pliku [`sieve_283_303_lean.txt`](file:///Users/gkucmierz/workspace/collatz-lab/tmp/sieve_283_303_lean.txt).)*
+*(Pełny kod został również zapisany w pliku [`sieve_283_303_lean.txt`](tmp/sieve_283_303_lean.txt).)*
 
 ```lean
 set_option exponentiation.threshold 1024
@@ -3050,8 +3028,6 @@ theorem horizon_drop_mod16296287810675888690147565507275025288411747149327490005
 
 ```
 
----
-
 ## Część 17. 12-Blokowa Anatomia Domknięcia na Poziomie `mod 65536` (`4096` Klas Reszt, $K \in \{1..12\}$) oraz Macierz Przejść Fazowych Modulo-3 dla 8 Kanonicznych Rodzin
 
 Analizę na poziomie `mod 65536` ($2^{16}$) przeprowadzono dla czterech 4096-elementowych rodzin klas reszt do horyzontu $K = 12$:
@@ -3253,7 +3229,7 @@ Wszystkie **208 twierdzeń** Zestawu Q (96 twierdzeń) oraz Zestawu R (112 twier
 
 ### 18.2. Gotowe, zweryfikowane w Lean 4 bloki kodu (Zestaw Q — Część 63 oraz Zestaw R — Część 64)
 
-*(Pełny kod został również zapisany w pliku [`sieve_304_324_lean.txt`](file:///Users/gkucmierz/workspace/collatz-lab/tmp/sieve_304_324_lean.txt).)*
+*(Pełny kod został również zapisany w pliku [`sieve_304_324_lean.txt`](tmp/sieve_304_324_lean.txt).)*
 
 ```lean
 set_option exponentiation.threshold 1024
@@ -3504,8 +3480,6 @@ theorem horizon_drop_mod34175792574734561318320347298712833833643272357706444319
 theorem horizon_drop_mod34175792574734561318320347298712833833643272357706444319152665725155515612490248800367393390985216_eq23641883 (k : Nat) : HasHorizonDrop (2 ^ 324 * k + 23641883) := checkAffineDrop_sound 526 (2 ^ 324) 23641883 (by decide) k
 
 ```
-
----
 
 ## Część 19. Analiza Widmowa Łańcucha Markowa $8 \times 8$ (Rozkład Stacjonarny $\pi$, Luka Widmowa $1 - |\lambda_2|$, Dryf Stacjonarny $E_\pi[w]$) oraz 12-Blokowa Anatomia Domknięcia na Siatce `mod 131072` (`8192` Klas)
 

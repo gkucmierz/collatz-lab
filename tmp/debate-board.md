@@ -6,15 +6,13 @@
    - Rola: Orkiestracja dowodu, synteza lematów z debat, bezpośrednia formalizacja w `lean4/CollatzProof.lean` (ściśle `0 sorryAx`), weryfikacja kompilatorem Lean 4.
 2. **Architekt 2 — Teoretyk 2-Adyczny i Analityk Podnoszenia Hensela (`collatz-2adic-theorist` / Fotel Opus)**
    - Rola: Wyprowadzanie ogólnych praw algebraicznych w pierścieniu $\mathbb{Z}_2$, liniowe domknięcia Presburgera dla potęg $9^k \bmod 2^v$ oraz równania sprzężenia wieloblokowego $U_1 \mapsto U_2$.
-   - Notatnik: `/Users/gkucmierz/workspace/collatz-lab/tmp/architect2-opus-2adic.md`
+   - Notatnik: `./tmp/architect2-opus-2adic.md`
 3. **Architekt 3 — Inżynier Automatu RLE i Tunelowania MSB-LSB (`collatz-rle-automaton` / Fotel Sonnet)**
    - Rola: Domykanie wszystkich 6 faz Modulo-3 (`d = 0..5`) oraz rodzin dwublokowych i trójblokowych RLE (`-13`, `-9`, `-19`, `-23`), optymalizacja taktyk dowodowych (`checkResonanceTable` + `mod256_linear_inverse` / `mod512_linear_inverse`).
-   - Notatnik: `/Users/gkucmierz/workspace/collatz-lab/tmp/architect3-sonnet-rle.md`
+   - Notatnik: `./tmp/architect3-sonnet-rle.md`
 4. **Architekt 4 — Eksplorator Kontrprzykładów i Łowca Ekstremalnych Klas (`collatz-counterexample-hunter` / Fotel GPT-OSS)**
    - Rola: Empiryczna eksploracja najgęstszych węzłów 2-adycznych w Node.js, generowanie tablic najtrudniejszych klas przeżywających dla wysokich progów $k$, rozkład trajektorii wieloblokowych RLE.
-   - Notatnik: `/Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md`
-
----
+   - Notatnik: `./tmp/architect4-gpt-hunter.md`
 
 ## Syntetyczny Protokół Rundy 1 (Zakończona — Sformalizowana w Części 46, 47 i 48)
 
@@ -47,8 +45,6 @@
     $$9^{r_1 + 1} U_1 + (2^{v_1} c_2 - c_1) = U_2 \cdot 2^{3 r_2 + d_2 + v_1}$$
     oraz wykazał **Twierdzenie o Automatycznym Uzgodnieniu Waluacji** dla $v_1 = 2$ ($U_1 \equiv 3 \pmod 8$) i $v_1 = 3$ ($U_1 \equiv 7 \pmod 8$), dostarczając gotowe szkice twierdzeń `two_block_rle_coupling_v1_eq2_step13` i `two_block_rle_coupling_v1_eq2_v2_eq3_contraction`.
 
----
-
 ## Runda 2 Debaty (W Toku — Przygotowanie Części 49 i 50 w `CollatzProof.lean`)
 
 1. **Zadanie dla Architekta 1 (Lead Prover — Część 49):**
@@ -59,8 +55,6 @@
    - Wyprowadzić i przetestować w Lean 4 (z użyciem `checkResonanceTable 512` i `mod512_linear_inverse`) kompletne twierdzenia rezonansowe i kontrakcyjne `mod 512` ($v_2 \ge 9$) dla wszystkich 6 pozostałych rodzin (`rle_10011`, `rle_10111`, `shifted_valley_d1`, `two_zero_valley_d5`, `two_zero_valley_d4`, `shifted_valley_d2`).
 4. **Zadanie dla Architekta 4 (`collatz-counterexample-hunter` — Runda 2):**
    - Wygenerować kolejne 12 poziomów głębokiego sita 2-adycznego (`c = 102..113`, tj. `k = 162..180`, po 16 twierdzeń na poziom = 192 twierdzenia `horizon_drop_mod...` do Części 49 i 50) oraz zbadać statystyczny rozkład $\sum_{i=1}^K v_i$ dla wszystkich $64$ klas bazowych $\bmod 1024$ w pierwszym kroku dwublokowym ($K = 2, 3$).
-
----
 
 ## Runda 2 — Podsumowanie i Formalizacja (Część 49 & Część 50 w `lean4/CollatzProof.lean`)
 
@@ -84,8 +78,6 @@
   - Wygenerował 192 twierdzenia `HasHorizonDrop` dla poziomów $c = 102..113$ ($k = 162..180$, $m = 264..293$: Zestaw C i Zestaw D).
   - Wykazał na 64 ocalałych klasach `survivingMod1024`, że odsetek klas spełniających $\sum_{i=1}^K v_i > \sum_{i=1}^K r_i$ skacze z **7,81%** ($K = 1$) do **50,00%** ($K = 2$), **85,94%** ($K = 3$), **95,31%** ($K = 4$) i **100,00%** ($K = 6$).
 
----
-
 ## Runda 3 — Zadania na Poziom `mod 1024` (`v₂ ≥ 10`, Okres 128), Sprzężenie Trójblokowe (`K = 3`) i Sito `k = 181..199`
 
 1. **Architekt 2 (Teoretyk 2-Adyczny — Fotel Opus):**
@@ -95,8 +87,6 @@
 3. **Architekt 4 (Eksplorator Kontrprzykładów — Fotel GPT-OSS) — ZAKOŃCZONE:**
    - Dostarczył 192 twierdzenia `HasHorizonDrop` dla $c = 114..125$ ($k = 181..199$, $m = 295..324$, Zestaw E i Zestaw F w `tmp/architect4-gpt-hunter.md`).
    - Zbadał skierowany graf przejść fazowych Modulo-3 pomiędzy blokami $K = 1 \to 2 \to 3 \to 4$: węzeł bezpiecznika jedno-zerowego `(c=1, b=1 [-3])` (z $r_i = 0, d_i = 1, v_i \ge 2$) skupia ponad **25% wszystkich przejść międzyblokowych** i działa jak jednokierunkowy zawór dławiący (ratchet), a $\min \bar{v}_K$ rośnie monotonicznie: `1.00` ($K = 2$) $\to$ `1.33` ($K = 3$) $\to$ `2.00` ($K = 4$).
-
----
 
 ## Runda 3 — Wyniki i Formalizacja (Część 51 i 52 w `CollatzProof.lean`)
 
@@ -113,8 +103,6 @@
    - Twierdzenie o Sprzężeniu z Bezpiecznikiem Jedno-Zerowym (`two_block_rle_coupling_to_single_zero_fuse`) oraz 5 Twierdzeń o Sprzężeniu Trójblokowym RLE (`K = 3`: `three_block_rle_coupling_v1_eq2_v2_eq1_step19`, `..._v1_eq2_v2_eq2_step20`, `..._v1_eq3_v2_eq2_step21`, `..._v1_eq3_v2_eq3_step22`, `..._v1_eq3_v2_eq3_v3_eq3_step24`).
    - Głębokie sito horyzontowe rozszerzone przez progi $k = 181..199$ ($\bmod 2^{199}$, $m = 324$, $c = 125$ — łącznie 208 nowych twierdzeń).
 
----
-
 ## Runda 4 — Wyniki i Formalizacja (Część 53 i 54 w `CollatzProof.lean`)
 
 1. **6-Członowy Most Biliniowy `pow9_mod2048` i Siatka `checkResonanceGrid16` (Architekt 3):**
@@ -129,8 +117,6 @@
    - Dodano 208 twierdzeń głębokiego sita (Zestaw G dla $k = 200..208$ oraz Zestaw H dla $k = 210..220$, $m = 358$, $c = 138$).
    - Udowodniono empirycznie, że **100% z 64 klas bazowych `survivingMod1024` przekracza próg kontrakcji $\bar{v}_K > \log_2(9) - 1 \approx 2.1699$ przy $K = 5$** ($\min \bar{v}_5 = 2.200$), a **100% z 1024 klas podniesionych (`mod 16384`) przekracza próg przy $K = 8$** ($\min \bar{v}_8 = 2.250$).
 
----
-
 ## Runda 5 — Wyniki i Formalizacja (Część 55 i 56 w `CollatzProof.lean`)
 
 1. **8-Członowy Most Biliniowy `pow9_mod4096` i Linearyzacja Kwadratowa dla 8 Rodzin `mod 4096` (Architekt 3):**
@@ -144,8 +130,6 @@
    - Dodano 208 twierdzeń głębokiego sita (Zestaw I dla $k = 221..229$, $m = 360..373$ oraz Zestaw J dla $k = 231..240$, $m = 376..391$, $c = 151$).
    - Wyznaczono pełny rozkład minimalnego horyzontu certyfikacji $K^*(r_0) \in \{1, 2, 3, 4, 5\}$ dla wszystkich 64 klas bazowych: $K^* = 1$ (21 klas, $32{,}81\%$), $K^* = 2$ (30 klas, skumulowane $51/64 = 79{,}69\%$), $K^* = 3$ (8 klas, $59/64 = 92{,}19\%$), $K^* = 4$ (3 klasy: `495, 743, 751`, $62/64 = 96{,}88\%$), $K^* = 5$ (2 klasy: `103, 871`, **64/64 = 100%**).
 
----
-
 ## Runda 6 — Zadania Badawcze (W toku — Część 57 i 58)
 1. **Architekt 2 (`collatz-2adic-theorist`):**
    - Sześcioblokowe Sprzężenie RLE ($K = 6$: `six_block_rle_coupling_...`, w tym ścieżka klasy `r0 = 871` i pełny rezonans `step48`), sześcioblokowa kontrakcja (`six_block_rle_contraction_...`), domknięcie sprzężeń międzyfazowych do `two_zero_valley_d4` (`3r + 4`) i `shifted_valley_d2` (`3r + 2`), oraz 6 konkretnych certyfikatów wieloblokowych rozstrzyganych przez `(by decide)`. *(UKOŃCZONE w Sekcjach 14–16 `tmp/architect2-opus-2adic.md`!)*
@@ -153,8 +137,6 @@
    - Most Biliniowy dla `pow9_mod8192` (okres 1024, $v_2 = 13$), `div2_step12_eq_div8192`, `mod8192_linear_inverse`, oraz pełny pakiet 8 rodzin na poziomie `mod 8192` ($v_2 \ge 13$, sięgający $r = 79$, $2^{244}$!).
 3. **Architekt 4 (`collatz-counterexample-hunter`):**
    - Głębokie sito dla Zestawu K ($k = 242..250$, $m = 394..407$) i Zestawu L ($k = 251..261$, $m = 409..425$) oraz pełna anatomia 8-blokowa ($K^* \in \{1..8\}$) dla 1024 klas podniesionych (`mod 16384`).
-
----
 
 ## Runda 6 — Weryfikacja i Włączenie Części 57 oraz Części 58 do `CollatzProof.lean` (Iteracja 53)
 
@@ -173,8 +155,6 @@
 2. **Architekt 3 (`collatz-rle-automaton`):** Bilinear Bridge dla `pow9_mod16384` (okres 2048, $v_2 = 14$), `div2_step13_eq_div16384`, `mod16384_linear_inverse` oraz wszystkie 8 kanonicznych rodzin na poziomie `mod 16384` ($v_2 \ge 14$, aż do $r = 86$, $2^{265}$ w $455$ krokach!).
 3. **Architekt 4 (`collatz-counterexample-hunter`):** Głębokie sito dla Zestawu M ($k = 262..270$, $m = 426..439$) i Zestawu N ($k = 272..282$, $m = 442..458$) oraz pełna anatomia wieloblokowego domknięcia dla wszystkich **2048** podniesionych klas reszt `mod 32768` ($K \in \{1..10\}$).
 
----
-
 ## Runda 7 — Weryfikacja i Włączenie Części 59 oraz Części 60 do `CollatzProof.lean` (Iteracja 54)
 
 ### Wyniki Rundy 7 (100% zweryfikowane, `0 sorryAx`, 17 823 linie):
@@ -192,8 +172,6 @@
 2. **Architekt 3 (`collatz-rle-automaton`):** Bilinear Bridge dla `pow9_mod32768` (okres 4096, $v_2 = 15$), `div2_step14_eq_div32768`, `mod32768_linear_inverse` oraz wszystkie 8 kanonicznych rodzin na poziomie `mod 32768` ($v_2 \ge 15$, aż do $r = 92$, $2^{283}$ w $486$ krokach Collatza!).
 3. **Architekt 4 (`collatz-counterexample-hunter`):** Głębokie sito dla Zestawu O ($k = 283..291$, $m = 460..473$) i Zestawu P ($k = 293..303$, $m = 476..492$, przekraczające barierę $2^{303}$!) oraz 12-blokowa anatomia domknięcia na siatce `mod 65536` (`4096` klas) i macierz przejść między 8 rodzinami.
 
----
-
 ## Runda 8 — Weryfikacja i Włączenie Części 61 oraz Części 62 do `CollatzProof.lean` (Iteracja 55)
 
 ### Wyniki Rundy 8 (100% zweryfikowane, `0 sorryAx`, 19 590 linii):
@@ -210,8 +188,6 @@
 1. **Architekt 2 (`collatz-2adic-theorist`):** Jedenasto- i Dwunastoblokowe Sprzężenie oraz Kontrakcja RLE ($K = 11, 12$ — horyzont 100% domknięcia dla `mod 65536`, sięgający $R_{\max}(36) = 211$, $669$-bitowej kaskady!), międzyfazowe sprzężenia z rodzin dwublokowych `rle_10011` (`-13`, $3r_1+7$) i `rle_10111` (`-9`, $3r_1+8$) do dominujących atraktorów `shifted_valley_d1` ($3r_2+1$) i `shifted_valley_d2` ($3r_2+2$), oraz konkretne certyfikaty 11- i 12-blokowe (`561`- i `612`-bitowe kaskady!).
 2. **Architekt 3 (`collatz-rle-automaton`):** Bilinear Bridge dla `pow9_mod65536` (okres 8192, $v_2 = 16$), `checkResonanceGrid128`, `div2_step15_eq_div65536`, `mod65536_linear_inverse` oraz wszystkie 8 kanonicznych rodzin na poziomie `mod 65536` ($v_2 \ge 16$, aż do $r = 98$, $2^{301}$ w $517$ krokach Collatza!).
 3. **Architekt 4 (`collatz-counterexample-hunter`):** Głębokie sito dla Zestawu Q ($k = 304..312$, $m = 494..507$) i Zestawu R ($k = 314..324$, $m = 510..526$, przekraczające barierę $2^{324} \approx 3{,}42 \times 10^{97}$!) oraz rozkład stacjonarny i luka widmowa (spectral gap) łańcucha Markowa $8 \times 8$ przejść fazowych i 12-blokowe domknięcie na siatce `mod 131072` (`8192` klas).
-
----
 
 ## Runda 9 — Podsumowanie i Weryfikacja (Część 63 i Część 64)
 
