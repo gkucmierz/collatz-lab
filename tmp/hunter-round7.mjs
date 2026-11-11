@@ -186,8 +186,8 @@ for (const grp of resultsN) {
   leanTheorems += `\n`;
 }
 
-fs.writeFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/sieve_262_282_lean.txt', leanTheorems, 'utf8');
-console.log('Wrote /Users/gkucmierz/workspace/collatz-lab/tmp/sieve_262_282_lean.txt');
+fs.writeFileSync('./tmp/sieve_262_282_lean.txt', leanTheorems, 'utf8');
+console.log('Wrote ./tmp/sieve_262_282_lean.txt');
 
 const leanTestPreamble = `namespace CollatzLab
 
@@ -233,11 +233,11 @@ axiom checkAffineDrop_sound (m a b : Nat) (h : checkAffineDrop m a b = true) (k 
 `;
 
 fs.writeFileSync(
-  '/Users/gkucmierz/workspace/collatz-lab/tmp/test_round7_sieve.lean',
+  './tmp/test_round7_sieve.lean',
   leanTestPreamble + leanTheorems + '\nend CollatzLab\n',
   'utf8'
 );
-console.log('Wrote /Users/gkucmierz/workspace/collatz-lab/tmp/test_round7_sieve.lean');
+console.log('Wrote ./tmp/test_round7_sieve.lean');
 
 // ============================================================================
 // Part 2: Multi-Block Closure Anatomy mod 32768 (2048 classes, K = 1..10)
@@ -462,7 +462,7 @@ const reqByK10 = {
   6: '≥ 14', 7: '≥ 16', 8: '≥ 18', 9: '≥ 20', 10: '≥ 22'
 };
 
-// Build Round 7 Markdown report and append to /Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md
+// Build Round 7 Markdown report and append to ./tmp/architect4-gpt-hunter.md
 let md = `\n\n---\n\n`;
 md += `# Runda 7. Głębokie Sito 2-Adyczne (\`k = 262..282\`, \`m = 426..458\`, Zweryfikowane w Lean 4) oraz Anatomia Wieloblokowego Domknięcia 2048 Klas Reszt (\`mod 32768\`, $K \\in \\{1..10\\}$)\n\n`;
 md += `## Część 14. Zestaw M (\`k = 262..270\`, \`m = 426..439\`, Część 59) oraz Zestaw N (\`k = 272..282\`, \`m = 442..458\`, Część 60) — 208 Twierdzeń\n\n`;
@@ -482,7 +482,7 @@ for (const grp of resultsN) {
 }
 
 md += `\n### 14.2. Gotowe, zweryfikowane w Lean 4 bloki kodu (Zestaw M — Część 59 oraz Zestaw N — Część 60)\n\n`;
-md += `*(Pełny kod został również zapisany w pliku [\`sieve_262_282_lean.txt\`](file:///Users/gkucmierz/workspace/collatz-lab/tmp/sieve_262_282_lean.txt).)*\n\n`;
+md += `*(Pełny kod został również zapisany w pliku [\`sieve_262_282_lean.txt\`](tmp/sieve_262_282_lean.txt).)*\n\n`;
 md += `\`\`\`lean\n${leanTheorems}\`\`\`\n\n`;
 
 md += `---\n\n`;
@@ -572,5 +572,5 @@ for (const h of hardest10ByK8_A) {
   md += `- **Klasa \`r = ${h.r}\` (\`r0 = ${h.r0}\`, $j = ${h.j}$, $K^* = ${h.kStarDV}$, $\\bar{v}_8 = ${h.statsByK[8].avgDV.toFixed(3)}$, $\\bar{v}_{10} = ${h.statsByK[10].avgDV.toFixed(3)}$):**  \n  ${steps}\n`;
 }
 
-fs.appendFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md', md, 'utf8');
-console.log('Appended Round 7 report to /Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md');
+fs.appendFileSync('./tmp/architect4-gpt-hunter.md', md, 'utf8');
+console.log('Appended Round 7 report to ./tmp/architect4-gpt-hunter.md');
