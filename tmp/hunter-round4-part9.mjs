@@ -219,8 +219,8 @@ const rows64 = analyzePop(pop64Exact, "64 Base Classes (survivingMod1024)");
 const rows1024Exact = analyzePop(pop1024Exact, "1024 Lifted Classes (r = r0 + 1024*j mod 16384)");
 const rows1024Asymp = analyzePop(pop1024Asymp, "1024 Asymptotic Lifted Classes (2^120 + r0 + 1024*j)");
 
-// Now replace Part 9 in /Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md
-const fullMd = fs.readFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md', 'utf8');
+// Now replace Part 9 in ./tmp/architect4-gpt-hunter.md
+const fullMd = fs.readFileSync('./tmp/architect4-gpt-hunter.md', 'utf8');
 const idxPart9 = fullMd.indexOf('## Część 9. Anatomia Dwóch Ekstremalnych Klas 4-Blokowych');
 if (idxPart9 === -1) throw new Error('Could not find Part 9 marker');
 
@@ -291,5 +291,5 @@ part9 += buildPopTable("Tabela 9.3A. Populacja 64 bazowych klas przeżywających
 part9 += buildPopTable("Tabela 9.3B. Populacja 1024 klas podniesionych (`r = r0 + 1024*j mod 16384`, $j = 0..15$)", rows1024Exact);
 part9 += buildPopTable("Tabela 9.3C. Populacja 1024 asymptotycznych klas podniesionych (`2^120 + r0 + 1024*j`)", rows1024Asymp);
 
-fs.writeFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md', fullMd.slice(0, idxPart9) + part9, 'utf8');
-console.log("Updated Part 9 in /Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md");
+fs.writeFileSync('./tmp/architect4-gpt-hunter.md', fullMd.slice(0, idxPart9) + part9, 'utf8');
+console.log("Updated Part 9 in ./tmp/architect4-gpt-hunter.md");
