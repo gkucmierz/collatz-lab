@@ -222,7 +222,7 @@ for (const n0 of hardTargets) {
 let md = `# Raport Rundy 1 — Architekt 4 (Eksplorator Kontrprzykładów i Łowca Ekstremalnych Klas)
 
 Data analizy: \`2026-11-02\`  
-Skrypt generujący: \`/Users/gkucmierz/workspace/collatz-lab/tmp/hunter-round1.mjs\`
+Skrypt generujący: \`./tmp/hunter-round1.mjs\`
 
 ---
 
@@ -352,5 +352,5 @@ md += `---
    - **Do Hipotezy H3:** Zdefiniować w Lean 4 funkcję \`macroBlockIter (K : Nat) (n : Nat) : Nat\` lub wieloblokowy weryfikator symboliczny łączący $K = 2, 3$ kolejne przejścia $(r_i, d_i, c_i, v_i)$, ponieważ złożenie już 2–3 bloków wycina klasy o $v_1 = 1$, które pojedynczy blok zostawia otwarte.
 `;
 
-fs.writeFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md', md, 'utf8');
-console.log('Successfully wrote /Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md');
+fs.writeFileSync('./tmp/architect4-gpt-hunter.md', md, 'utf8');
+console.log('Successfully wrote ./tmp/architect4-gpt-hunter.md');
