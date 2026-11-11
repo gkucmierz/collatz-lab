@@ -226,7 +226,7 @@ let round3Md = `
 # Raport Rundy 3 — Architekt 4 (Eksplorator Kontrprzykładów i Łowca Ekstremalnych Klas)
 
 Data analizy: \`2026-11-02\`  
-Skrypt generujący: \`/Users/gkucmierz/workspace/collatz-lab/tmp/hunter-round3.mjs\`
+Skrypt generujący: \`./tmp/hunter-round3.mjs\`
 
 ---
 
@@ -334,6 +334,6 @@ round3Md += `
    - Ponieważ w stanie \`(c=1, b=1 [-3])\` mamy zawsze $r_i = 0, d_i = 1$ oraz $v_i \\ge 2$ (średnio $d_i + v_i \\approx 4{,}18$), każde wejście w ten węzeł grafu działa jak **jednokierunkowy zawór dławiący (ratchet)**, który obniża wartość liczby bez zwiększania skumulowanego $\\sum r_i$.
 `;
 
-const prevMd = fs.readFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md', 'utf8');
-fs.writeFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md', prevMd + round3Md, 'utf8');
-console.log('Successfully appended Round 3 report to /Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md');
+const prevMd = fs.readFileSync('./tmp/architect4-gpt-hunter.md', 'utf8');
+fs.writeFileSync('./tmp/architect4-gpt-hunter.md', prevMd + round3Md, 'utf8');
+console.log('Successfully appended Round 3 report to ./tmp/architect4-gpt-hunter.md');
