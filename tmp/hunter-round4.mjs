@@ -307,7 +307,7 @@ const rows64 = analyzePopulation(pop64Exact, "64 Base Classes (survivingMod1024)
 const rows1024Exact = analyzePopulation(pop1024Exact, "1024 Lifted Classes (mod 16384 = r0 + 1024*j)");
 const rows1024Asymp = analyzePopulation(pop1024Asymp, "1024 Asymptotic Lifted Classes (2^120 + r0 + 1024*j)");
 
-// Generate Lean 4 code blocks and write to /Users/gkucmierz/workspace/collatz-lab/tmp/sieve_200_220_lean.txt
+// Generate Lean 4 code blocks and write to ./tmp/sieve_200_220_lean.txt
 let leanTxt = `-- ============================================================================\n`;
 leanTxt += `-- Część 53. Głębokie Sito 2-Adyczne dla k = 200..208 (m = 326..339, c = 126..131)\n`;
 leanTxt += `-- Wygenerowano przez Architekta 4 (Runda 4 — Zestaw G: 96 twierdzeń)\n`;
@@ -334,10 +334,10 @@ for (const grp of resultsH) {
   leanTxt += `\n`;
 }
 
-fs.writeFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/sieve_200_220_lean.txt', leanTxt, 'utf8');
-console.log("Wrote /Users/gkucmierz/workspace/collatz-lab/tmp/sieve_200_220_lean.txt");
+fs.writeFileSync('./tmp/sieve_200_220_lean.txt', leanTxt, 'utf8');
+console.log("Wrote ./tmp/sieve_200_220_lean.txt");
 
-// Now build Markdown section for Round 4 and append to /Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md
+// Now build Markdown section for Round 4 and append to ./tmp/architect4-gpt-hunter.md
 let md = `\n\n---\n\n`;
 md += `# Runda 4. Głębokie Sito 2-Adyczne (\`k = 200..220\`, \`m = 326..358\`) oraz Anatomia Klas \`103\` i \`871\` i Test Wieloblokowy ($K = 5, 6, 8, 10$)\n\n`;
 md += `## Część 8. Zestaw G (\`k = 200..208\`, \`m = 326..339\`) oraz Zestaw H (\`k = 210..220\`, \`m = 342..358\`) — 208 Twierdzeń dla Części 53 i 54\n\n`;
@@ -357,7 +357,7 @@ for (const grp of resultsH) {
 }
 
 md += `\n### 8.2. Gotowe bloki kodu Lean 4 (Zestaw G — Część 53 oraz Zestaw H — Część 54)\n\n`;
-md += `*(Pełny kod został również zapisany w pliku [\`sieve_200_220_lean.txt\`](file:///Users/gkucmierz/workspace/collatz-lab/tmp/sieve_200_220_lean.txt).)*\n\n`;
+md += `*(Pełny kod został również zapisany w pliku [\`sieve_200_220_lean.txt\`](tmp/sieve_200_220_lean.txt).)*\n\n`;
 md += `\`\`\`lean\n${leanTxt}\`\`\`\n\n`;
 
 md += `---\n\n`;
@@ -421,5 +421,5 @@ md += buildPopTable("Tabela 9.3A. Populacja 64 bazowych klas przeżywających (`
 md += buildPopTable("Tabela 9.3B. Populacja 1024 klas podniesionych (`r = r0 + 1024*j mod 16384`, $j = 0..15$)", rows1024Exact);
 md += buildPopTable("Tabela 9.3C. Populacja 1024 asymptotycznych klas podniesionych (`2^120 + r0 + 1024*j`)", rows1024Asymp);
 
-fs.appendFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md', md, 'utf8');
-console.log("Appended Round 4 report to /Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md");
+fs.appendFileSync('./tmp/architect4-gpt-hunter.md', md, 'utf8');
+console.log("Appended Round 4 report to ./tmp/architect4-gpt-hunter.md");
