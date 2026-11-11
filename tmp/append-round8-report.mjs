@@ -237,7 +237,7 @@ for (const [label, an] of [
 }
 
 // Parse sieve_283_303_lean.txt to get exact resultsO and resultsP for the markdown table
-const leanTheorems = fs.readFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/sieve_283_303_lean.txt', 'utf8');
+const leanTheorems = fs.readFileSync('./tmp/sieve_283_303_lean.txt', 'utf8');
 
 const setOData = [
   { set: 'O (Part 61)', c: 177, k: 283, m: 460, tested: 10573364 },
@@ -325,7 +325,7 @@ for (const grp of [...setOData, ...setPData]) {
 }
 
 md += `\n### 16.2. Gotowe, zweryfikowane w Lean 4 bloki kodu (Zestaw O — Część 61 oraz Zestaw P — Część 62)\n\n`;
-md += `*(Pełny kod został również zapisany w pliku [\`sieve_283_303_lean.txt\`](file:///Users/gkucmierz/workspace/collatz-lab/tmp/sieve_283_303_lean.txt).)*\n\n`;
+md += `*(Pełny kod został również zapisany w pliku [\`sieve_283_303_lean.txt\`](tmp/sieve_283_303_lean.txt).)*\n\n`;
 md += `\`\`\`lean\n${leanTheorems}\`\`\`\n\n`;
 
 md += `---\n\n`;
@@ -460,5 +460,5 @@ for (const h of hardest10ByK12_A) {
   md += `- **Klasa \`r = ${h.r}\` (\`r0 = ${h.r0}\`, $j = ${h.j}$, $K^* = ${h.kStarDV}$, $\\bar{v}_8 = ${h.statsByK[8].avgDV.toFixed(3)}$, $\\bar{v}_{10} = ${h.statsByK[10].avgDV.toFixed(3)}$, $\\bar{v}_{12} = ${h.statsByK[12].avgDV.toFixed(3)}$):**  \n  ${steps}\n`;
 }
 
-fs.appendFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md', md, 'utf8');
-console.log('Appended Round 8 report to /Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md');
+fs.appendFileSync('./tmp/architect4-gpt-hunter.md', md, 'utf8');
+console.log('Appended Round 8 report to ./tmp/architect4-gpt-hunter.md');
