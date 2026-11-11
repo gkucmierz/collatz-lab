@@ -6,8 +6,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "45099:80"
     expose:
       - "80"
     restart: unless-stopped
