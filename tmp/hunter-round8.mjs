@@ -186,8 +186,8 @@ for (const grp of resultsP) {
   leanTheorems += `\n`;
 }
 
-fs.writeFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/sieve_283_303_lean.txt', leanTheorems, 'utf8');
-console.log('Wrote /Users/gkucmierz/workspace/collatz-lab/tmp/sieve_283_303_lean.txt');
+fs.writeFileSync('./tmp/sieve_283_303_lean.txt', leanTheorems, 'utf8');
+console.log('Wrote ./tmp/sieve_283_303_lean.txt');
 
 const leanTestPreamble = `namespace CollatzLab
 
@@ -233,11 +233,11 @@ axiom checkAffineDrop_sound (m a b : Nat) (h : checkAffineDrop m a b = true) (k 
 `;
 
 fs.writeFileSync(
-  '/Users/gkucmierz/workspace/collatz-lab/tmp/test_round8_sieve.lean',
+  './tmp/test_round8_sieve.lean',
   leanTestPreamble + leanTheorems + '\nend CollatzLab\n',
   'utf8'
 );
-console.log('Wrote /Users/gkucmierz/workspace/collatz-lab/tmp/test_round8_sieve.lean');
+console.log('Wrote ./tmp/test_round8_sieve.lean');
 
 // ============================================================================
 // Part 2: 12-Block Closure Anatomy mod 65536 (4096 classes, K = 1..12)
