@@ -94,8 +94,8 @@ for (const grp of resultsJ) {
   leanTxt += `\n`;
 }
 
-fs.writeFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/sieve_221_240_lean.txt', leanTxt, 'utf8');
-console.log('Wrote /Users/gkucmierz/workspace/collatz-lab/tmp/sieve_221_240_lean.txt');
+fs.writeFileSync('./tmp/sieve_221_240_lean.txt', leanTxt, 'utf8');
+console.log('Wrote ./tmp/sieve_221_240_lean.txt');
 
 // Part 2: Complete 5-Block Certificates Table for all 64 classes in survivingMod1024
 function macroBlockStep(n) {
@@ -270,7 +270,7 @@ for (const k of [1, 2, 3, 4, 5, '>5']) {
   console.log(`  K* = ${k}: ${distK_r81[k].length} classes -> [${distK_r81[k].join(', ')}]`);
 }
 
-// Build Markdown report for Round 5 and append to /Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md
+// Build Markdown report for Round 5 and append to ./tmp/architect4-gpt-hunter.md
 let md = `\n\n---\n\n`;
 md += `# Runda 5. Głębokie Sito 2-Adyczne (\`k = 221..240\`, \`m = 360..391\`) oraz Jawna Tablica Certyfikatów 5-Blokowych dla Wszystkich 64 Klas \`survivingMod1024\`\n\n`;
 md += `## Część 10. Zestaw I (\`k = 221..229\`, \`m = 360..373\`) oraz Zestaw J (\`k = 231..240\`, \`m = 376..391\`) — 208 Twierdzeń dla Części 55 i 56\n\n`;
@@ -288,7 +288,7 @@ for (const grp of resultsJ) {
 }
 
 md += `\n### 10.2. Gotowe bloki kodu Lean 4 (Zestaw I — Część 55 oraz Zestaw J — Część 56)\n\n`;
-md += `*(Pełny kod został również zapisany w pliku [\`sieve_221_240_lean.txt\`](file:///Users/gkucmierz/workspace/collatz-lab/tmp/sieve_221_240_lean.txt).)*\n\n`;
+md += `*(Pełny kod został również zapisany w pliku [\`sieve_221_240_lean.txt\`](tmp/sieve_221_240_lean.txt).)*\n\n`;
 md += `\`\`\`lean\n${leanTxt}\`\`\`\n\n`;
 
 md += `---\n\n`;
@@ -346,5 +346,5 @@ sortedCerts.forEach((c, idx) => {
   md += `| ${idx + 1} | **\`${c.r0}\`** | **\`${c.kStarDV}\`** | ${bStrs[0]} | ${bStrs[1]} | ${bStrs[2]} | ${bStrs[3]} | ${bStrs[4]} | ${dvStr} | **\`${c.sumDV_5}\`** | **\`${(c.sumDV_5 / 5).toFixed(2)}\`** | \`${c.sumV_5}\` | \`${c.sumR_5}\` |\n`;
 });
 
-fs.appendFileSync('/Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md', md, 'utf8');
-console.log('Appended Round 5 report to /Users/gkucmierz/workspace/collatz-lab/tmp/architect4-gpt-hunter.md');
+fs.appendFileSync('./tmp/architect4-gpt-hunter.md', md, 'utf8');
+console.log('Appended Round 5 report to ./tmp/architect4-gpt-hunter.md');
